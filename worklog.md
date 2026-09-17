@@ -66,3 +66,18 @@ Stage Summary:
 - Semua 10 fase selesai; aplikasi siap dipakai
 - Kredensial admin: admin@muhdin.web.id / muhdin2026
 - Route tunggal / dengan hash-routing: beranda, ekosistem, alur, anggota, tutorial, berita, tentang, kontak, gabung, admin
+
+---
+Task ID: 11 (Bugfix — Hydration Mismatch)
+Agent: Z.ai Code (main orchestrator)
+Task: Memperbaiki console error hydration mismatch pada aria-controls Radix Sheet (radix-_R_* useId SSR vs client)
+
+Work Log:
+- Diagnosis: error hanya pada atribut `aria-controls` (ID useId Radix Dialog) di SheetTrigger Navbar — struktur tree server/client identik; ini bug useId hydration yang sudah diperbaiki di patch React 19.2.4+ dan Radix Dialog 1.1.15+ (aria-controls kini hanya dirender saat dialog terbuka)
+- Upgrade dependensi: react & react-dom 19.2.3 → 19.2.8, @radix-ui/react-dialog 1.1.14 → 1.1.23, @radix-ui/react-alert-dialog 1.1.14 → 1.1.15
+- Restart dev server dengan cache bersih (rm -rf .next)
+- Verifikasi Agent Browser: desktop 1440px + mobile 390px → 0 error console, 0 error halaman; aria-controls kini konsisten (target-in-dom: true saat sheet terbuka); Sheet mobile buka → navigasi ke #/tutorial → tutup otomatis; 7 nav item desktop + footer sticky OK; `bun run lint` 0 error; dev.log bersih dari "hydrat"
+
+Stage Summary:
+- Root cause: bug useId hydration React 19.2.3 + Radix Dialog lama (bukan bug kode aplikasi — diperbaiki via patch dependensi)
+- Semua fitur golden path tetap berfungsi setelah upgrade; aplikasi kini bebas error hydration
