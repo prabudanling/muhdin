@@ -47,6 +47,7 @@ export function Footer() {
               <ul className="space-y-2.5 text-sm">
                 {[
                   ["beranda", "Beranda"],
+                  ["nusuk", "Nusuk Hub"],
                   ["ekosistem", "13 Ekosistem"],
                   ["alur", "Alur Perjalanan Jamaah"],
                   ["anggota", "Direktori Anggota"],

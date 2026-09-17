@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { path: "beranda", label: "Beranda" },
+  { path: "nusuk", label: "Nusuk Hub" },
   { path: "ekosistem", label: "13 Ekosistem" },
   { path: "anggota", label: "Direktori Anggota" },
   { path: "tutorial", label: "Tutorial" },

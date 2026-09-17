@@ -154,3 +154,89 @@ export interface User {
   name: string;
   role: string;
 }
+
+// ==================== NUSUK ====================
+
+export type NusukPermitType = "VISA" | "HANDLING" | "MUTAWIF" | "HOTEL" | "TRANSPORT" | "RAUDAH";
+
+export interface NusukConnection {
+  id: string;
+  environment: string;
+  status: string;
+  autoSync: boolean;
+  totalSyncs: number;
+  lastSyncAt: string | null;
+  apiKeyMasked?: string;
+  apiKey?: string;
+  webhookSecret?: string;
+}
+
+export interface NusukPermit {
+  id: string;
+  memberId: string;
+  type: string;
+  permitNo: string;
+  holderName: string;
+  meta: string | null;
+  status: string;
+  issuedAt: string;
+  expiresAt: string;
+  syncedAt: string;
+  member?: { id: string; name: string; type: string; city: string; licenseNo: string };
+}
+
+export interface NusukSyncLog {
+  id: string;
+  type: string;
+  status: string;
+  message: string;
+  recordsAffected: number;
+  durationMs: number;
+  createdAt: string;
+}
+
+export interface NusukMetrics {
+  permitsTotal: number;
+  permitsActive: number;
+  permitsPending: number;
+  permitsExpired: number;
+  permitsRejected: number;
+  membersConnected: number;
+  successRate: number;
+  syncsLast7d: number;
+  avgDurationMs: number;
+  byType: { type: string; total: number; active: number }[];
+}
+
+export interface NusukPublicData {
+  connection: {
+    status: string;
+    environment: string;
+    lastSyncAt: string | null;
+    totalSyncs: number;
+    autoSync: boolean;
+  };
+  metrics: NusukMetrics;
+  ecosystems: { number: number; name: string; icon: string; cluster: string }[];
+  recentLogs: NusukSyncLog[];
+  topMembers: {
+    id: string;
+    name: string;
+    type: string;
+    city: string;
+    activePermits: number;
+    compliance: number;
+  }[];
+}
+
+export interface NusukSyncResult {
+  logId: string;
+  status: string;
+  message: string;
+  created: number;
+  updated: number;
+  expired: number;
+  skipped: number;
+  recordsAffected: number;
+  durationMs: number;
+}

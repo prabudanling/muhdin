@@ -99,6 +99,7 @@ model Member {
   memberSince Int      @default(2026)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  permits     NusukPermit[]
 }
 
 model MembershipApplication {
@@ -181,4 +182,46 @@ model SiteSetting {
   id    String @id @default(cuid())
   key   String @unique
   value String
+}
+
+// ==================== NUSUK INTEGRATION ====================
+
+model NusukConnection {
+  id            String         @id @default(cuid())
+  environment   String         @default("SANDBOX")
+  apiKey        String         @default("")
+  webhookSecret String         @default("")
+  status        String         @default("DISCONNECTED")
+  autoSync      Boolean        @default(true)
+  totalSyncs    Int            @default(0)
+  lastSyncAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  logs          NusukSyncLog[]
+}
+
+model NusukPermit {
+  id         String   @id @default(cuid())
+  memberId   String
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  type       String
+  permitNo   String   @unique
+  holderName String
+  meta       String?
+  status     String   @default("ACTIVE")
+  issuedAt   DateTime @default(now())
+  expiresAt  DateTime
+  syncedAt   DateTime @default(now())
+}
+
+model NusukSyncLog {
+  id              String          @id @default(cuid())
+  connectionId    String?
+  connection      NusukConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull)
+  type            String
+  status          String
+  message         String
+  recordsAffected Int            @default(0)
+  durationMs      Int            @default(0)
+  createdAt       DateTime       @default(now())
 }

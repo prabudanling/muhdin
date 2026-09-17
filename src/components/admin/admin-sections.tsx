@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { apiGet, apiSend, formatDateTime } from "@/lib/client-api";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { apiGet, apiSend, formatDate, formatDateTime, maskKey, timeAgo } from "@/lib/client-api";
 import { Icon } from "@/components/site/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import type {
 import type {
   Article, Ecosystem, JourneyStep, Roadmap, Member, Tutorial, Faq, Testimonial,
   ManagementMember, ContactMessage, MembershipApplication, SiteSettings,
+  NusukConnection, NusukPermit, NusukPublicData, NusukSyncLog, NusukSyncResult,
 } from "@/lib/types";
 
 // ====== SHARED OPTIONS ======
@@ -819,6 +820,810 @@ export function AdminSettings() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ================= INTEGRASI NUSUK (custom) ================= */
+
+const PERMIT_TYPE_LABELS: Record<string, string> = {
+  VISA: "Visa Authorization",
+  HANDLING: "Layanan Handling",
+  MUTAWIF: "Mutawif",
+  HOTEL: "Hotel",
+  TRANSPORT: "Transportasi",
+  RAUDAH: "Raudah Card",
+};
+const PERMIT_TYPE_OPTS = Object.entries(PERMIT_TYPE_LABELS).map(([value, label]) => ({ value, label }));
+
+const PERMIT_STATUS_META: Record<string, { label: string; cls: string }> = {
+  ACTIVE: { label: "Aktif", cls: "bg-primary/10 text-primary border-primary/30" },
+  PENDING: { label: "Menunggu", cls: "bg-gold/15 text-gold-deep border-gold/40" },
+  EXPIRED: { label: "Kedaluwarsa", cls: "bg-muted text-muted-foreground border-transparent" },
+  REJECTED: { label: "Ditolak", cls: "bg-destructive/10 text-destructive border-destructive/30" },
+};
+const PERMIT_STATUS_OPTS = [
+  { value: "ACTIVE", label: "Aktif" },
+  { value: "PENDING", label: "Menunggu" },
+  { value: "EXPIRED", label: "Kedaluwarsa" },
+  { value: "REJECTED", label: "Ditolak" },
+];
+
+const LOG_TYPE_META: Record<string, { label: string; icon: string }> = {
+  FULL_SYNC: { label: "Sinkron Penuh", icon: "refresh" },
+  WEBHOOK: { label: "Webhook", icon: "webhook" },
+  CONNECTION: { label: "Koneksi", icon: "plug" },
+};
+
+export function AdminNusuk() {
+  const { toast } = useToast();
+
+  const [conn, setConn] = useState<NusukConnection | null>(null);
+  const [publicData, setPublicData] = useState<NusukPublicData | null>(null);
+  const [logs, setLogs] = useState<NusukSyncLog[] | null>(null);
+  const [permits, setPermits] = useState<NusukPermit[] | null>(null);
+  const [permitsLoading, setPermitsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  const [statusF, setStatusF] = useState("all");
+  const [typeF, setTypeF] = useState("all");
+  const [qInput, setQInput] = useState("");
+  const [q, setQ] = useState("");
+
+  const [selectedEnv, setSelectedEnv] = useState("SANDBOX");
+  const [connecting, setConnecting] = useState(false);
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<NusukSyncResult | null>(null);
+  const [rotating, setRotating] = useState(false);
+  const [testing, setTesting] = useState(false);
+
+  const [revealKey, setRevealKey] = useState<string | null>(null);
+  const [revealSecret, setRevealSecret] = useState<string | null>(null);
+
+  const filtersRef = useRef({ page, statusF, typeF, q });
+  filtersRef.current = { page, statusF, typeF, q };
+  const credRef = useRef<{ apiKey?: string; webhookSecret?: string }>({});
+  const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipPermitsOnce = useRef(true);
+
+  const loadPermits = useCallback(async () => {
+    const f = filtersRef.current;
+    const params = new URLSearchParams({ page: String(f.page), pageSize: "8" });
+    if (f.statusF !== "all") params.set("status", f.statusF);
+    if (f.typeF !== "all") params.set("type", f.typeF);
+    if (f.q) params.set("q", f.q);
+    setPermitsLoading(true);
+    try {
+      const d = await apiGet<{ permits: NusukPermit[]; total: number; page: number; pages: number }>(`/api/nusuk/permits?${params.toString()}`);
+      setPermits(d.permits);
+      setTotal(d.total);
+      setPages(Math.max(1, d.pages));
+      setPage(d.page);
+    } catch {
+      setPermits([]);
+      setTotal(0);
+      setPages(1);
+    } finally {
+      setPermitsLoading(false);
+    }
+  }, []);
+
+  const refresh = useCallback(() => {
+    apiGet<{ connection: NusukConnection }>("/api/nusuk/connection").then((d) => setConn(d.connection)).catch(() => setConn(null));
+    apiGet<NusukPublicData>("/api/nusuk/public").then(setPublicData).catch(() => setPublicData(null));
+    apiGet<{ logs: NusukSyncLog[] }>("/api/nusuk/logs?limit=20").then((d) => setLogs(d.logs)).catch(() => setLogs([]));
+    loadPermits();
+  }, [loadPermits]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  // Muat ulang izin saat filter/pagination berubah (pemuatan awal sudah ditangani refresh()).
+  useEffect(() => {
+    if (skipPermitsOnce.current) {
+      skipPermitsOnce.current = false;
+      return;
+    }
+    loadPermits();
+  }, [loadPermits, page, statusF, typeF, q]);
+
+  // Debounce pencarian 400ms.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPage(1);
+      setQ(qInput.trim());
+    }, 400);
+    return () => clearTimeout(t);
+  }, [qInput]);
+
+  useEffect(() => () => {
+    if (revealTimer.current) clearTimeout(revealTimer.current);
+  }, []);
+
+  const applySearchNow = () => {
+    setPage(1);
+    setQ(qInput.trim());
+  };
+
+  const maskAgainSoon = () => {
+    if (revealTimer.current) clearTimeout(revealTimer.current);
+    revealTimer.current = setTimeout(() => {
+      setRevealKey(null);
+      setRevealSecret(null);
+    }, 10000);
+  };
+
+  const revealCredential = async (field: "apiKey" | "webhookSecret") => {
+    const revealed = field === "apiKey" ? revealKey : revealSecret;
+    if (revealed) {
+      if (field === "apiKey") setRevealKey(null);
+      else setRevealSecret(null);
+      return;
+    }
+    try {
+      const d = await apiGet<{ connection: NusukConnection }>("/api/nusuk/connection?reveal=1");
+      credRef.current = { apiKey: d.connection.apiKey, webhookSecret: d.connection.webhookSecret };
+      const value = d.connection[field];
+      if (!value) throw new Error("Kredensial belum tersedia — hubungkan Nusuk terlebih dahulu.");
+      if (field === "apiKey") setRevealKey(value);
+      else setRevealSecret(value);
+      maskAgainSoon();
+    } catch (e) {
+      toast({ title: "Gagal menampilkan kredensial", description: (e as Error).message, variant: "destructive" });
+    }
+  };
+
+  const copyCredential = async (field: "apiKey" | "webhookSecret") => {
+    try {
+      let value = field === "apiKey" ? revealKey : revealSecret;
+      if (!value) value = credRef.current[field] ?? null;
+      if (!value) {
+        const d = await apiGet<{ connection: NusukConnection }>("/api/nusuk/connection?reveal=1");
+        credRef.current = { apiKey: d.connection.apiKey, webhookSecret: d.connection.webhookSecret };
+        value = d.connection[field] ?? null;
+      }
+      if (!value) throw new Error("Kredensial belum tersedia — hubungkan Nusuk terlebih dahulu.");
+      await navigator.clipboard.writeText(value);
+      toast({ title: field === "apiKey" ? "API key disalin ✓" : "Webhook secret disalin ✓", description: "Nilai lengkap kini ada di clipboard Anda." });
+    } catch (e) {
+      toast({ title: "Gagal menyalin", description: (e as Error).message, variant: "destructive" });
+    }
+  };
+
+  const connect = async () => {
+    setConnecting(true);
+    try {
+      const d = await apiSend<{ connection?: NusukConnection }>("/api/nusuk/connection", "POST", { environment: selectedEnv });
+      toast({ title: "Terhubung ke Nusuk ✓", description: `Lingkungan ${selectedEnv} kini aktif.` });
+      if (d.connection) setConn({ ...d.connection, apiKeyMasked: d.connection.apiKeyMasked ?? conn?.apiKeyMasked });
+      refresh();
+    } catch (e) {
+      toast({ title: "Gagal terhubung", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  const disconnect = async () => {
+    if (!confirmDisconnect) {
+      setConfirmDisconnect(true);
+      setTimeout(() => setConfirmDisconnect(false), 3000);
+      return;
+    }
+    setConfirmDisconnect(false);
+    setConnecting(true);
+    try {
+      await apiSend("/api/nusuk/connection", "DELETE");
+      toast({ title: "Koneksi diputus", description: "Sinkronisasi data dengan Nusuk dihentikan sementara." });
+      setSyncResult(null);
+      refresh();
+    } catch (e) {
+      toast({ title: "Gagal memutus koneksi", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  const toggleAutoSync = async (v: boolean) => {
+    if (!conn) return;
+    setConn({ ...conn, autoSync: v });
+    try {
+      await apiSend("/api/nusuk/connection", "PUT", { autoSync: v });
+      toast({
+        title: v ? "Sinkronisasi otomatis aktif ✓" : "Sinkronisasi otomatis dimatikan",
+        description: v ? "Perubahan izin dari Nusuk akan ditarik berkala." : "Sinkronisasi hanya berjalan saat dipicu manual.",
+      });
+    } catch (e) {
+      toast({ title: "Gagal mengubah pengaturan", description: (e as Error).message, variant: "destructive" });
+      refresh();
+    }
+  };
+
+  const runSync = async () => {
+    setSyncing(true);
+    try {
+      // Backend mengembalikan { summary, logId, message } — normalisasi agar toleran terhadap bentuk flat.
+      const res = await apiSend<{
+        summary?: Partial<NusukSyncResult>;
+        logId?: string;
+        status?: string;
+        message?: string;
+        created?: number;
+        updated?: number;
+        expired?: number;
+        skipped?: number;
+        recordsAffected?: number;
+        durationMs?: number;
+      }>("/api/nusuk/sync", "POST");
+      const s = res.summary ?? res;
+      setSyncResult({
+        logId: res.logId ?? "",
+        status: res.status ?? "SUCCESS",
+        message: res.message ?? "",
+        created: s.created ?? 0,
+        updated: s.updated ?? 0,
+        expired: s.expired ?? 0,
+        skipped: s.skipped ?? 0,
+        recordsAffected: s.recordsAffected ?? 0,
+        durationMs: s.durationMs ?? 0,
+      });
+      toast({ title: "Sinkronisasi selesai ✓", description: res.message || "Data izin jamaah diperbarui dari Nusuk." });
+      refresh();
+    } catch (e) {
+      toast({ title: "Sinkronisasi gagal", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const rotate = async () => {
+    setRotating(true);
+    try {
+      const res = await apiSend<{ message?: string }>("/api/nusuk/rotate", "POST");
+      setRevealKey(null);
+      setRevealSecret(null);
+      credRef.current = {};
+      toast({ title: "Kredensial dirotasi ✓", description: res.message || "API key & webhook secret baru telah diterbitkan. Perbarui konfigurasi mitra." });
+      refresh();
+    } catch (e) {
+      toast({ title: "Gagal rotasi kredensial", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setRotating(false);
+    }
+  };
+
+  const testWebhook = async () => {
+    setTesting(true);
+    try {
+      const d = await apiGet<{ connection: NusukConnection }>("/api/nusuk/connection?reveal=1");
+      const secret = d.connection.webhookSecret;
+      if (!secret) throw new Error("Webhook secret belum tersedia.");
+      credRef.current = { apiKey: d.connection.apiKey, webhookSecret: secret };
+      let permitNo = permits && permits.length > 0 ? permits[0].permitNo : undefined;
+      if (!permitNo) {
+        const p = await apiGet<{ permits: NusukPermit[] }>("/api/nusuk/permits?page=1&pageSize=1");
+        permitNo = p.permits[0]?.permitNo;
+      }
+      if (!permitNo) throw new Error("Belum ada izin terdaftar untuk dipakai sebagai sampel event — jalankan sinkronisasi dahulu.");
+      const res = await fetch("/api/nusuk/webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Nusuk-Signature": secret },
+        body: JSON.stringify({ permitNo, event: "PERMIT.RENEWED", note: "Uji pipeline dari CMS" }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { status?: string; message?: string; error?: string };
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      toast({ title: "Event uji diterima ✓", description: `Status izin kini ${data.status || res.status}${data.message ? ` — ${data.message}` : ""}` });
+      refresh();
+    } catch (e) {
+      toast({ title: "Simulasi webhook gagal", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const connected = conn?.status === "CONNECTED";
+  const metrics = publicData?.metrics ?? null;
+
+  if (!conn && !publicData && !logs) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-24 rounded-2xl" />
+        <div className="grid gap-4 lg:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-64 rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+        <div>
+          <h2 className="text-xl font-extrabold flex items-center gap-2.5">
+            <span className="h-9 w-9 rounded-xl bg-primary/10 grid place-items-center text-primary shrink-0">
+              <Icon name="satellite" className="h-5 w-5" />
+            </span>
+            Integrasi Nusuk
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Jembatan data resmi MUHDIN ↔ Kementerian Hajj &amp; Umrah KSA
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 sm:ml-auto">
+          <Badge
+            variant="outline"
+            className={conn?.environment === "PRODUCTION" ? "border-gold/50 bg-gold/15 text-gold-deep" : "text-muted-foreground"}
+          >
+            <Icon name="globe" className="h-3 w-3 mr-1" />
+            {conn?.environment || "—"}
+          </Badge>
+          <Badge className={connected ? "bg-primary text-white border-transparent" : "bg-muted text-muted-foreground border-transparent"}>
+            <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${connected ? "bg-white" : "bg-muted-foreground/60"}`} />
+            {connected ? "Terhubung" : "Terputus"}
+          </Badge>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* ===== Card A — Status Koneksi ===== */}
+        <section aria-label="Status Koneksi" className="rounded-2xl border bg-card p-5 shadow-sm">
+          <h3 className="font-bold flex items-center gap-2 mb-4">
+            <span className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center text-primary shrink-0">
+              <Icon name="wifi" className="h-4 w-4" />
+            </span>
+            Status Koneksi
+          </h3>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-2.5 w-2.5" aria-hidden>
+                {connected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />}
+                <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${connected ? "bg-primary" : "bg-muted-foreground/40"}`} />
+              </span>
+              <p className="text-sm font-bold">{connected ? "Terhubung dengan Nusuk" : "Belum terhubung"}</p>
+            </div>
+            <div className="flex gap-1.5" role="group" aria-label="Pilih lingkungan Nusuk">
+              {(["SANDBOX", "PRODUCTION"] as const).map((env) => (
+                <button
+                  key={env}
+                  onClick={() => setSelectedEnv(env)}
+                  className={`rounded-lg px-3 h-8 text-[11px] font-bold tracking-wide transition-all ${
+                    selectedEnv === env
+                      ? "bg-primary text-white shadow-sm"
+                      : "border border-border text-muted-foreground hover:text-primary hover:border-primary/40"
+                  }`}
+                >
+                  {env}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button
+              onClick={connect}
+              disabled={connecting || (connected && selectedEnv === conn?.environment)}
+              className="flex-1 min-w-40 h-9 bg-gradient-to-r from-primary to-forest text-white"
+            >
+              {connecting ? <Icon name="loader-2" className="h-4 w-4 mr-2 animate-spin" /> : <Icon name="plug" className="h-4 w-4 mr-2" />}
+              Hubungkan Nusuk
+            </Button>
+            <Button
+              variant="outline"
+              disabled={connecting || !connected}
+              onClick={disconnect}
+              className={`h-9 ${confirmDisconnect ? "border-destructive bg-destructive/10 text-destructive" : "text-destructive border-destructive/40 hover:bg-destructive/10"}`}
+            >
+              <Icon name="cable" className="h-4 w-4 mr-2" />
+              {confirmDisconnect ? "Klik lagi untuk konfirmasi" : "Putuskan"}
+            </Button>
+          </div>
+          {connected && selectedEnv !== conn?.environment && (
+            <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1.5">
+              <Icon name="info" className="h-3.5 w-3.5 text-gold-deep shrink-0" />
+              Klik “Hubungkan Nusuk” untuk berpindah ke lingkungan {selectedEnv}.
+            </p>
+          )}
+
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border bg-muted/30 p-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">Sinkronisasi Otomatis</p>
+              <p className="text-xs text-muted-foreground">Tarik perubahan izin dari Nusuk secara berkala.</p>
+            </div>
+            <Switch checked={!!conn?.autoSync} onCheckedChange={toggleAutoSync} disabled={!conn} aria-label="Sinkronisasi otomatis" />
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-xl border p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Sinkron terakhir</p>
+              <p className="mt-1 text-sm font-bold">{timeAgo(conn?.lastSyncAt)}</p>
+              <p className="text-[11px] text-muted-foreground">{conn?.lastSyncAt ? formatDateTime(conn.lastSyncAt) : "—"}</p>
+            </div>
+            <div className="rounded-xl border p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Total sinkronisasi</p>
+              <p className="mt-1 text-sm font-bold">{(conn?.totalSyncs ?? 0).toLocaleString("id-ID")}×</p>
+              <p className="text-[11px] text-muted-foreground">sejak koneksi pertama</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== Card B — Kredensial API & Webhook ===== */}
+        <section aria-label="Kredensial API dan Webhook" className="rounded-2xl border bg-card p-5 shadow-sm">
+          <h3 className="font-bold flex items-center gap-2 mb-4">
+            <span className="h-8 w-8 rounded-lg bg-gold/15 grid place-items-center text-gold-deep shrink-0">
+              <Icon name="keyround" className="h-4 w-4" />
+            </span>
+            Kredensial API &amp; Webhook
+          </h3>
+
+          <div className="rounded-xl border bg-muted/30 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">API Key</p>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => revealCredential("apiKey")} aria-label="Tampilkan / sembunyikan API key">
+                  <Icon name="eye" className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyCredential("apiKey")} aria-label="Salin API key">
+                  <Icon name="braces" className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <p className="mt-1 font-mono text-xs break-all">{revealKey || conn?.apiKeyMasked || maskKey(credRef.current.apiKey || "")}</p>
+            {revealKey && <p className="mt-1 text-[10px] text-gold-deep">Disembunyikan otomatis dalam 10 detik.</p>}
+          </div>
+
+          <div className="mt-3 rounded-xl border bg-muted/30 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Webhook Secret</p>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => revealCredential("webhookSecret")} aria-label="Tampilkan / sembunyikan webhook secret">
+                  <Icon name="eye" className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyCredential("webhookSecret")} aria-label="Salin webhook secret">
+                  <Icon name="braces" className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <p className="mt-1 font-mono text-xs break-all">{revealSecret || maskKey(credRef.current.webhookSecret || "••••••••••••••••")}</p>
+            {revealSecret && <p className="mt-1 text-[10px] text-gold-deep">Disembunyikan otomatis dalam 10 detik.</p>}
+          </div>
+
+          <div className="mt-3 rounded-xl border border-dashed p-3">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Endpoint Webhook Masuk</p>
+            <p className="mt-1.5 font-mono text-xs font-bold text-primary">POST /api/nusuk/webhook</p>
+            <p className="mt-1 font-mono text-[11px] text-muted-foreground break-all">X-Nusuk-Signature: &lt;webhook-secret&gt;</p>
+          </div>
+
+          <Button
+            variant="outline"
+            onClick={rotate}
+            disabled={rotating}
+            className="mt-4 w-full h-9 border-gold/50 text-gold-deep hover:bg-gold/10"
+          >
+            {rotating ? <Icon name="loader-2" className="h-4 w-4 mr-2 animate-spin" /> : <Icon name="keyround" className="h-4 w-4 mr-2" />}
+            Rotasi Kredensial
+          </Button>
+        </section>
+
+        {/* ===== Card C — Sinkronisasi Manual ===== */}
+        <section aria-label="Sinkronisasi Manual" className="rounded-2xl border bg-card p-5 shadow-sm">
+          <h3 className="font-bold flex items-center gap-2 mb-1">
+            <span className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center text-primary shrink-0">
+              <Icon name="database-zap" className="h-4 w-4" />
+            </span>
+            Sinkronisasi Manual
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Tarik ulang seluruh izin jamaah dari portal Nusuk — proses aman dan idempoten.
+          </p>
+          <Button
+            onClick={runSync}
+            disabled={syncing || !connected}
+            className="w-full h-12 text-base bg-gradient-to-r from-primary to-forest text-white shadow-lg"
+          >
+            {syncing ? <Icon name="loader-2" className="h-5 w-5 mr-2 animate-spin" /> : <Icon name="refresh" className="h-5 w-5 mr-2" />}
+            {syncing ? "Menyinkronkan…" : "Sinkronkan Sekarang"}
+          </Button>
+          {!connected && (
+            <p className="mt-2 text-xs text-muted-foreground flex items-start gap-1.5">
+              <Icon name="info" className="h-3.5 w-3.5 text-gold-deep shrink-0 mt-0.5" />
+              Hubungkan Nusuk terlebih dahulu pada kartu Status Koneksi untuk menjalankan sinkronisasi.
+            </p>
+          )}
+          {syncResult && (
+            <div className="mt-4">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-2">Hasil sinkronisasi terakhir</p>
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full bg-primary/10 border border-primary/30 text-primary px-3 py-1 text-xs font-bold">+{syncResult.created} baru</span>
+                <span className="rounded-full bg-gold/15 border border-gold/40 text-gold-deep px-3 py-1 text-xs font-bold">{syncResult.updated} diperbarui</span>
+                <span className="rounded-full bg-muted border border-border text-muted-foreground px-3 py-1 text-xs font-bold">{syncResult.expired} kedaluwarsa</span>
+                <span className="rounded-full bg-muted border border-border text-muted-foreground px-3 py-1 text-xs font-bold">{syncResult.skipped} dilewati</span>
+                <span className="rounded-full border border-border px-3 py-1 text-xs font-mono font-bold">{syncResult.durationMs}ms</span>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* ===== Card D — Metrik Izin ===== */}
+        <section aria-label="Metrik Izin" className="rounded-2xl border bg-card p-5 shadow-sm">
+          <h3 className="font-bold flex items-center gap-2 mb-4">
+            <span className="h-8 w-8 rounded-lg bg-gold/15 grid place-items-center text-gold-deep shrink-0">
+              <Icon name="activity" className="h-4 w-4" />
+            </span>
+            Metrik Izin
+          </h3>
+          {metrics ? (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {[
+                  { label: "Total", value: metrics.permitsTotal, cls: "text-foreground" },
+                  { label: "Aktif", value: metrics.permitsActive, cls: "text-primary" },
+                  { label: "Pending", value: metrics.permitsPending, cls: "text-gold-deep" },
+                  { label: "Kedaluwarsa", value: metrics.permitsExpired, cls: "text-muted-foreground" },
+                  { label: "Ditolak", value: metrics.permitsRejected, cls: "text-destructive" },
+                  { label: "Anggota Tersinkron", value: metrics.membersConnected, cls: "text-forest" },
+                ].map((t) => (
+                  <div key={t.label} className="rounded-xl border bg-muted/30 p-3 text-center">
+                    <p className={`text-xl font-extrabold ${t.cls}`}>{t.value.toLocaleString("id-ID")}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{t.label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1.5 border-t pt-3 text-xs">
+                <span className="flex items-center gap-1.5">
+                  <Icon name="shield-check" className="h-3.5 w-3.5 text-primary" />
+                  Tingkat sukses <b>{metrics.successRate}%</b>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Icon name="timer" className="h-3.5 w-3.5 text-gold-deep" />
+                  Durasi rata-rata <b>{metrics.avgDurationMs}ms</b>
+                </span>
+              </div>
+            </>
+          ) : (
+            <Skeleton className="h-44 rounded-xl" />
+          )}
+        </section>
+      </div>
+
+      {/* ===== Card E — Registri Izin ===== */}
+      <section aria-label="Registri Izin" className="mt-4 rounded-2xl border bg-card p-5 shadow-sm">
+        <div className="flex flex-col xl:flex-row xl:items-center gap-3 mb-4">
+          <h3 className="font-bold flex items-center gap-2 shrink-0">
+            <span className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center text-primary shrink-0">
+              <Icon name="radar" className="h-4 w-4" />
+            </span>
+            Registri Izin
+          </h3>
+          <div className="flex flex-wrap gap-2 xl:ml-auto">
+            <Select value={statusF} onValueChange={(v) => { setStatusF(v); setPage(1); }}>
+              <SelectTrigger className="w-[150px] h-9 text-xs" aria-label="Filter status izin">
+                <SelectValue placeholder="Semua Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Status</SelectItem>
+                {PERMIT_STATUS_OPTS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={typeF} onValueChange={(v) => { setTypeF(v); setPage(1); }}>
+              <SelectTrigger className="w-[170px] h-9 text-xs" aria-label="Filter jenis izin">
+                <SelectValue placeholder="Semua Jenis" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Jenis</SelectItem>
+                {PERMIT_TYPE_OPTS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="relative">
+              <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                value={qInput}
+                onChange={(e) => setQInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") applySearchNow(); }}
+                placeholder="Cari izin / pemegang / anggota…"
+                className="pl-9 h-9 text-xs w-full sm:w-56"
+                aria-label="Cari izin"
+              />
+            </div>
+            <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={refresh} aria-label="Muat ulang registri izin">
+              <Icon name="refresh" className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto max-h-96 overflow-y-auto scrollbar-thin rounded-xl border" aria-busy={permitsLoading}>
+          <table className="w-full text-sm min-w-[760px]">
+            <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur border-b">
+              <tr className="text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+                <th className="px-3 py-2.5 font-semibold">Nomor Izin</th>
+                <th className="px-3 py-2.5 font-semibold">Jenis</th>
+                <th className="px-3 py-2.5 font-semibold">Pemegang</th>
+                <th className="px-3 py-2.5 font-semibold hidden md:table-cell">Anggota</th>
+                <th className="px-3 py-2.5 font-semibold">Status</th>
+                <th className="px-3 py-2.5 font-semibold hidden lg:table-cell">Berlaku Hingga</th>
+                <th className="px-3 py-2.5 font-semibold hidden lg:table-cell">Sinkron</th>
+              </tr>
+            </thead>
+            <tbody className={permitsLoading ? "opacity-50 transition-opacity" : "transition-opacity"}>
+              {permits && permits.length > 0
+                ? permits.map((p) => {
+                    const st = PERMIT_STATUS_META[p.status] || { label: p.status, cls: "bg-muted text-muted-foreground border-transparent" };
+                    return (
+                      <tr key={p.id} className="border-t last:border-b-0 hover:bg-primary/5 transition-colors">
+                        <td className="px-3 py-2.5 font-mono text-xs font-semibold whitespace-nowrap">{p.permitNo}</td>
+                        <td className="px-3 py-2.5">
+                          <Badge variant="secondary" className="text-[10px]">{PERMIT_TYPE_LABELS[p.type] || p.type}</Badge>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <p className="font-medium max-w-[10rem] truncate">{p.holderName}</p>
+                        </td>
+                        <td className="px-3 py-2.5 hidden md:table-cell">
+                          {p.member ? (
+                            <div className="max-w-[12rem]">
+                              <p className="text-xs font-semibold truncate">{p.member.name}</p>
+                              <p className="text-[11px] text-muted-foreground truncate">{p.member.city} · {p.member.type}</p>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <Badge variant="outline" className={`text-[10px] font-bold ${st.cls}`}>{st.label}</Badge>
+                        </td>
+                        <td className="px-3 py-2.5 hidden lg:table-cell text-xs whitespace-nowrap">{formatDate(p.expiresAt)}</td>
+                        <td className="px-3 py-2.5 hidden lg:table-cell text-xs text-muted-foreground whitespace-nowrap">{timeAgo(p.syncedAt)}</td>
+                      </tr>
+                    );
+                  })
+                : null}
+            </tbody>
+          </table>
+          {permits === null && (
+            <div className="p-4 space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 rounded-lg" />
+              ))}
+            </div>
+          )}
+          {permits && permits.length === 0 && !permitsLoading && (
+            <div className="py-14 text-center">
+              <Icon name="radar" className="h-10 w-10 mx-auto text-muted-foreground/30" />
+              <p className="mt-3 text-sm text-muted-foreground">Belum ada izin cocok filter</p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            Halaman {page}/{pages} · {total.toLocaleString("id-ID")} izin
+          </p>
+          <div className="flex gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9"
+              disabled={page <= 1 || permitsLoading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              <Icon name="chevron-right" className="h-4 w-4 mr-1 rotate-180" /> Sebelumnya
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9"
+              disabled={page >= pages || permitsLoading}
+              onClick={() => setPage((p) => Math.min(pages, p + 1))}
+            >
+              Berikutnya <Icon name="chevron-right" className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        {/* ===== Card F — Log Sinkronisasi ===== */}
+        <section aria-label="Log Sinkronisasi" className="rounded-2xl border bg-card p-5 shadow-sm">
+          <h3 className="font-bold flex items-center gap-2 mb-4">
+            <span className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center text-primary shrink-0">
+              <Icon name="terminal" className="h-4 w-4" />
+            </span>
+            Log Sinkronisasi
+          </h3>
+          {!logs ? (
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-14 rounded-xl" />
+              ))}
+            </div>
+          ) : logs.length === 0 ? (
+            <div className="py-10 text-center">
+              <Icon name="terminal" className="h-8 w-8 mx-auto text-muted-foreground/30" />
+              <p className="mt-2 text-sm text-muted-foreground">Belum ada aktivitas sinkronisasi.</p>
+            </div>
+          ) : (
+            <div className="relative max-h-80 overflow-y-auto scrollbar-thin pr-1">
+              <div className="absolute left-[15px] top-3 bottom-3 w-px bg-border" aria-hidden />
+              <ul className="space-y-3">
+                {logs.map((l) => {
+                  const failed = l.status === "FAILED";
+                  const meta = LOG_TYPE_META[l.type] || { label: l.type, icon: "activity" };
+                  return (
+                    <li key={l.id} className={`relative flex items-start gap-3 rounded-xl p-2.5 ${failed ? "bg-destructive/5 border border-destructive/20" : ""}`}>
+                      <div className={`relative z-10 h-8 w-8 rounded-lg grid place-items-center shrink-0 border bg-card ${failed ? "text-destructive border-destructive/30" : "text-primary border-primary/30"}`}>
+                        <Icon name={meta.icon} className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm leading-snug">{l.message}</p>
+                        <p className="mt-1 text-[11px] text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                          <span className="font-semibold">{meta.label}</span>
+                          <span>· {l.recordsAffected} rekaman</span>
+                          <span>· {l.durationMs}ms</span>
+                          <span>· {timeAgo(l.createdAt)}</span>
+                          {failed && (
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-destructive/40 text-destructive">GAGAL</Badge>
+                          )}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </section>
+
+        {/* ===== Card G — Simulasi Webhook ===== */}
+        <section aria-label="Simulasi Webhook" className="rounded-2xl border bg-card p-5 shadow-sm">
+          <h3 className="font-bold flex items-center gap-2 mb-1">
+            <span className="h-8 w-8 rounded-lg bg-gold/15 grid place-items-center text-gold-deep shrink-0">
+              <Icon name="webhook" className="h-4 w-4" />
+            </span>
+            Simulasi Webhook
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Uji pipeline end-to-end tanpa menunggu event nyata: sistem menandatangani event{" "}
+            <span className="font-mono font-semibold text-foreground">PERMIT.RENEWED</span> dengan webhook secret aktif,
+            lalu mengirimkannya ke <span className="font-mono font-semibold text-foreground">/api/nusuk/webhook</span>.
+          </p>
+          {connected ? (
+            <>
+              <Button
+                onClick={testWebhook}
+                disabled={testing}
+                variant="outline"
+                className="w-full h-11 border-gold/50 text-gold-deep hover:bg-gold/10"
+              >
+                {testing ? <Icon name="loader-2" className="h-4 w-4 mr-2 animate-spin" /> : <Icon name="radio-tower" className="h-4 w-4 mr-2" />}
+                Kirim Event Uji (PERMIT.RENEWED)
+              </Button>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Izin sampel:{" "}
+                <span className="font-mono font-semibold text-foreground">
+                  {permits && permits.length > 0 ? permits[0].permitNo : "menarik dari halaman pertama…"}
+                </span>
+              </p>
+            </>
+          ) : (
+            <div className="rounded-xl border border-gold/40 bg-gold/10 p-3.5 text-xs flex items-start gap-2">
+              <Icon name="info" className="h-4 w-4 text-gold-deep shrink-0 mt-0.5" />
+              <p>
+                Koneksi Nusuk belum aktif. Hubungkan terlebih dahulu pada kartu <b>Status Koneksi</b> untuk menguji pipeline webhook.
+              </p>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

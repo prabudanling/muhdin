@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiGet, formatDate } from "@/lib/client-api";
+import { apiGet, formatDate, timeAgo } from "@/lib/client-api";
 import { navigate } from "@/hooks/use-hash-route";
 import { Icon } from "@/components/site/icon";
 import { Reveal, SectionHeading } from "@/components/site/reveal";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   PARTNERS, CORE_VALUES, TECH_PILLARS, BENEFITS, CLUSTERS, STATS_HIGHLIGHT, BRAND,
 } from "@/lib/constants";
-import type { Ecosystem, JourneyStep, Roadmap, Testimonial, Article } from "@/lib/types";
+import type { Ecosystem, JourneyStep, Roadmap, Testimonial, Article, NusukPublicData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /* ================= HERO ================= */
@@ -90,6 +90,69 @@ function Hero() {
                 </div>
               </div>
             ))}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= NUSUK LIVE STRIP ================= */
+function NusukLiveStrip() {
+  const [data, setData] = useState<NusukPublicData | null>(null);
+
+  useEffect(() => {
+    apiGet<NusukPublicData>("/api/nusuk/public").then(setData).catch(() => {});
+  }, []);
+
+  if (!data) return null;
+
+  return (
+    <section aria-label="Status integrasi Nusuk" className="border-b bg-mint/30 dark:bg-muted/30">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5">
+        <Reveal>
+          <div className="glass rounded-2xl border border-border/60 shadow-sm p-4 sm:px-5 flex flex-col lg:flex-row lg:items-center gap-3.5">
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="relative flex h-3 w-3" aria-hidden="true">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
+              </span>
+              <div className="leading-tight">
+                <p className="font-bold text-sm">Nusuk Live</p>
+                <p className="text-[11px] text-muted-foreground">Status integrasi platform Nusuk</p>
+              </div>
+            </div>
+            <div className="hidden lg:block h-9 w-px bg-border shrink-0" aria-hidden="true" />
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold",
+                  data.connection.environment === "SANDBOX"
+                    ? "border-gold/50 bg-gold/10 text-gold-deep"
+                    : "border-primary/40 bg-primary/10 text-primary"
+                )}
+              >
+                <Icon name="keyround" className="h-3 w-3 shrink-0" />
+                {data.connection.environment}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                <Icon name="shield-check" className="h-3 w-3 shrink-0" />
+                {data.metrics.permitsActive} izin aktif
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                <Icon name="timer" className="h-3 w-3 shrink-0 text-gold-deep" />
+                Sinkron terakhir {timeAgo(data.connection.lastSyncAt)}
+              </span>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => navigate("nusuk")}
+              aria-label="Buka halaman Nusuk Hub"
+              className="lg:ml-auto shrink-0 bg-gradient-to-r from-primary to-forest text-white"
+            >
+              Buka Nusuk Hub
+              <Icon name="arrow-right" className="h-4 w-4 ml-1.5" />
+            </Button>
           </div>
         </Reveal>
       </div>
@@ -575,6 +638,7 @@ export function HomeView() {
   return (
     <div className={cn("flex flex-col")}>
       <Hero />
+      <NusukLiveStrip />
       <NusukBar />
       <EcosystemSection ecosystems={data.ecosystems} />
       <JourneySection steps={data.steps} />

@@ -11,6 +11,8 @@ import {
   Grid3X3, Boxes, FileText, GraduationCap, Send, Pencil, Trash2, Plus, Save, RotateCcw,
   KeyRound, ShieldAlert, Target, HeartPulse, Wallet, BarChart3, Wifi, Printer, Download,
   Compass, Handshake, TentTree, ScrollText, Info, Ban, RefreshCw, User,
+  Webhook, QrCode, Braces, Terminal, Activity, PlugZap, ScanLine, RadioTower,
+  Timer, DatabaseZap, Satellite, Radar, Cable, Fingerprint, ShieldEllipsis,
 } from "lucide-react";
 
 export const ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
@@ -104,6 +106,21 @@ export const ICONS: Record<string, React.ComponentType<{ className?: string; str
   ban: Ban,
   refresh: RefreshCw,
   user: User,
+  webhook: Webhook,
+  "qr-code": QrCode,
+  braces: Braces,
+  terminal: Terminal,
+  activity: Activity,
+  plug: PlugZap,
+  scan: ScanLine,
+  "radio-tower": RadioTower,
+  timer: Timer,
+  "database-zap": DatabaseZap,
+  satellite: Satellite,
+  radar: Radar,
+  cable: Cable,
+  fingerprint: Fingerprint,
+  "shield-ellipsis": ShieldEllipsis,
 };
 
 export function Icon({

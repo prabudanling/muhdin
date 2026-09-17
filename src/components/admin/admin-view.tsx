@@ -14,13 +14,14 @@ import { AdminDashboard } from "@/components/admin/admin-dashboard";
 import {
   AdminArticles, AdminEcosystems, AdminJourney, AdminRoadmap, AdminMembers,
   AdminTutorials, AdminFaqs, AdminTestimonials, AdminManagement,
-  AdminMessages, AdminApplications, AdminSettings,
+  AdminMessages, AdminApplications, AdminNusuk, AdminSettings,
 } from "@/components/admin/admin-sections";
 import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const MENU = [
   { id: "dashboard", label: "Dashboard", icon: "layout-dashboard" },
+  { id: "nusuk", label: "Integrasi Nusuk", icon: "satellite" },
   { id: "articles", label: "Berita & Artikel", icon: "newspaper" },
   { id: "ecosystems", label: "13 Ekosistem", icon: "boxes" },
   { id: "journey", label: "Alur Perjalanan", icon: "workflow" },
@@ -157,6 +158,7 @@ export function AdminView() {
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto">
           {section === "dashboard" && <AdminDashboard onNavigate={setSection} />}
+          {section === "nusuk" && <AdminNusuk />}
           {section === "articles" && <AdminArticles />}
           {section === "ecosystems" && <AdminEcosystems />}
           {section === "journey" && <AdminJourney />}

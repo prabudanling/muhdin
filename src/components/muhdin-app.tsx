@@ -13,6 +13,7 @@ import { NewsView } from "@/components/views/news-view";
 import { AboutView } from "@/components/views/about-view";
 import { ContactView } from "@/components/views/contact-view";
 import { JoinView } from "@/components/views/join-view";
+import { NusukView } from "@/components/views/nusuk-view";
 import { AdminView } from "@/components/admin/admin-view";
 
 function LoadingSplash() {
@@ -87,6 +88,9 @@ export function MuhdinApp() {
       break;
     case "gabung":
       content = <JoinView />;
+      break;
+    case "nusuk":
+      content = <NusukView />;
       break;
     case "admin":
       content = <AdminView />;

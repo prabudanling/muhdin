@@ -47,3 +47,26 @@ export function formatDateTime(iso: string) {
     return iso;
   }
 }
+
+export function timeAgo(iso: string | null | undefined) {
+  if (!iso) return "belum pernah";
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const s = Math.max(1, Math.floor(diff / 1000));
+    if (s < 60) return `${s} detik lalu`;
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m} menit lalu`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} jam lalu`;
+    const d = Math.floor(h / 24);
+    return `${d} hari lalu`;
+  } catch {
+    return iso;
+  }
+}
+
+export function maskKey(key: string) {
+  if (!key) return "—";
+  if (key.length <= 12) return key.slice(0, 4) + "•".repeat(8);
+  return `${key.slice(0, 10)}${"•".repeat(14)}${key.slice(-4)}`;
+}

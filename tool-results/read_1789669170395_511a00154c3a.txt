@@ -1,0 +1,613 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useState } from "react";
+     4→import { apiGet, formatDate } from "@/lib/client-api";
+     5→import { navigate } from "@/hooks/use-hash-route";
+     6→import { Icon } from "@/components/site/icon";
+     7→import { Reveal, SectionHeading } from "@/components/site/reveal";
+     8→import { Badge } from "@/components/ui/badge";
+     9→import { Skeleton } from "@/components/ui/skeleton";
+    10→import { Button } from "@/components/ui/button";
+    11→import {
+    12→  PARTNERS, CORE_VALUES, TECH_PILLARS, BENEFITS, CLUSTERS, STATS_HIGHLIGHT, BRAND,
+    13→} from "@/lib/constants";
+    14→import type { Ecosystem, JourneyStep, Roadmap, Testimonial, Article } from "@/lib/types";
+    15→import { cn } from "@/lib/utils";
+    16→
+    17→/* ================= HERO ================= */
+    18→function Hero() {
+    19→  return (
+    20→    <section className="relative overflow-hidden">
+    21→      <div className="absolute inset-0">
+    22→        { }
+    23→        <img
+    24→          src="/images/hero-kaaba.jpg"
+    25→          alt="Kabah Masjidil Haram saat senja keemasan"
+    26→          className="h-full w-full object-cover bg-gradient-to-br from-forest-deep to-forest"
+    27→        />
+    28→        <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/90 via-forest-deep/75 to-forest-deep/95" />
+    29→        <div className="absolute inset-0 bg-islamic-pattern-gold opacity-60" />
+    30→      </div>
+    31→
+    32→      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-24 sm:py-32 lg:py-36">
+    33→        <div className="max-w-3xl">
+    34→          <Reveal>
+    35→            <Badge className="mb-5 bg-gold/20 text-gold border border-gold/40 hover:bg-gold/30 px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-semibold tracking-wide max-w-full">
+    36→              <Icon name="sparkles" className="h-3.5 w-3.5 mr-1.5 shrink-0" />
+    37→              <span className="truncate">{BRAND.edition}</span>
+    38→            </Badge>
+    39→          </Reveal>
+    40→          <Reveal delay={0.1}>
+    41→            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-white">
+    42→              Transformasi Digitalisasi{" "}
+    43→              <span className="text-gold-gradient">Umroh &amp; Haji</span> Indonesia 2030
+    44→            </h1>
+    45→          </Reveal>
+    46→          <Reveal delay={0.2}>
+    47→            <p className="mt-5 text-lg text-emerald-50/85 leading-relaxed max-w-2xl">
+    48→              {BRAND.motto}. 13 ekosistem layanan terintegrasi yang mengawal perjalanan
+    49→              Tamu Allah dari Indonesia hingga Tanah Suci — dengan kepastian kuota,
+    50→              transparansi mutu, dan pengawalan 24/7.
+    51→            </p>
+    52→          </Reveal>
+    53→          <Reveal delay={0.3}>
+    54→            <div className="mt-8 flex flex-wrap gap-3">
+    55→              <Button
+    56→                size="lg"
+    57→                onClick={() => navigate("ekosistem")}
+    58→                className="bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold shadow-xl hover:brightness-110 h-12 px-7 text-base"
+    59→              >
+    60→                Jelajahi 13 Ekosistem
+    61→                <Icon name="arrow-right" className="h-4 w-4 ml-2" />
+    62→              </Button>
+    63→              <Button
+    64→                size="lg"
+    65→                variant="outline"
+    66→                onClick={() => navigate("anggota")}
+    67→                className="bg-transparent border-emerald-100/40 text-white hover:bg-white/10 hover:text-white h-12 px-7 text-base"
+    68→              >
+    69→                <Icon name="shield-check" className="h-4 w-4 mr-2" />
+    70→                Verifikasi Penyelenggara
+    71→              </Button>
+    72→            </div>
+    73→          </Reveal>
+    74→        </div>
+    75→
+    76→        {/* Floating stats */}
+    77→        <Reveal delay={0.45} className="mt-14">
+    78→          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    79→            {STATS_HIGHLIGHT.map((s) => (
+    80→              <div
+    81→                key={s.label}
+    82→                className="glass rounded-2xl border border-white/15 p-4 sm:p-5 flex items-center gap-3.5"
+    83→              >
+    84→                <div className="h-11 w-11 shrink-0 rounded-xl bg-gold/20 grid place-items-center text-gold">
+    85→                  <Icon name={s.icon} className="h-5.5 w-5.5" />
+    86→                </div>
+    87→                <div>
+    88→                  <div className="text-xl sm:text-2xl font-extrabold text-white leading-none">{s.value}</div>
+    89→                  <div className="text-[11px] sm:text-xs text-emerald-100/70 mt-1.5">{s.label}</div>
+    90→                </div>
+    91→              </div>
+    92→            ))}
+    93→          </div>
+    94→        </Reveal>
+    95→      </div>
+    96→    </section>
+    97→  );
+    98→}
+    99→
+   100→/* ================= NUSUK BAR ================= */
+   101→function NusukBar() {
+   102→  const points = [
+   103→    "Terintegrasi Nusuk Saudi",
+   104→    "Kuota & Jadwal Terverifikasi",
+   105→    "Sistem Booking Real Time",
+   106→    "Data Jamaah Terverifikasi",
+   107→    "Terhubung dengan Kemenag RI",
+   108→    "Compliance dengan Standar Saudi",
+   109→  ];
+   110→  return (
+   111→    <section className="bg-primary text-white">
+   112→      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
+   113→        <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
+   114→          <div className="flex items-center gap-3 shrink-0">
+   115→            <div className="h-10 w-10 rounded-xl bg-gold grid place-items-center">
+   116→              <Icon name="landmark" className="h-5 w-5 text-forest-deep" strokeWidth={2.4} />
+   117→            </div>
+   118→            <div className="leading-tight">
+   119→              <p className="font-bold text-sm">MUHDIN — Operator Nusuk Indonesia</p>
+   120→              <p className="text-[11px] text-emerald-100/75">Official Operator from Indonesia</p>
+   121→            </div>
+   122→          </div>
+   123→          <div className="hidden lg:block h-10 w-px bg-white/20" />
+   124→          <div className="flex flex-wrap justify-center gap-2">
+   125→            {points.map((p) => (
+   126→              <span
+   127→                key={p}
+   128→                className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium"
+   129→              >
+   130→                <Icon name="check-circle-2" className="h-3.5 w-3.5 text-gold" />
+   131→                {p}
+   132→              </span>
+   133→            ))}
+   134→          </div>
+   135→        </div>
+   136→      </div>
+   137→    </section>
+   138→  );
+   139→}
+   140→
+   141→/* ================= EKOSISTEM ================= */
+   142→function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
+   143→  return (
+   144→    <section className="py-20 bg-mint/30 dark:bg-muted/30">
+   145→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   146→        <SectionHeading
+   147→          eyebrow="Arsitektur Layanan"
+   148→          title="13 Ekosistem MUHDIN"
+   149→          subtitle="Syurga bagi pengusaha pelayan Tamu Allah dan kenyamanan jamaah dalam ibadah — satu rangkaian utuh perjalanan, dari titik masuk pertama hingga kepulangan."
+   150→        />
+   151→        <div className="mt-14 space-y-10">
+   152→          {CLUSTERS.map((cluster, ci) => {
+   153→            const items = ecosystems.filter((e) => e.cluster === cluster.name);
+   154→            return (
+   155→              <div key={cluster.name}>
+   156→                <Reveal className="flex items-center gap-3 mb-5">
+   157→                  <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
+   158→                    <Icon name={cluster.icon} className="h-5 w-5" />
+   159→                  </div>
+   160→                  <div>
+   161→                    <h3 className="font-bold text-lg leading-tight">{cluster.name}</h3>
+   162→                    <p className="text-xs text-muted-foreground">{cluster.range} — {cluster.description}</p>
+   163→                  </div>
+   164→                </Reveal>
+   165→                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+   166→                  {items.map((e, i) => (
+   167→                    <Reveal key={e.id} delay={i * 0.05}>
+   168→                      <button
+   169→                        onClick={() => navigate("ekosistem")}
+   170→                        className="group h-full w-full text-left rounded-2xl border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
+   171→                      >
+   172→                        <div className="flex items-start justify-between">
+   173→                          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-forest grid place-items-center text-gold-soft shadow-md">
+   174→                            <Icon name={e.icon} className="h-5 w-5" />
+   175→                          </div>
+   176→                          <span className="text-3xl font-extrabold text-primary/10 group-hover:text-gold/40 transition-colors">
+   177→                            {String(e.number).padStart(2, "0")}
+   178→                          </span>
+   179→                        </div>
+   180→                        <h4 className="mt-4 font-bold text-sm leading-snug">{e.name}</h4>
+   181→                        <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2">{e.scope}</p>
+   182→                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+   183→                          Selengkapnya <Icon name="chevron-right" className="h-3 w-3" />
+   184→                        </span>
+   185→                      </button>
+   186→                    </Reveal>
+   187→                  ))}
+   188→                </div>
+   189→              </div>
+   190→            );
+   191→          })}
+   192→        </div>
+   193→      </div>
+   194→    </section>
+   195→  );
+   196→}
+   197→
+   198→/* ================= ALUR PERJALANAN PREVIEW ================= */
+   199→function JourneySection({ steps }: { steps: JourneyStep[] }) {
+   200→  return (
+   201→    <section className="py-20 bg-forest-deep text-white relative overflow-hidden">
+   202→      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
+   203→      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+   204→        <SectionHeading
+   205→          light
+   206→          eyebrow="End-to-End Journey"
+   207→          title="Alur 13 Tahap Perjalanan Jamaah"
+   208→          subtitle="Zero-gap handover: tidak ada perpindahan tanggung jawab tanpa rekaman dan konfirmasi digital. Seluruh rombongan terpantau dari satu dashboard."
+   209→        />
+   210→        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+   211→          {steps.slice(0, 8).map((s, i) => (
+   212→            <Reveal key={s.id} delay={i * 0.04}>
+   213→              <div className="h-full rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm hover:bg-white/10 hover:border-gold/40 transition-all">
+   214→                <div className="flex items-center gap-3">
+   215→                  <span className="h-9 w-9 shrink-0 rounded-full bg-gold text-forest-deep grid place-items-center font-extrabold text-sm">
+   216→                    {s.step}
+   217→                  </span>
+   218→                  <Icon name={s.icon} className="h-4 w-4 text-gold" />
+   219→                  <h4 className="font-semibold text-sm">{s.title}</h4>
+   220→                </div>
+   221→                <p className="mt-2.5 text-xs text-emerald-100/65 leading-relaxed line-clamp-2">{s.activity}</p>
+   222→              </div>
+   223→            </Reveal>
+   224→          ))}
+   225→        </div>
+   226→        <Reveal className="mt-8 text-center">
+   227→          <Button
+   228→            variant="outline"
+   229→            onClick={() => navigate("alur")}
+   230→            className="border-gold/50 text-gold hover:bg-gold hover:text-forest-deep"
+   231→          >
+   232→            Lihat 13 Tahap Lengkap
+   233→            <Icon name="arrow-right" className="h-4 w-4 ml-2" />
+   234→          </Button>
+   235→        </Reveal>
+   236→      </div>
+   237→    </section>
+   238→  );
+   239→}
+   240→
+   241→/* ================= MITRA ================= */
+   242→function PartnersSection() {
+   243→  return (
+   244→    <section className="py-20">
+   245→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   246→        <SectionHeading
+   247→          eyebrow="5 Mitra Utama"
+   248→          title="Punggung Industri Penyelenggaraan Ibadah Indonesia"
+   249→          subtitle="Setiap mitra mempertahankan identitas dan fungsi bisnisnya, sekaligus menerima standar layanan, teknologi bersama, dan penjaminan mutu dari ekosistem."
+   250→        />
+   251→        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+   252→          {PARTNERS.map((p, i) => (
+   253→            <Reveal key={p.code} delay={i * 0.07}>
+   254→              <div className="group h-full rounded-2xl border bg-card p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-gold/50">
+   255→                <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold shadow-md group-hover:scale-110 transition-transform">
+   256→                  <Icon name={p.icon} className="h-7 w-7" />
+   257→                </div>
+   258→                <h3 className="mt-4 font-extrabold text-primary tracking-wide">{p.name}</h3>
+   259→                <p className="mt-1 text-[11px] font-semibold text-foreground/80 uppercase tracking-wide">{p.fullName}</p>
+   260→                <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{p.role}</p>
+   261→              </div>
+   262→            </Reveal>
+   263→          ))}
+   264→        </div>
+   265→      </div>
+   266→    </section>
+   267→  );
+   268→}
+   269→
+   270→/* ================= NILAI UTAMA ================= */
+   271→function ValuesSection() {
+   272→  return (
+   273→    <section className="py-20 bg-mint/30 dark:bg-muted/30">
+   274→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   275→        <SectionHeading
+   276→          eyebrow="Nilai Utama MUHDIN"
+   277→          title="Lima Nilai yang Dapat Diaudit"
+   278→          subtitle="Setiap nilai diturunkan menjadi makna operasional yang dapat diamati, diukur, dan diaudit — nilai bukan slogan, melainkan standar kerja sehari-hari."
+   279→        />
+   280→        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+   281→          {CORE_VALUES.map((v, i) => (
+   282→            <Reveal key={v.name} delay={i * 0.07}>
+   283→              <div className="h-full rounded-2xl border bg-card p-6 shadow-sm hover:shadow-lg transition-shadow">
+   284→                <div className="flex items-center gap-3">
+   285→                  <div className="h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold-deep">
+   286→                    <Icon name={v.icon} className="h-5 w-5" />
+   287→                  </div>
+   288→                  <h3 className="font-extrabold">{v.name}</h3>
+   289→                </div>
+   290→                <p className="mt-3.5 text-xs text-muted-foreground leading-relaxed">{v.meaning}</p>
+   291→              </div>
+   292→            </Reveal>
+   293→          ))}
+   294→        </div>
+   295→      </div>
+   296→    </section>
+   297→  );
+   298→}
+   299→
+   300→/* ================= TEKNOLOGI ================= */
+   301→function TechSection() {
+   302→  return (
+   303→    <section className="py-20">
+   304→      <div className="mx-auto max-w-7xl px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
+   305→        <div>
+   306→          <SectionHeading
+   307→            align="left"
+   308→            eyebrow="Dukungan Teknologi Digital"
+   309→            title="Enam Pilar Teknologi Terpadu"
+   310→            subtitle="Seluruh pilar berjalan di atas satu arsitektur data yang menempatkan profil jamaah sebagai entitas tunggal dari registrasi hingga kepulangan — dengan enkripsi dan pembatasan akses berbasis peran."
+   311→          />
+   312→          <Reveal delay={0.15} className="mt-6 flex flex-wrap gap-2">
+   313→            {["Persetujuan eksplisit", "Minimasi data", "Enkripsi end-to-end", "Audit keamanan independen"].map((t) => (
+   314→              <Badge key={t} variant="secondary" className="text-xs">
+   315→                <Icon name="shield-check" className="h-3 w-3 mr-1 text-primary" />
+   316→                {t}
+   317→              </Badge>
+   318→            ))}
+   319→          </Reveal>
+   320→        </div>
+   321→        <div className="grid gap-3.5 sm:grid-cols-2">
+   322→          {TECH_PILLARS.map((p, i) => (
+   323→            <Reveal key={p.name} delay={i * 0.06}>
+   324→              <div className="h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all">
+   325→                <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
+   326→                  <Icon name={p.icon} className="h-5 w-5" />
+   327→                </div>
+   328→                <h4 className="mt-3 font-bold text-sm">{p.name}</h4>
+   329→                <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{p.description}</p>
+   330→              </div>
+   331→            </Reveal>
+   332→          ))}
+   333→        </div>
+   334→      </div>
+   335→    </section>
+   336→  );
+   337→}
+   338→
+   339→/* ================= ROADMAP ================= */
+   340→function RoadmapSection({ roadmap }: { roadmap: Roadmap[] }) {
+   341→  return (
+   342→    <section className="py-20 bg-mint/30 dark:bg-muted/30">
+   343→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   344→        <SectionHeading
+   345→          eyebrow="Peta Jalan 2026-2030"
+   346→          title="Empat Fase Menuju Skala Penuh"
+   347→          subtitle="Bertahap dan berbasis bukti — setiap fase memiliki deliverables yang dapat diverifikasi sebelum fase berikutnya dimulai."
+   348→        />
+   349→        <div className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+   350→          {roadmap.map((r, i) => (
+   351→            <Reveal key={r.id} delay={i * 0.08}>
+   352→              <div className="relative h-full rounded-2xl border bg-card p-6 shadow-sm overflow-hidden">
+   353→                <span className="absolute -right-3 -top-4 text-7xl font-extrabold text-primary/5 select-none">
+   354→                  {i + 1}
+   355→                </span>
+   356→                <Badge className="bg-gold/15 text-gold-deep border-gold/30 hover:bg-gold/25">{r.period}</Badge>
+   357→                <h3 className="mt-3 font-extrabold text-primary">{r.phase}</h3>
+   358→                <p className="mt-1 text-xs font-semibold text-foreground/70">{r.focus}</p>
+   359→                <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{r.deliverables}</p>
+   360→              </div>
+   361→            </Reveal>
+   362→          ))}
+   363→        </div>
+   364→      </div>
+   365→    </section>
+   366→  );
+   367→}
+   368→
+   369→/* ================= MANFAAT ================= */
+   370→function BenefitsSection() {
+   371→  return (
+   372→    <section className="py-16 bg-primary text-white relative overflow-hidden">
+   373→      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" />
+   374→      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+   375→        <div className="text-center">
+   376→          <h2 className="text-2xl sm:text-3xl font-extrabold">Manfaat untuk Jamaah, PPIU, KBIHU &amp; Stakeholder</h2>
+   377→          <div className="gold-divider w-40 mx-auto mt-4" />
+   378→        </div>
+   379→        <div className="mt-8 flex flex-wrap justify-center gap-2.5">
+   380→          {BENEFITS.map((b, i) => (
+   381→            <Reveal key={b} delay={i * 0.04}>
+   382→              <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-white/5 px-4 py-2 text-sm font-medium backdrop-blur-sm">
+   383→                <Icon name="check-circle-2" className="h-4 w-4 text-gold" />
+   384→                {b}
+   385→              </span>
+   386→            </Reveal>
+   387→          ))}
+   388→        </div>
+   389→      </div>
+   390→    </section>
+   391→  );
+   392→}
+   393→
+   394→/* ================= TESTIMONI ================= */
+   395→function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
+   396→  if (!testimonials.length) return null;
+   397→  return (
+   398→    <section className="py-20">
+   399→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   400→        <SectionHeading
+   401→          eyebrow="Testimoni"
+   402→          title="Kepercayaan adalah Aset Kolektif"
+   403→          subtitle="Suara jamaah dan mitra yang merasakan langsung layanan ekosistem MUHDIN."
+   404→        />
+   405→        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+   406→          {testimonials.slice(0, 6).map((t, i) => (
+   407→            <Reveal key={t.id} delay={i * 0.06}>
+   408→              <div className="h-full rounded-2xl border bg-card p-6 shadow-sm flex flex-col">
+   409→                <Icon name="quote" className="h-7 w-7 text-gold/60" />
+   410→                <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{t.content}&rdquo;</p>
+   411→                <div className="mt-5 flex items-center justify-between">
+   412→                  <div className="flex items-center gap-3">
+   413→                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-forest grid place-items-center text-white font-bold text-sm">
+   414→                      {t.name.charAt(0)}
+   415→                    </div>
+   416→                    <div>
+   417→                      <p className="text-sm font-bold">{t.name}</p>
+   418→                      <p className="text-xs text-muted-foreground">{t.role}</p>
+   419→                    </div>
+   420→                  </div>
+   421→                  <div className="flex gap-0.5">
+   422→                    {Array.from({ length: t.rating }).map((_, s) => (
+   423→                      <Icon key={s} name="star" className="h-3.5 w-3.5 fill-gold text-gold" />
+   424→                    ))}
+   425→                  </div>
+   426→                </div>
+   427→              </div>
+   428→            </Reveal>
+   429→          ))}
+   430→        </div>
+   431→      </div>
+   432→    </section>
+   433→  );
+   434→}
+   435→
+   436→/* ================= BERITA TERBARU ================= */
+   437→function LatestNews({ articles }: { articles: Article[] }) {
+   438→  if (!articles.length) return null;
+   439→  return (
+   440→    <section className="py-20 bg-mint/30 dark:bg-muted/30">
+   441→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   442→        <div className="flex items-end justify-between gap-4">
+   443→          <SectionHeading
+   444→            align="left"
+   445→            eyebrow="Kabar Terbaru"
+   446→            title="Berita & Pengumuman"
+   447→          />
+   448→          <Reveal>
+   449→            <Button variant="ghost" onClick={() => navigate("berita")} className="hidden sm:inline-flex text-primary">
+   450→              Semua Berita <Icon name="arrow-right" className="h-4 w-4 ml-1" />
+   451→            </Button>
+   452→          </Reveal>
+   453→        </div>
+   454→        <div className="mt-10 grid gap-5 md:grid-cols-3">
+   455→          {articles.map((a, i) => (
+   456→            <Reveal key={a.id} delay={i * 0.07}>
+   457→              <button
+   458→                onClick={() => navigate(`berita/${a.slug}`)}
+   459→                className="group h-full w-full text-left rounded-2xl border bg-card overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+   460→              >
+   461→                <div className="relative h-44 overflow-hidden">
+   462→                  { }
+   463→                  <img
+   464→                    src={a.cover || "/images/hero-kaaba.jpg"}
+   465→                    alt={a.title}
+   466→                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+   467→                  />
+   468→                  <Badge className="absolute top-3 left-3 bg-forest-deep/85 text-gold-soft backdrop-blur-sm border-none">
+   469→                    {a.category}
+   470→                  </Badge>
+   471→                </div>
+   472→                <div className="p-5">
+   473→                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+   474→                    <Icon name="calendar" className="h-3.5 w-3.5" />
+   475→                    {formatDate(a.createdAt)}
+   476→                  </div>
+   477→                  <h3 className="mt-2 font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+   478→                    {a.title}
+   479→                  </h3>
+   480→                  <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{a.excerpt}</p>
+   481→                </div>
+   482→              </button>
+   483→            </Reveal>
+   484→          ))}
+   485→        </div>
+   486→      </div>
+   487→    </section>
+   488→  );
+   489→}
+   490→
+   491→/* ================= CTA ================= */
+   492→function JoinCTA() {
+   493→  return (
+   494→    <section className="py-20">
+   495→      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+   496→        <Reveal>
+   497→          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-forest via-primary to-forest-deep p-10 sm:p-14 text-center shadow-2xl">
+   498→            <div className="absolute inset-0 bg-islamic-pattern-gold opacity-50" />
+   499→            <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-gold/20 blur-3xl animate-float-soft" />
+   500→            <div className="relative">
+   501→              <p className="font-arabic text-2xl text-gold" dir="rtl">{BRAND.arabic}</p>
+   502→              <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+   503→                Bersama Melayani Tamu Allah,<br />
+   504→                <span className="text-gold-gradient">Sampai Rumah dengan Selamat</span>
+   505→              </h2>
+   506→              <p className="mt-4 text-emerald-50/85 max-w-2xl mx-auto">
+   507→                PPIU, PIHK, KBIHU, IPHI, dan Travel Wisata Halal-Ziarah — satukan langkah dalam
+   508→                satu ekosistem yang amanah, profesional, dan terdigitalisasi.
+   509→              </p>
+   510→              <div className="mt-8 flex flex-wrap justify-center gap-3">
+   511→                <Button
+   512→                  size="lg"
+   513→                  onClick={() => navigate("gabung")}
+   514→                  className="bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold h-12 px-8 hover:brightness-110"
+   515→                >
+   516→                  <Icon name="handshake" className="h-5 w-5 mr-2" />
+   517→                  Daftar Keanggotaan
+   518→                </Button>
+   519→                <Button
+   520→                  size="lg"
+   521→                  variant="outline"
+   522→                  onClick={() => navigate("kontak")}
+   523→                  className="border-white/30 text-white hover:bg-white/10 h-12 px-8"
+   524→                >
+   525→                  Hubungi Kami
+   526→                </Button>
+   527→              </div>
+   528→            </div>
+   529→          </div>
+   530→        </Reveal>
+   531→      </div>
+   532→    </section>
+   533→  );
+   534→}
+   535→
+   536→/* ================= MAIN ================= */
+   537→export function HomeView() {
+   538→  const [data, setData] = useState<{
+   539→    ecosystems: Ecosystem[];
+   540→    steps: JourneyStep[];
+   541→    roadmap: Roadmap[];
+   542→    testimonials: Testimonial[];
+   543→    articles: Article[];
+   544→  } | null>(null);
+   545→  const [error, setError] = useState("");
+   546→
+   547→  useEffect(() => {
+   548→    Promise.all([
+   549→      apiGet<Ecosystem[]>("/api/ecosystems"),
+   550→      apiGet<JourneyStep[]>("/api/journey"),
+   551→      apiGet<Roadmap[]>("/api/roadmap"),
+   552→      apiGet<Testimonial[]>("/api/testimonials"),
+   553→      apiGet<Article[]>("/api/articles?limit=3"),
+   554→    ])
+   555→      .then(([ecosystems, steps, roadmap, testimonials, articles]) =>
+   556→        setData({ ecosystems, steps, roadmap, testimonials, articles })
+   557→      )
+   558→      .catch((e) => setError(e.message));
+   559→  }, []);
+   560→
+   561→  if (error) {
+   562→    return (
+   563→      <div className="py-24 text-center">
+   564→        <Icon name="alert-triangle" className="h-10 w-10 mx-auto text-destructive" />
+   565→        <p className="mt-3 text-muted-foreground">{error}</p>
+   566→        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+   567→          <Icon name="rotate" className="h-4 w-4 mr-2" /> Muat Ulang
+   568→        </Button>
+   569→      </div>
+   570→    );
+   571→  }
+   572→
+   573→  if (!data) return <LoadingSkeleton />;
+   574→
+   575→  return (
+   576→    <div className={cn("flex flex-col")}>
+   577→      <Hero />
+   578→      <NusukBar />
+   579→      <EcosystemSection ecosystems={data.ecosystems} />
+   580→      <JourneySection steps={data.steps} />
+   581→      <PartnersSection />
+   582→      <ValuesSection />
+   583→      <TechSection />
+   584→      <RoadmapSection roadmap={data.roadmap} />
+   585→      <BenefitsSection />
+   586→      <TestimonialSection testimonials={data.testimonials} />
+   587→      <LatestNews articles={data.articles} />
+   588→      <JoinCTA />
+   589→    </div>
+   590→  );
+   591→}
+   592→
+   593→function LoadingSkeleton() {
+   594→  return (
+   595→    <div className="space-y-6 pb-10">
+   596→      <div className="h-[520px] w-full bg-forest-deep/90" />
+   597→      <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-10">
+   598→        <Skeleton className="h-8 w-72 mx-auto" />
+   599→        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+   600→          {Array.from({ length: 5 }).map((_, i) => (
+   601→            <Skeleton key={i} className="h-40 rounded-2xl" />
+   602→          ))}
+   603→        </div>
+   604→        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+   605→          {Array.from({ length: 8 }).map((_, i) => (
+   606→            <Skeleton key={i} className="h-28 rounded-2xl" />
+   607→          ))}
+   608→        </div>
+   609→      </div>
+   610→    </div>
+   611→  );
+   612→}
+   613→

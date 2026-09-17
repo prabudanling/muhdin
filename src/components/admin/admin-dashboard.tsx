@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AdminBadge } from "@/components/admin/crud-manager";
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import type { AdminStats, MembershipApplication, ContactMessage } from "@/lib/types";
+import type { AdminStats, MembershipApplication, ContactMessage, NusukPublicData } from "@/lib/types";
 
 const PIE_COLORS = ["#0b5c3f", "#d4a017", "#3e8e68", "#8a6d1f", "#5db08c", "#b5cc4e"];
 
@@ -95,6 +95,9 @@ export function AdminDashboard({ onNavigate }: { onNavigate: (s: string) => void
           </button>
         ))}
       </div>
+
+      {/* Integrasi Nusuk status */}
+      <NusukStatusCard onNavigate={onNavigate} />
 
       {/* Charts */}
       <div className="grid gap-5 lg:grid-cols-2">
@@ -214,6 +217,62 @@ function RecentList({
             </div>
           ))
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ================= INTEGRASI NUSUK — STATUS CARD ================= */
+function NusukStatusCard({ onNavigate }: { onNavigate: (s: string) => void }) {
+  const [data, setData] = useState<NusukPublicData | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    apiGet<NusukPublicData>("/api/nusuk/public")
+      .then(setData)
+      .catch(() => setFailed(true));
+  }, []);
+
+  if (failed) return null;
+
+  const connected = data?.connection.status === "CONNECTED";
+
+  return (
+    <div className="rounded-2xl border bg-card p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="relative h-11 w-11 shrink-0 rounded-xl bg-primary/10 grid place-items-center text-primary">
+          <Icon name="satellite" className="h-5 w-5" />
+          <span className="absolute -top-1 -right-1 flex h-3 w-3" aria-hidden>
+            {connected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />}
+            <span className={`relative inline-flex rounded-full h-3 w-3 border-2 border-card ${connected ? "bg-primary" : "bg-muted-foreground/50"}`} />
+          </span>
+        </div>
+        <div className="min-w-0">
+          <p className="font-bold text-sm flex items-center gap-2">
+            Integrasi Nusuk
+            {data && (
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${connected ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                {connected ? "Terhubung" : "Terputus"}
+              </span>
+            )}
+          </p>
+          <p className="text-xs text-muted-foreground truncate">
+            {data
+              ? `${data.connection.environment || "—"} · ${data.metrics.permitsActive} izin aktif · ${data.metrics.successRate}% sukses sinkron`
+              : "Memuat status integrasi…"}
+          </p>
+        </div>
+      </div>
+      <div className="sm:ml-auto">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 text-primary border-primary/40 hover:bg-primary/10"
+          onClick={() => onNavigate("nusuk")}
+        >
+          Kelola Integrasi
+          <Icon name="chevron-right" className="h-3.5 w-3.5 ml-1" />
+        </Button>
       </div>
     </div>
   );
