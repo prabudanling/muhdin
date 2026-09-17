@@ -145,3 +145,27 @@ Stage Summary:
 - Sync engine: 44 izin diperbarui 258ms (idempoten); webhook PERMIT.RENEWED → "Event uji diterima, status ACTIVE"
 - Mobile 390px tanpa overflow; lint 0 error; dev.log bersih
 - Total kini: 27 API routes, 17 model Prisma, 13 tutorial, 13 FAQ
+
+---
+Task ID: 13 (Shared Hosting Deployment Kit)
+Agent: Z.ai Code (main orchestrator)
+Task: Agar MUHDIN bisa berjalan di shared hosting (cPanel Node.js/Passenger) + fitur pendukung go-live
+
+Work Log:
+- Prisma: generator binaryTargets multi-platform (native + debian-openssl-3.0.x + rhel-openssl-3.0.x) agar Query Engine SQLite jalan di CloudLinux/cPanel maupun Debian/Ubuntu; prisma generate sukses (2 engine @17.5MB terunduh)
+- next.config.ts: outputFileTracingIncludes "/**" → ./node_modules/.prisma/** agar semua engine ikut ter-bundle standalone; tambah poweredByHeader:false + compress:true
+- CREATE server.js (startup file cPanel): loader .env tanpa dependensi (env cPanel tidak ditimpa), resolver placeholder __APP__/__HOME__, default DATABASE_URL → <appRoot>/db/custom.db, pre-flight check (build & DB) dengan pesan galat Indonesia + solusi, banner startup info, PORT/HOSTNAME/NODE_ENV/telemetri default aman
+- API baru: GET /api/health (kesehatan DB+runtime, 200/503, tanpa info sensitif) dan PUT /api/auth/password (ganti password admin: verifikasi password lama, min 8 char via zod, tolak password sama, hapus semua sesi perangkat lain via $transaction, sesi saat ini dipertahankan)
+- CMS: AdminSettings kini punya 2 kartu baru — AdminServerStatusCard (health live /api/health: badge status, Node ver, platform, latensi DB, RAM+uptime, tombol Cek Ulang) dan AdminSecurityCard (ganti password: show/hide eye toggle, meter kekuatan 4 level, validasi mismatch/weak inline, auto-clear + toast); icon.tsx tambah eye-off/server/hard-drive/cpu/gauge
+- auth.ts: cookie session secure:true saat NODE_ENV=production (dev tetap non-secure)
+- Deployment kit: CREATE scripts/post-build.mjs (ganti cp -r, cross-platform) + scripts/pack-shared-hosting.mjs (susun release/muhdin-shared-hosting: standalone+static+public+db+schema+server.js+.env+.htaccess+panduan+RELEASE-INFO, jaring pengaman copy engine Prisma, zip otomatis zip/PowerShell, ringkasan ukuran); package.json: build → next build && node scripts/post-build.mjs, script baru hosting:pack, engines node>=20.9
+- CREATE .env.example, .env.production.example (DATABASE_URL=file:__APP__/db/custom.db), .htaccess (paksa HTTPS, header keamanan, blokir .env/*.db, contoh PassengerAppRoot); .gitignore + /release/
+- CREATE PANDUAN-SHARED-HOSTING.md (Bahasa Indonesia, sangat detail): arsitektur, prasyarat, Langkah A build+pack lokal, B upload cPanel File Manager, C Setup Node.js App (tabel field: Node 20/22, root, URL, startup file server.js; npm install TIDAK perlu), D domain+AutoSSL, E checklist verifikasi 8 butir, keamanan produksi, update/rollback + backup db (cron), troubleshooting 11 gejala, alternatif tanpa Node.js, FAQ
+- eslint.config.mjs: ignore server.js + scripts/** + release/** (file deployment CJS)
+- Verifikasi: node --check 3 file OK; lint 0 error; tsc bersih utk file baru; curl / 200; /api/health {"ok":true,"db":4ms}; alur password via curl (ganti→login lama 401→login baru OK→validasi 401/salah/pendek OK→revert OK) dan via UI browser (fill→meter kekuatan→submit→toast "Password diperbarui ✓"→field kosong→tombol disabled) x2 bolak-balik; password akhir dikembalikan ke muhdin2026 (login 200); pre-flight server.js tanpa build → pesan galat jelas + exit 1; Agent Browser #/nusuk (8 seksi, tanpa overflow) & beranda & admin mobile 390px → 0 error console/page; dev.log bersih
+
+Stage Summary:
+- Aplikasi kini SIAP DEPLOY ke shared hosting cPanel: build lokal (npm run build) → pack (npm run hosting:pack) → upload zip → Setup Node.js App (startup file server.js) → Restart → https + AutoSSL → go-live
+- Zero-config di hosting: DATABASE_URL ter-resolve otomatis (placeholder __APP__), engine Prisma multi-platform ter-bundle, tanpa npm install di server
+- Fitur baru CMS: ganti password admin (wajib pasca go-live) + kartu Status Server health hosting
+- Panduan lengkap: PANDUAN-SHARED-HOSTING.md; kredensial admin tetap admin@muhdin.web.id / muhdin2026 (WAJIB diganti setelah go-live via kartu Keamanan Akun)

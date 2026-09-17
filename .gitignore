@@ -50,5 +50,7 @@ test
 prompt
 
 server.log
+# Shared hosting release package
+/release/
 # Skills directory
 /skills/

@@ -31,7 +31,9 @@ export async function createSession(userId: string) {
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: false,
+    // Cookie Secure saat produksi (hosting sudah HTTPS). Di dev/preview lokal
+    // tetap non-secure agar login tetap berfungsi tanpa SSL.
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: SESSION_DAYS * 24 * 60 * 60,
   });

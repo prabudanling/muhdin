@@ -1,5 +1,8 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Multi-platform: supaya Query Engine SQLite tetap jalan di shared hosting
+  // CloudLinux/cPanel (rhel) maupun Debian/Ubuntu (debian).
+  binaryTargets = ["native", "debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

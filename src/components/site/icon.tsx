@@ -12,7 +12,7 @@ import {
   KeyRound, ShieldAlert, Target, HeartPulse, Wallet, BarChart3, Wifi, Printer, Download,
   Compass, Handshake, TentTree, ScrollText, Info, Ban, RefreshCw, User,
   Webhook, QrCode, Braces, Terminal, Activity, PlugZap, ScanLine, RadioTower,
-  Timer, DatabaseZap, Satellite, Radar, Cable, Fingerprint, ShieldEllipsis,
+  Timer, DatabaseZap, Satellite, Radar, Cable, Fingerprint, ShieldEllipsis, EyeOff, Server, HardDrive, Cpu, Gauge,
 } from "lucide-react";
 
 export const ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
@@ -121,6 +121,11 @@ export const ICONS: Record<string, React.ComponentType<{ className?: string; str
   cable: Cable,
   fingerprint: Fingerprint,
   "shield-ellipsis": ShieldEllipsis,
+  "eye-off": EyeOff,
+  server: Server,
+  "hard-drive": HardDrive,
+  cpu: Cpu,
+  gauge: Gauge,
 };
 
 export function Icon({

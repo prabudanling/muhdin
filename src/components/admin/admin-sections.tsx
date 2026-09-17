@@ -821,6 +821,12 @@ export function AdminSettings() {
           </div>
         ))}
       </div>
+
+      {/* Keamanan akun + status server hosting */}
+      <div className="mt-5 space-y-5">
+        <AdminServerStatusCard />
+        <AdminSecurityCard />
+      </div>
     </div>
   );
 }
@@ -1624,6 +1630,269 @@ export function AdminNusuk() {
             </div>
           )}
         </section>
+      </div>
+    </div>
+  );
+}
+
+/* ============ STATUS SERVER HOSTING & KEAMANAN AKUN (Deployment) ============ */
+
+type HealthPayload = {
+  ok: boolean;
+  service: string;
+  checks: { database: { ok: boolean; latencyMs: number; error: string | null } };
+  runtime: { node: string; nodeEnv: string; platform: string; uptimeSec: number; memoryMb: number };
+  timestamp: string;
+};
+
+function formatUptime(sec: number) {
+  if (sec < 60) return `${sec} detik`;
+  const m = Math.floor(sec / 60);
+  if (m < 60) return `${m} menit`;
+  const h = Math.floor(m / 60);
+  return `${h} jam ${m % 60} mnt`;
+}
+
+/** Kartu Status Server — membaca /api/health untuk verifikasi hosting. */
+export function AdminServerStatusCard() {
+  const [health, setHealth] = useState<HealthPayload | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiGet<HealthPayload>("/api/health")
+      .then((d) => {
+        if (!cancelled) setHealth(d);
+      })
+      .catch(() => {
+        if (!cancelled) setHealth(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+
+  const dbOk = health?.checks.database.ok;
+
+  return (
+    <div className="rounded-2xl border bg-card p-5 shadow-sm">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="h-9 w-9 rounded-lg bg-primary/10 grid place-items-center text-primary shrink-0">
+          <Icon name="server" className="h-4 w-4" />
+        </div>
+        <div className="min-w-0">
+          <h3 className="font-bold leading-tight">Status Server (Hosting)</h3>
+          <p className="text-xs text-muted-foreground">
+            Healthcheck <code className="font-mono">/api/health</code> — dipakai saat verifikasi
+            deployment di shared hosting.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto shrink-0"
+          onClick={() => {
+            setLoading(true);
+            setAttempt((a) => a + 1);
+          }}
+          aria-label="Muat ulang status server"
+        >
+          <Icon name={loading ? "loader-2" : "refresh"} className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          <span className="hidden sm:inline sm:ml-2">Cek Ulang</span>
+        </Button>
+      </div>
+
+      {loading && !health ? (
+        <div className="grid gap-3 sm:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-xl" />
+          ))}
+        </div>
+      ) : !health ? (
+        <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+          <Icon name="alert-triangle" className="h-4 w-4 mt-0.5 shrink-0" />
+          <span>
+            Server tidak terjangkau / health gagal. Jika baru selesai upload, lihat bagian
+            <strong> Troubleshooting</strong> pada <code className="font-mono">PANDUAN-SHARED-HOSTING.md</code>.
+          </span>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary border-primary/30">
+              <span className={`h-2 w-2 rounded-full ${dbOk ? "bg-primary animate-pulse" : "bg-destructive"}`} />
+              {dbOk ? "Server & Database Berjalan" : "Database Bermasalah"}
+            </span>
+            <Badge variant="outline" className="text-xs font-mono">{health.runtime.nodeEnv}</Badge>
+            {health.checks.database.error && (
+              <span className="text-xs text-destructive font-mono truncate max-w-full">
+                {health.checks.database.error}
+              </span>
+            )}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { icon: "cpu", label: "Node.js", value: health.runtime.node },
+              { icon: "hard-drive", label: "Platform", value: health.runtime.platform },
+              { icon: "database-zap", label: "Latensi DB", value: `${health.checks.database.latencyMs} ms` },
+              { icon: "gauge", label: "RAM · Uptime", value: `${health.runtime.memoryMb} MB · ${formatUptime(health.runtime.uptimeSec)}` },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl border bg-muted/30 p-3">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                  <Icon name={s.icon} className="h-3.5 w-3.5" />
+                  {s.label}
+                </div>
+                <div className="text-sm font-bold font-mono truncate" title={s.value}>{s.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Kartu Keamanan Akun — ganti password admin (wajib setelah go-live). */
+export function AdminSecurityCard() {
+  const { toast } = useToast();
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const weak = next.length > 0 && next.length < 8;
+  const mismatch = confirmPw.length > 0 && next !== confirmPw;
+  const canSubmit = !!current && next.length >= 8 && next === confirmPw && !saving;
+
+  const strength = (() => {
+    if (!next) return 0;
+    let s = 0;
+    if (next.length >= 8) s++;
+    if (next.length >= 12) s++;
+    if (/[A-Z]/.test(next) && /[a-z]/.test(next)) s++;
+    if (/\d/.test(next) && /[^A-Za-z0-9]/.test(next)) s++;
+    return s;
+  })();
+  const strengthMeta = [
+    { label: "Sangat lemah", cls: "bg-destructive" },
+    { label: "Lemah", cls: "bg-destructive" },
+    { label: "Cukup", cls: "bg-gold" },
+    { label: "Kuat", cls: "bg-primary" },
+    { label: "Sangat kuat", cls: "bg-primary" },
+  ][strength];
+
+  const submit = async () => {
+    if (!canSubmit) return;
+    setSaving(true);
+    try {
+      const res = await apiSend<{ ok: boolean; message: string }>("/api/auth/password", "PUT", {
+        currentPassword: current,
+        newPassword: next,
+      });
+      toast({ title: "Password diperbarui ✓", description: res.message });
+      setCurrent("");
+      setNext("");
+      setConfirmPw("");
+    } catch (e) {
+      toast({ title: "Gagal mengganti password", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border bg-card p-5 shadow-sm">
+      <div className="flex items-start gap-3 mb-1">
+        <div className="h-9 w-9 rounded-lg bg-gold/15 grid place-items-center text-gold-deep shrink-0">
+          <Icon name="keyround" className="h-4 w-4" />
+        </div>
+        <div className="min-w-0">
+          <h3 className="font-bold leading-tight">Keamanan Akun</h3>
+          <p className="text-xs text-muted-foreground">
+            Ganti password default <code className="font-mono">muhdin2026</code> segera setelah situs
+            go-live di muhdin.web.id. Perangkat lain akan otomatis dikeluarkan.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 mt-4 lg:grid-cols-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="pw-current" className="text-xs">Password Saat Ini</Label>
+          <div className="relative">
+            <Input
+              id="pw-current"
+              type={showPw ? "text" : "password"}
+              value={current}
+              onChange={(e) => setCurrent(e.target.value)}
+              placeholder="Password yang sedang dipakai"
+              className="text-sm pr-9"
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw((v) => !v)}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label={showPw ? "Sembunyikan password" : "Tampilkan password"}
+            >
+              <Icon name={showPw ? "eye-off" : "eye"} className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="pw-new" className="text-xs">Password Baru</Label>
+          <Input
+            id="pw-new"
+            type={showPw ? "text" : "password"}
+            value={next}
+            onChange={(e) => setNext(e.target.value)}
+            placeholder="Minimal 8 karakter"
+            className={`text-sm ${weak ? "border-destructive" : ""}`}
+            autoComplete="new-password"
+          />
+          {next && (
+            <div className="flex items-center gap-2" aria-live="polite">
+              <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div className={`h-full rounded-full transition-all ${strengthMeta.cls}`} style={{ width: `${(strength / 4) * 100}%` }} />
+              </div>
+              <span className="text-[10px] text-muted-foreground whitespace-nowrap">{strengthMeta.label}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="pw-confirm" className="text-xs">Konfirmasi Password Baru</Label>
+          <Input
+            id="pw-confirm"
+            type={showPw ? "text" : "password"}
+            value={confirmPw}
+            onChange={(e) => setConfirmPw(e.target.value)}
+            placeholder="Ulangi password baru"
+            className={`text-sm ${mismatch ? "border-destructive" : ""}`}
+            autoComplete="new-password"
+          />
+          {mismatch && <p className="text-[11px] text-destructive">Konfirmasi tidak sama dengan password baru.</p>}
+          {weak && <p className="text-[11px] text-destructive">Minimal 8 karakter.</p>}
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-4">
+        <Button
+          onClick={submit}
+          disabled={!canSubmit}
+          className="bg-gradient-to-r from-primary to-forest text-white"
+        >
+          {saving ? <Icon name="loader-2" className="h-4 w-4 mr-2 animate-spin" /> : <Icon name="shield-check" className="h-4 w-4 mr-2" />}
+          Perbarui Password
+        </Button>
+        <p className="text-xs text-muted-foreground sm:ml-1">
+          Gunakan kombinasi huruf besar-kecil, angka, dan simbol untuk kekuatan maksimal.
+        </p>
       </div>
     </div>
   );
