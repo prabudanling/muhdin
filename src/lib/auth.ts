@@ -54,6 +54,12 @@ export async function getSessionUser() {
       await db.session.delete({ where: { id: session.id } }).catch(() => {});
       return null;
     }
+    // Multi-admin (Task 15-c): akun yang dinonaktifkan/dihapus oleh Super
+    // Admin kehilangan akses seketika — sesi ikut dibersihkan.
+    if (!session.user.isActive) {
+      await db.session.deleteMany({ where: { userId: session.user.id } }).catch(() => {});
+      return null;
+    }
     return session.user;
   } catch {
     return null;
@@ -73,5 +79,12 @@ export async function destroySession() {
 export async function requireAdmin() {
   const user = await getSessionUser();
   if (!user) return null;
+  return user;
+}
+
+/** Multi-admin: sesi valid DAN peran SUPER_ADMIN, else null. */
+export async function requireSuperAdmin() {
+  const user = await requireAdmin();
+  if (!user || user.role !== "SUPER_ADMIN") return null;
   return user;
 }

@@ -5,6 +5,7 @@ import { apiGet, apiSend } from "@/lib/client-api";
 import { navigate } from "@/hooks/use-hash-route";
 import { MuhdinBrand, MuhdinLogo } from "@/components/site/logo";
 import { Icon } from "@/components/site/icon";
+import { ThemeSwitcher } from "@/components/site/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,9 @@ import {
   AdminTutorials, AdminFaqs, AdminTestimonials, AdminManagement,
   AdminMessages, AdminApplications, AdminNusuk, AdminSettings, AdminTranslator,
 } from "@/components/admin/admin-sections";
+import { AdminUsers } from "@/components/admin/admin-users";
+import { AdminWhatsAppCard } from "@/components/admin/admin-whatsapp";
+import { visibleSections, ROLE_LABELS } from "@/lib/roles";
 import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +39,7 @@ const MENU = [
   { id: "management", label: "Struktur Organisasi", icon: "users" },
   { id: "settings", label: "Pengaturan Situs", icon: "settings" },
   { id: "translator", label: "Penerjemah Cerdas", icon: "languages" },
+  { id: "users", label: "Kelola Admin", icon: "user-cog" },
 ];
 
 export function AdminView() {
@@ -76,6 +81,10 @@ export function AdminView() {
   if (!user) return <LoginForm onSuccess={check} />;
 
   const current = MENU.find((m) => m.id === section);
+  // Task 15-c — gating menu sesuai peran (SUPER_ADMIN / ADMIN / EDITOR).
+  const allowed = visibleSections(user.role);
+  const menu = MENU.filter((m) => allowed.has(m.id));
+  const activeSection = allowed.has(section) ? section : "dashboard";
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -86,7 +95,7 @@ export function AdminView() {
         </p>
       </div>
       <nav className="flex-1 overflow-y-auto scrollbar-thin p-3 space-y-0.5" aria-label="Menu admin">
-        {MENU.map((m) => (
+        {menu.map((m) => (
           <button
             key={m.id}
             onClick={() => {
@@ -95,7 +104,7 @@ export function AdminView() {
             }}
             className={cn(
               "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all",
-              section === m.id
+              activeSection === m.id
                 ? "bg-gradient-to-r from-primary to-forest text-white shadow-md"
                 : "text-foreground/70 hover:bg-primary/10 hover:text-primary"
             )}
@@ -113,6 +122,9 @@ export function AdminView() {
           <div className="min-w-0">
             <p className="text-sm font-bold truncate">{user.name}</p>
             <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
+            <span className="mt-1 inline-block rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+              {ROLE_LABELS[user.role] ?? user.role}
+            </span>
           </div>
         </div>
         <Button variant="outline" size="sm" className="w-full" onClick={logout}>
@@ -149,6 +161,7 @@ export function AdminView() {
               <h1 className="font-extrabold text-lg truncate">{current?.label || "Dashboard"}</h1>
             </div>
             <div className="ml-auto flex items-center gap-2">
+              <ThemeSwitcher variant="compact" />
               <Button variant="ghost" size="sm" onClick={() => navigate("beranda")} className="hidden sm:inline-flex text-primary">
                 <Icon name="external-link" className="h-4 w-4 mr-1.5" />
                 Lihat Situs
@@ -171,8 +184,14 @@ export function AdminView() {
           {section === "faqs" && <AdminFaqs />}
           {section === "testimonials" && <AdminTestimonials />}
           {section === "management" && <AdminManagement />}
-          {section === "settings" && <AdminSettings />}
+          {section === "settings" && (
+            <>
+              <AdminSettings />
+              <AdminWhatsAppCard />
+            </>
+          )}
           {section === "translator" && <AdminTranslator />}
+          {section === "users" && <AdminUsers meId={user.id} />}
         </main>
 
         <footer className="border-t px-6 py-4 text-center text-xs text-muted-foreground pb-[max(1rem,env(safe-area-inset-bottom))]">

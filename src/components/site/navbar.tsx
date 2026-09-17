@@ -5,6 +5,7 @@ import { useHashRoute, navigate } from "@/hooks/use-hash-route";
 import { MuhdinBrand } from "@/components/site/logo";
 import { Icon } from "@/components/site/icon";
 import { LocaleSwitcher } from "@/components/site/locale-switcher";
+import { ThemeSwitcher } from "@/components/site/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { useT } from "@/lib/i18n";
@@ -71,6 +72,7 @@ export function Navbar() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-2">
+            <ThemeSwitcher />
             <LocaleSwitcher />
             <Button
               variant="ghost"
@@ -123,7 +125,11 @@ export function Navbar() {
                     </button>
                   ))}
                 </nav>
-                <div className="p-4 border-t space-y-2">
+                <div className="p-4 border-t space-y-3">
+                  <div className="grid grid-cols-1 gap-2">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t("common.theme")}</p>
+                    <ThemeSwitcher variant="mobile" />
+                  </div>
                   <LocaleSwitcher variant="mobile" />
                   <Button className="w-full" onClick={() => go("gabung")}>
                     {t("navbar.gabung")}

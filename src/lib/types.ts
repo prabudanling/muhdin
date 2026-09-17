@@ -153,6 +153,32 @@ export interface User {
   email: string;
   name: string;
   role: string;
+  isActive?: boolean;
+}
+
+/** Task 15-c — baris daftar akun admin (tanpa password). */
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  isActive: boolean;
+  lastLoginAt: string | null;
+  createdAt: string;
+}
+
+/** Task 15-d — konfigurasi notifikasi WhatsApp (token tidak pernah dikirim balik). */
+export interface WhatsAppConfig {
+  provider: string;
+  apiUrl: string;
+  target: string;
+  enabled: boolean;
+  notifyContact: boolean;
+  notifyApplication: boolean;
+  hasToken: boolean;
+  tokenMasked: string;
+  lastTestAt: string | null;
+  lastTestStatus: string;
 }
 
 // ==================== NUSUK ====================

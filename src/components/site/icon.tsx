@@ -13,6 +13,7 @@ import {
   Compass, Handshake, TentTree, ScrollText, Info, Ban, RefreshCw, User,
   Webhook, QrCode, Braces, Terminal, Activity, PlugZap, ScanLine, RadioTower,
   Timer, DatabaseZap, Satellite, Radar, Cable, Fingerprint, ShieldEllipsis, EyeOff, Server, HardDrive, Cpu, Gauge,
+  Sun, Moon, Monitor, Bell, BellRing, MessageCircle, UserCog,
 } from "lucide-react";
 
 export const ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
@@ -126,6 +127,13 @@ export const ICONS: Record<string, React.ComponentType<{ className?: string; str
   "hard-drive": HardDrive,
   cpu: Cpu,
   gauge: Gauge,
+  sun: Sun,
+  moon: Moon,
+  monitor: Monitor,
+  bell: Bell,
+  "bell-ring": BellRing,
+  "message-circle": MessageCircle,
+  "user-cog": UserCog,
 };
 
 export function Icon({

@@ -13,14 +13,16 @@ datasource db {
 // ==================== AUTH ====================
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  name      String
-  role      String    @default("ADMIN")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  sessions  Session[]
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  name        String
+  role        String    @default("ADMIN") // SUPER_ADMIN | ADMIN | EDITOR
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  sessions    Session[]
 }
 
 model Session {
@@ -247,4 +249,24 @@ model ContentTranslation {
   @@unique([entity, entityKey, locale, field])
   @@index([entity, locale])
   @@index([locale, entityKey])
+}
+
+// ==================== NOTIFIKASI WHATSAPP (Task 15-d) ====================
+
+/// Konfigurasi gateway WhatsApp (baris tunggal — singleton id pertama).
+/// Token tersimpan di DB lokal (bukan SiteSetting) agar tidak bocor lewat
+/// GET /api/settings yang bersifat publik.
+model WhatsAppSetting {
+  id                String    @id @default(cuid())
+  provider          String    @default("FONNTE") // FONNTE | WABLAS | CUSTOM
+  apiUrl            String    @default("") // endpoint khusus untuk CUSTOM
+  token             String    @default("")
+  target            String    @default("") // nomor admin tujuan, format 62xxx
+  enabled           Boolean   @default(false) // saklar induk notifikasi
+  notifyContact     Boolean   @default(true) // pesan kontak baru
+  notifyApplication Boolean   @default(true) // pendaftaran anggota baru
+  lastTestAt        DateTime?
+  lastTestStatus    String    @default("")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }

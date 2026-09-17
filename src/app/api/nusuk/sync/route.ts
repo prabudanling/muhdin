@@ -1,10 +1,10 @@
 import { db } from "@/lib/db";
-import { ok, fail, guardAdmin } from "@/lib/api-helpers";
+import { ok, fail, guardRole } from "@/lib/api-helpers";
 import { runSync } from "@/lib/nusuk-engine";
 
 /** POST — jalankan sinkronisasi penuh dengan Nusuk */
 export async function POST() {
-  const denied = await guardAdmin();
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
   if (denied) return denied;
   try {
     const result = await runSync();

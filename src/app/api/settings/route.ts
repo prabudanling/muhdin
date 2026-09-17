@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { guardRole, ok, fail } from "@/lib/api-helpers";
 import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
 
 export async function GET(req: NextRequest) {
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const denied = await guardAdmin();
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
   if (denied) return denied;
   try {
     const body = (await req.json()) as Record<string, string>;

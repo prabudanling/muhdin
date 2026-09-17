@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { guardRole, ok, fail } from "@/lib/api-helpers";
 
 export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const denied = await guardAdmin();
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
   if (denied) return denied;
   const { id } = await ctx.params;
   try {
@@ -42,7 +42,7 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
 }
 
 export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const denied = await guardAdmin();
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
   if (denied) return denied;
   const { id } = await ctx.params;
   try {

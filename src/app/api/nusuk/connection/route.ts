@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { ok, guardAdmin } from "@/lib/api-helpers";
+import { ok, guardAdmin, guardRole } from "@/lib/api-helpers";
 import { ensureConnection } from "@/lib/nusuk-engine";
 
 function mask(key: string) {
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
 /** POST — hubungkan ke Nusuk { environment } */
 export async function POST(req: NextRequest) {
-  const denied = await guardAdmin();
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
   if (denied) return denied;
   const body = await req.json().catch(() => ({}));
   const environment = body.environment === "PRODUCTION" ? "PRODUCTION" : "SANDBOX";
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
 /** PUT — perbarui autoSync { autoSync } */
 export async function PUT(req: NextRequest) {
-  const denied = await guardAdmin();
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
   if (denied) return denied;
   const body = await req.json().catch(() => ({}));
   const conn = await ensureConnection();
@@ -66,7 +66,7 @@ export async function PUT(req: NextRequest) {
 
 /** DELETE — putuskan koneksi */
 export async function DELETE() {
-  const denied = await guardAdmin();
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
   if (denied) return denied;
   const conn = await ensureConnection();
   const updated = await db.nusukConnection.update({

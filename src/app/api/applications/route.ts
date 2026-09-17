@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { notifyMembershipApplication } from "@/lib/whatsapp";
 
 export async function GET() {
   const denied = await guardAdmin();
@@ -33,6 +34,16 @@ export async function POST(req: NextRequest) {
         licenseNo: String(body.licenseNo).trim(),
         message: body.message ? String(body.message) : null,
       },
+    });
+    // Task 15-d — notifikasi WhatsApp (fire-and-forget, gagal-aman).
+    void notifyMembershipApplication({
+      orgName: app.orgName,
+      type: app.type,
+      contactName: app.contactName,
+      email: app.email,
+      phone: app.phone,
+      city: app.city,
+      licenseNo: app.licenseNo,
     });
     return ok(app, 201);
   } catch {

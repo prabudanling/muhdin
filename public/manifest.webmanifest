@@ -1,0 +1,41 @@
+{
+  "name": "MUHDIN — Masyarakat Umroh Haji Digital Nusantara",
+  "short_name": "MUHDIN",
+  "description": "Portal resmi MUHDIN — Asosiasi di Atas Asosiasi Penyelenggara Ibadah, Operator Nusuk Indonesia. 13 Ekosistem layanan umroh-haji terintegrasi. Bersama Melayani Tamu Allah.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7fcf9",
+  "theme_color": "#0b5c3f",
+  "lang": "id",
+  "dir": "ltr",
+  "categories": ["travel", "religion", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nusuk Hub",
+      "short_name": "Nusuk",
+      "url": "/#nusuk",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Direktori Anggota",
+      "short_name": "Anggota",
+      "url": "/#anggota",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tutorial",
+      "short_name": "Tutorial",
+      "url": "/#tutorial",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -16,6 +16,7 @@ import { JoinView } from "@/components/views/join-view";
 import { NusukView } from "@/components/views/nusuk-view";
 import { AdminView } from "@/components/admin/admin-view";
 import { LocaleProvider, useT } from "@/lib/i18n";
+import { RegisterSW } from "@/components/pwa/register-sw";
 
 function LoadingSplash() {
   const { t } = useT();
@@ -104,6 +105,7 @@ export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en
 
   return (
     <LocaleProvider initialLocale={initialLocale}>
+      <RegisterSW />
       {isAdmin ? (
         <div className="min-h-screen bg-muted/40 flex flex-col">
           <AdminView />

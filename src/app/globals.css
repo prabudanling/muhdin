@@ -99,8 +99,10 @@
   --card-foreground: oklch(0.96 0.008 140);
   --popover: oklch(0.22 0.025 165);
   --popover-foreground: oklch(0.96 0.008 140);
-  --primary: oklch(0.74 0.13 155);
-  --primary-foreground: oklch(0.18 0.04 165);
+  /* Primary dark dimmed (0.66): teks putih di CTA gradient from-primary
+     to-forest tetap kontras di kedua ujung gradient */
+  --primary: oklch(0.66 0.12 155);
+  --primary-foreground: oklch(0.985 0.005 120);
   --secondary: oklch(0.26 0.03 165);
   --secondary-foreground: oklch(0.96 0.008 140);
   --muted: oklch(0.26 0.03 165);
@@ -111,15 +113,15 @@
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.74 0.13 155);
-  --chart-1: oklch(0.74 0.13 155);
+  --chart-1: oklch(0.66 0.12 155);
   --chart-2: oklch(0.75 0.14 85);
   --chart-3: oklch(0.6 0.1 165);
   --chart-4: oklch(0.68 0.13 100);
   --chart-5: oklch(0.52 0.09 170);
   --sidebar: oklch(0.2 0.025 165);
   --sidebar-foreground: oklch(0.96 0.008 140);
-  --sidebar-primary: oklch(0.74 0.13 155);
-  --sidebar-primary-foreground: oklch(0.18 0.04 165);
+  --sidebar-primary: oklch(0.66 0.12 155);
+  --sidebar-primary-foreground: oklch(0.985 0.005 120);
   --sidebar-accent: oklch(0.3 0.04 163);
   --sidebar-accent-foreground: oklch(0.96 0.008 140);
   --sidebar-border: oklch(1 0 0 / 12%);

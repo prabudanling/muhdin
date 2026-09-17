@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { notifyContactMessage } from "@/lib/whatsapp";
 
 export async function GET(req: NextRequest) {
   const denied = await guardAdmin();
@@ -29,6 +30,8 @@ export async function POST(req: NextRequest) {
     const msg = await db.contactMessage.create({
       data: { name, email, subject, message, phone: body.phone ? String(body.phone) : null },
     });
+    // Task 15-d — notifikasi WhatsApp (fire-and-forget, gagal-aman).
+    void notifyContactMessage({ name, email, phone: msg.phone, subject, message });
     return ok(msg, 201);
   } catch {
     return fail("Gagal mengirim pesan.", 500);
