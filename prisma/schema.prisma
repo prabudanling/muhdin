@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== AUTH ====================
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("ADMIN")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sessions  Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// ==================== KONTEN ====================
+
+model Article {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String
+  content   String
+  category  String   @default("Berita")
+  cover     String?
+  status    String   @default("PUBLISHED")
+  featured  Boolean  @default(false)
+  views     Int      @default(0)
+  author    String   @default("Tim MUHDIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ecosystem {
+  id          String   @id @default(cuid())
+  number      Int      @unique
+  name        String
+  cluster     String
+  scope       String
+  standard    String
+  icon        String   @default("hexagon")
+  color       String   @default("emerald")
+  description String
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model JourneyStep {
+  id       String @id @default(cuid())
+  step     Int    @unique
+  title    String
+  activity String
+  actor    String
+  output   String
+  icon     String @default("circle")
+}
+
+model Roadmap {
+  id           String @id @default(cuid())
+  phase        String
+  period       String
+  focus        String
+  deliverables String
+  order        Int    @default(0)
+}
+
+// ==================== KEANGGOTAAN ====================
+
+model Member {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  city        String
+  province    String
+  licenseNo   String
+  phone       String?
+  email       String?
+  website     String?
+  description String?
+  rating      Float    @default(4.5)
+  status      String   @default("TERVERIFIKASI")
+  memberSince Int      @default(2026)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MembershipApplication {
+  id          String   @id @default(cuid())
+  orgName     String
+  type        String
+  contactName String
+  email       String
+  phone       String
+  city        String
+  province    String
+  licenseNo   String
+  message     String?
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==================== TUTORIAL ====================
+
+model Tutorial {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  category  String   @default("Umum")
+  level     String   @default("Pemula")
+  duration  Int      @default(10)
+  summary   String
+  content   String
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==================== KOMUNIKASI ====================
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  status    String   @default("UNREAD")
+  createdAt DateTime @default(now())
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String   @default("Umum")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  content   String
+  rating    Int      @default(5)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ==================== PROFIL ====================
+
+model Management {
+  id       String @id @default(cuid())
+  name     String
+  position String
+  bio      String?
+  order    Int    @default(0)
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
