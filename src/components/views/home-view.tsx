@@ -1,28 +1,61 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiGet, formatDate, timeAgo } from "@/lib/client-api";
+import { apiGet } from "@/lib/client-api";
 import { navigate } from "@/hooks/use-hash-route";
 import { Icon } from "@/components/site/icon";
 import { Reveal, SectionHeading } from "@/components/site/reveal";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  PARTNERS, CORE_VALUES, TECH_PILLARS, BENEFITS, CLUSTERS, STATS_HIGHLIGHT, BRAND,
-} from "@/lib/constants";
+import { PARTNERS, CORE_VALUES, TECH_PILLARS, CLUSTERS, BRAND } from "@/lib/constants";
+import { useT, formatDateL10n, formatNumberL10n, type Locale } from "@/lib/i18n";
 import type { Ecosystem, JourneyStep, Roadmap, Testimonial, Article, NusukPublicData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+/* Pemetaan ikon/urutan (dari lib/constants.ts) → key kamus. Ikon & warna tetap di kode. */
+const HERO_STAT_KEYS = ["jamaah", "mitra", "sdm", "command"] as const;
+const HERO_STAT_ICONS = ["users", "handshake", "badge-check", "shield-check"] as const;
+const CLUSTER_KEYS = ["akses", "ibadah", "mutu"] as const;
+const PARTNER_KEYS = ["ppiu", "pihk", "kbihu", "iphi", "tw"] as const;
+const VALUE_KEYS = ["amanah", "profesional", "terintegrasi", "transparan", "tepercaya"] as const;
+const PILLAR_KEYS = ["app", "gps", "ai", "nusuk", "dashboard", "multiBahasa"] as const;
+const PRIVACY_KEYS = ["priv1", "priv2", "priv3", "priv4"] as const;
+const BENEFIT_KEYS = ["b1", "b2", "b3", "b4", "b5", "b6", "b7"] as const;
+const NUSUK_BAR_KEYS = ["p1", "p2", "p3", "p4", "p5", "p6"] as const;
+
+/* timeAgo versi i18n (label & satuan lewat kamus, angka via formatNumberL10n). */
+function timeAgoL10n(
+  iso: string | null | undefined,
+  t: (key: string, vars?: Record<string, string | number>) => string,
+  locale: Locale
+) {
+  if (!iso) return t("home.nusukLive.belumSinkron");
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const s = Math.max(1, Math.floor(diff / 1000));
+    if (s < 60) return t("home.nusukLive.detik", { n: formatNumberL10n(s, locale) });
+    const m = Math.floor(s / 60);
+    if (m < 60) return t("home.nusukLive.menit", { n: formatNumberL10n(m, locale) });
+    const h = Math.floor(m / 60);
+    if (h < 24) return t("home.nusukLive.jam", { n: formatNumberL10n(h, locale) });
+    const d = Math.floor(h / 24);
+    return t("home.nusukLive.hari", { n: formatNumberL10n(d, locale) });
+  } catch {
+    return iso;
+  }
+}
+
 /* ================= HERO ================= */
 function Hero() {
+  const { t } = useT();
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0">
         { }
         <img
           src="/images/hero-kaaba.jpg"
-          alt="Kabah Masjidil Haram saat senja keemasan"
+          alt={t("home.hero.imgAlt")}
           className="h-full w-full object-cover bg-gradient-to-br from-forest-deep to-forest"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/90 via-forest-deep/75 to-forest-deep/95" />
@@ -34,20 +67,19 @@ function Hero() {
           <Reveal>
             <Badge className="mb-5 bg-gold/20 text-gold border border-gold/40 hover:bg-gold/30 px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-semibold tracking-wide max-w-full">
               <Icon name="sparkles" className="h-3.5 w-3.5 mr-1.5 shrink-0" />
-              <span className="truncate">{BRAND.edition}</span>
+              <span className="truncate">{t("home.hero.badge")}</span>
             </Badge>
           </Reveal>
           <Reveal delay={0.1}>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-white">
-              Transformasi Digitalisasi{" "}
-              <span className="text-gold-gradient">Umroh &amp; Haji</span> Indonesia 2030
+              {t("home.hero.title1")}{" "}
+              <span className="text-gold-gradient">{t("home.hero.titleGold")}</span>{" "}
+              {t("home.hero.title2")}
             </h1>
           </Reveal>
           <Reveal delay={0.2}>
             <p className="mt-5 text-lg text-emerald-50/85 leading-relaxed max-w-2xl">
-              {BRAND.motto}. 13 ekosistem layanan terintegrasi yang mengawal perjalanan
-              Tamu Allah dari Indonesia hingga Tanah Suci — dengan kepastian kuota,
-              transparansi mutu, dan pengawalan 24/7.
+              {t("home.hero.subtitle", { motto: t("home.hero.motto") })}
             </p>
           </Reveal>
           <Reveal delay={0.3}>
@@ -57,8 +89,8 @@ function Hero() {
                 onClick={() => navigate("ekosistem")}
                 className="bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold shadow-xl hover:brightness-110 h-12 px-7 text-base"
               >
-                Jelajahi 13 Ekosistem
-                <Icon name="arrow-right" className="h-4 w-4 ml-2" />
+                {t("home.hero.ctaEcosystems")}
+                <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
               </Button>
               <Button
                 size="lg"
@@ -66,8 +98,8 @@ function Hero() {
                 onClick={() => navigate("anggota")}
                 className="bg-transparent border-emerald-100/40 text-white hover:bg-white/10 hover:text-white h-12 px-7 text-base"
               >
-                <Icon name="shield-check" className="h-4 w-4 mr-2" />
-                Verifikasi Penyelenggara
+                <Icon name="shield-check" className="h-4 w-4 me-2" />
+                {t("home.hero.ctaVerify")}
               </Button>
             </div>
           </Reveal>
@@ -76,17 +108,21 @@ function Hero() {
         {/* Floating stats */}
         <Reveal delay={0.45} className="mt-14">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {STATS_HIGHLIGHT.map((s) => (
+            {HERO_STAT_KEYS.map((k, i) => (
               <div
-                key={s.label}
+                key={k}
                 className="glass rounded-2xl border border-white/15 p-4 sm:p-5 flex items-center gap-3.5"
               >
                 <div className="h-11 w-11 shrink-0 rounded-xl bg-gold/20 grid place-items-center text-gold">
-                  <Icon name={s.icon} className="h-5.5 w-5.5" />
+                  <Icon name={HERO_STAT_ICONS[i]} className="h-5.5 w-5.5" />
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-white leading-none">{s.value}</div>
-                  <div className="text-[11px] sm:text-xs text-emerald-100/70 mt-1.5">{s.label}</div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-white leading-none">
+                    {t(`home.stats.${k}.value`)}
+                  </div>
+                  <div className="text-[11px] sm:text-xs text-emerald-100/70 mt-1.5">
+                    {t(`home.stats.${k}.label`)}
+                  </div>
                 </div>
               </div>
             ))}
@@ -99,16 +135,17 @@ function Hero() {
 
 /* ================= NUSUK LIVE STRIP ================= */
 function NusukLiveStrip() {
+  const { t, locale } = useT();
   const [data, setData] = useState<NusukPublicData | null>(null);
 
   useEffect(() => {
-    apiGet<NusukPublicData>("/api/nusuk/public").then(setData).catch(() => {});
-  }, []);
+    apiGet<NusukPublicData>(`/api/nusuk/public?locale=${locale}`).then(setData).catch(() => {});
+  }, [locale]);
 
   if (!data) return null;
 
   return (
-    <section aria-label="Status integrasi Nusuk" className="border-b bg-mint/30 dark:bg-muted/30">
+    <section aria-label={t("home.nusukLive.aria")} className="border-b bg-mint/30 dark:bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5">
         <Reveal>
           <div className="glass rounded-2xl border border-border/60 shadow-sm p-4 sm:px-5 flex flex-col lg:flex-row lg:items-center gap-3.5">
@@ -118,8 +155,8 @@ function NusukLiveStrip() {
                 <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
               </span>
               <div className="leading-tight">
-                <p className="font-bold text-sm">Nusuk Live</p>
-                <p className="text-[11px] text-muted-foreground">Status integrasi platform Nusuk</p>
+                <p className="font-bold text-sm">{t("home.nusukLive.label")}</p>
+                <p className="text-[11px] text-muted-foreground">{t("home.nusukLive.sub")}</p>
               </div>
             </div>
             <div className="hidden lg:block h-9 w-px bg-border shrink-0" aria-hidden="true" />
@@ -137,21 +174,23 @@ function NusukLiveStrip() {
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 text-[11px] font-semibold text-primary">
                 <Icon name="shield-check" className="h-3 w-3 shrink-0" />
-                {data.metrics.permitsActive} izin aktif
+                {t("home.nusukLive.izinAktif", { n: formatNumberL10n(data.metrics.permitsActive, locale) })}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                 <Icon name="timer" className="h-3 w-3 shrink-0 text-gold-deep" />
-                Sinkron terakhir {timeAgo(data.connection.lastSyncAt)}
+                {t("home.nusukLive.sinkronTerakhir", {
+                  time: timeAgoL10n(data.connection.lastSyncAt, t, locale),
+                })}
               </span>
             </div>
             <Button
               size="sm"
               onClick={() => navigate("nusuk")}
-              aria-label="Buka halaman Nusuk Hub"
-              className="lg:ml-auto shrink-0 bg-gradient-to-r from-primary to-forest text-white"
+              aria-label={t("home.nusukLive.btnAria")}
+              className="lg:ms-auto shrink-0 bg-gradient-to-r from-primary to-forest text-white"
             >
-              Buka Nusuk Hub
-              <Icon name="arrow-right" className="h-4 w-4 ml-1.5" />
+              {t("home.nusukLive.btn")}
+              <Icon name="arrow-right" className="h-4 w-4 ms-1.5 icon-flip" />
             </Button>
           </div>
         </Reveal>
@@ -162,14 +201,7 @@ function NusukLiveStrip() {
 
 /* ================= NUSUK BAR ================= */
 function NusukBar() {
-  const points = [
-    "Terintegrasi Nusuk Saudi",
-    "Kuota & Jadwal Terverifikasi",
-    "Sistem Booking Real Time",
-    "Data Jamaah Terverifikasi",
-    "Terhubung dengan Kemenag RI",
-    "Compliance dengan Standar Saudi",
-  ];
+  const { t } = useT();
   return (
     <section className="bg-primary text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
@@ -179,19 +211,19 @@ function NusukBar() {
               <Icon name="landmark" className="h-5 w-5 text-forest-deep" strokeWidth={2.4} />
             </div>
             <div className="leading-tight">
-              <p className="font-bold text-sm">MUHDIN — Operator Nusuk Indonesia</p>
-              <p className="text-[11px] text-emerald-100/75">Official Operator from Indonesia</p>
+              <p className="font-bold text-sm">{t("home.nusukBar.title")}</p>
+              <p className="text-[11px] text-emerald-100/75">{t("home.nusukBar.sub")}</p>
             </div>
           </div>
           <div className="hidden lg:block h-10 w-px bg-white/20" />
           <div className="flex flex-wrap justify-center gap-2">
-            {points.map((p) => (
+            {NUSUK_BAR_KEYS.map((k) => (
               <span
-                key={p}
+                key={k}
                 className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium"
               >
                 <Icon name="check-circle-2" className="h-3.5 w-3.5 text-gold" />
-                {p}
+                {t(`home.nusukBar.${k}`)}
               </span>
             ))}
           </div>
@@ -203,16 +235,18 @@ function NusukBar() {
 
 /* ================= EKOSISTEM ================= */
 function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
+  const { t } = useT();
   return (
     <section className="py-20 bg-mint/30 dark:bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Arsitektur Layanan"
-          title="13 Ekosistem MUHDIN"
-          subtitle="Syurga bagi pengusaha pelayan Tamu Allah dan kenyamanan jamaah dalam ibadah — satu rangkaian utuh perjalanan, dari titik masuk pertama hingga kepulangan."
+          eyebrow={t("home.ekosistem.eyebrow")}
+          title={t("home.ekosistem.title")}
+          subtitle={t("home.ekosistem.subtitle")}
         />
         <div className="mt-14 space-y-10">
           {CLUSTERS.map((cluster, ci) => {
+            const k = CLUSTER_KEYS[ci];
             const items = ecosystems.filter((e) => e.cluster === cluster.name);
             return (
               <div key={cluster.name}>
@@ -221,8 +255,10 @@ function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
                     <Icon name={cluster.icon} className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg leading-tight">{cluster.name}</h3>
-                    <p className="text-xs text-muted-foreground">{cluster.range} — {cluster.description}</p>
+                    <h3 className="font-bold text-lg leading-tight">{t(`home.klaster.${k}.name`)}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {t(`home.klaster.${k}.range`)} — {t(`home.klaster.${k}.desc`)}
+                    </p>
                   </div>
                 </Reveal>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -230,7 +266,7 @@ function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
                     <Reveal key={e.id} delay={i * 0.05}>
                       <button
                         onClick={() => navigate("ekosistem")}
-                        className="group h-full w-full text-left rounded-2xl border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
+                        className="group h-full w-full text-start rounded-2xl border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
                       >
                         <div className="flex items-start justify-between">
                           <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-forest grid place-items-center text-gold-soft shadow-md">
@@ -243,7 +279,7 @@ function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
                         <h4 className="mt-4 font-bold text-sm leading-snug">{e.name}</h4>
                         <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2">{e.scope}</p>
                         <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                          Selengkapnya <Icon name="chevron-right" className="h-3 w-3" />
+                          {t("home.umum.selengkapnya")} <Icon name="chevron-right" className="h-3 w-3 icon-flip" />
                         </span>
                       </button>
                     </Reveal>
@@ -260,15 +296,16 @@ function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
 
 /* ================= ALUR PERJALANAN PREVIEW ================= */
 function JourneySection({ steps }: { steps: JourneyStep[] }) {
+  const { t } = useT();
   return (
     <section className="py-20 bg-forest-deep text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           light
-          eyebrow="End-to-End Journey"
-          title="Alur 13 Tahap Perjalanan Jamaah"
-          subtitle="Zero-gap handover: tidak ada perpindahan tanggung jawab tanpa rekaman dan konfirmasi digital. Seluruh rombongan terpantau dari satu dashboard."
+          eyebrow={t("home.alur.eyebrow")}
+          title={t("home.alur.title")}
+          subtitle={t("home.alur.subtitle")}
         />
         <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {steps.slice(0, 8).map((s, i) => (
@@ -292,8 +329,8 @@ function JourneySection({ steps }: { steps: JourneyStep[] }) {
             onClick={() => navigate("alur")}
             className="border-gold/50 text-gold hover:bg-gold hover:text-forest-deep"
           >
-            Lihat 13 Tahap Lengkap
-            <Icon name="arrow-right" className="h-4 w-4 ml-2" />
+            {t("home.alur.cta")}
+            <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
           </Button>
         </Reveal>
       </div>
@@ -303,27 +340,33 @@ function JourneySection({ steps }: { steps: JourneyStep[] }) {
 
 /* ================= MITRA ================= */
 function PartnersSection() {
+  const { t } = useT();
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="5 Mitra Utama"
-          title="Punggung Industri Penyelenggaraan Ibadah Indonesia"
-          subtitle="Setiap mitra mempertahankan identitas dan fungsi bisnisnya, sekaligus menerima standar layanan, teknologi bersama, dan penjaminan mutu dari ekosistem."
+          eyebrow={t("home.mitra.eyebrow")}
+          title={t("home.mitra.title")}
+          subtitle={t("home.mitra.subtitle")}
         />
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {PARTNERS.map((p, i) => (
-            <Reveal key={p.code} delay={i * 0.07}>
-              <div className="group h-full rounded-2xl border bg-card p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-gold/50">
-                <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold shadow-md group-hover:scale-110 transition-transform">
-                  <Icon name={p.icon} className="h-7 w-7" />
+          {PARTNERS.map((p, i) => {
+            const k = PARTNER_KEYS[i];
+            return (
+              <Reveal key={p.code} delay={i * 0.07}>
+                <div className="group h-full rounded-2xl border bg-card p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-gold/50">
+                  <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold shadow-md group-hover:scale-110 transition-transform">
+                    <Icon name={p.icon} className="h-7 w-7" />
+                  </div>
+                  <h3 className="mt-4 font-extrabold text-primary tracking-wide">{t(`home.mitra.${k}.name`)}</h3>
+                  <p className="mt-1 text-[11px] font-semibold text-foreground/80 uppercase tracking-wide">
+                    {t(`home.mitra.${k}.fullName`)}
+                  </p>
+                  <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{t(`home.mitra.${k}.role`)}</p>
                 </div>
-                <h3 className="mt-4 font-extrabold text-primary tracking-wide">{p.name}</h3>
-                <p className="mt-1 text-[11px] font-semibold text-foreground/80 uppercase tracking-wide">{p.fullName}</p>
-                <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{p.role}</p>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -332,28 +375,34 @@ function PartnersSection() {
 
 /* ================= NILAI UTAMA ================= */
 function ValuesSection() {
+  const { t } = useT();
   return (
     <section className="py-20 bg-mint/30 dark:bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Nilai Utama MUHDIN"
-          title="Lima Nilai yang Dapat Diaudit"
-          subtitle="Setiap nilai diturunkan menjadi makna operasional yang dapat diamati, diukur, dan diaudit — nilai bukan slogan, melainkan standar kerja sehari-hari."
+          eyebrow={t("home.nilai.eyebrow")}
+          title={t("home.nilai.title")}
+          subtitle={t("home.nilai.subtitle")}
         />
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {CORE_VALUES.map((v, i) => (
-            <Reveal key={v.name} delay={i * 0.07}>
-              <div className="h-full rounded-2xl border bg-card p-6 shadow-sm hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold-deep">
-                    <Icon name={v.icon} className="h-5 w-5" />
+          {CORE_VALUES.map((v, i) => {
+            const k = VALUE_KEYS[i];
+            return (
+              <Reveal key={k} delay={i * 0.07}>
+                <div className="h-full rounded-2xl border bg-card p-6 shadow-sm hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold-deep">
+                      <Icon name={v.icon} className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-extrabold">{t(`home.nilai.${k}.name`)}</h3>
                   </div>
-                  <h3 className="font-extrabold">{v.name}</h3>
+                  <p className="mt-3.5 text-xs text-muted-foreground leading-relaxed">
+                    {t(`home.nilai.${k}.meaning`)}
+                  </p>
                 </div>
-                <p className="mt-3.5 text-xs text-muted-foreground leading-relaxed">{v.meaning}</p>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -362,37 +411,43 @@ function ValuesSection() {
 
 /* ================= TEKNOLOGI ================= */
 function TechSection() {
+  const { t } = useT();
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
         <div>
           <SectionHeading
             align="left"
-            eyebrow="Dukungan Teknologi Digital"
-            title="Enam Pilar Teknologi Terpadu"
-            subtitle="Seluruh pilar berjalan di atas satu arsitektur data yang menempatkan profil jamaah sebagai entitas tunggal dari registrasi hingga kepulangan — dengan enkripsi dan pembatasan akses berbasis peran."
+            eyebrow={t("home.teknologi.eyebrow")}
+            title={t("home.teknologi.title")}
+            subtitle={t("home.teknologi.subtitle")}
           />
           <Reveal delay={0.15} className="mt-6 flex flex-wrap gap-2">
-            {["Persetujuan eksplisit", "Minimasi data", "Enkripsi end-to-end", "Audit keamanan independen"].map((t) => (
-              <Badge key={t} variant="secondary" className="text-xs">
+            {PRIVACY_KEYS.map((k) => (
+              <Badge key={k} variant="secondary" className="text-xs">
                 <Icon name="shield-check" className="h-3 w-3 mr-1 text-primary" />
-                {t}
+                {t(`home.teknologi.${k}`)}
               </Badge>
             ))}
           </Reveal>
         </div>
         <div className="grid gap-3.5 sm:grid-cols-2">
-          {TECH_PILLARS.map((p, i) => (
-            <Reveal key={p.name} delay={i * 0.06}>
-              <div className="h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
-                  <Icon name={p.icon} className="h-5 w-5" />
+          {TECH_PILLARS.map((p, i) => {
+            const k = PILLAR_KEYS[i];
+            return (
+              <Reveal key={k} delay={i * 0.06}>
+                <div className="h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
+                    <Icon name={p.icon} className="h-5 w-5" />
+                  </div>
+                  <h4 className="mt-3 font-bold text-sm">{t(`home.teknologi.${k}.name`)}</h4>
+                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {t(`home.teknologi.${k}.desc`)}
+                  </p>
                 </div>
-                <h4 className="mt-3 font-bold text-sm">{p.name}</h4>
-                <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{p.description}</p>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -401,13 +456,14 @@ function TechSection() {
 
 /* ================= ROADMAP ================= */
 function RoadmapSection({ roadmap }: { roadmap: Roadmap[] }) {
+  const { t } = useT();
   return (
     <section className="py-20 bg-mint/30 dark:bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Peta Jalan 2026-2030"
-          title="Empat Fase Menuju Skala Penuh"
-          subtitle="Bertahap dan berbasis bukti — setiap fase memiliki deliverables yang dapat diverifikasi sebelum fase berikutnya dimulai."
+          eyebrow={t("home.roadmap.eyebrow")}
+          title={t("home.roadmap.title")}
+          subtitle={t("home.roadmap.subtitle")}
         />
         <div className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {roadmap.map((r, i) => (
@@ -431,20 +487,21 @@ function RoadmapSection({ roadmap }: { roadmap: Roadmap[] }) {
 
 /* ================= MANFAAT ================= */
 function BenefitsSection() {
+  const { t } = useT();
   return (
     <section className="py-16 bg-primary text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl font-extrabold">Manfaat untuk Jamaah, PPIU, KBIHU &amp; Stakeholder</h2>
+          <h2 className="text-2xl sm:text-3xl font-extrabold">{t("home.manfaat.title")}</h2>
           <div className="gold-divider w-40 mx-auto mt-4" />
         </div>
         <div className="mt-8 flex flex-wrap justify-center gap-2.5">
-          {BENEFITS.map((b, i) => (
-            <Reveal key={b} delay={i * 0.04}>
+          {BENEFIT_KEYS.map((k, i) => (
+            <Reveal key={k} delay={i * 0.04}>
               <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-white/5 px-4 py-2 text-sm font-medium backdrop-blur-sm">
                 <Icon name="check-circle-2" className="h-4 w-4 text-gold" />
-                {b}
+                {t(`home.manfaat.${k}`)}
               </span>
             </Reveal>
           ))}
@@ -456,33 +513,34 @@ function BenefitsSection() {
 
 /* ================= TESTIMONI ================= */
 function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
+  const { t } = useT();
   if (!testimonials.length) return null;
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Testimoni"
-          title="Kepercayaan adalah Aset Kolektif"
-          subtitle="Suara jamaah dan mitra yang merasakan langsung layanan ekosistem MUHDIN."
+          eyebrow={t("home.testimoni.eyebrow")}
+          title={t("home.testimoni.title")}
+          subtitle={t("home.testimoni.subtitle")}
         />
         <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.slice(0, 6).map((t, i) => (
-            <Reveal key={t.id} delay={i * 0.06}>
+          {testimonials.slice(0, 6).map((item, i) => (
+            <Reveal key={item.id} delay={i * 0.06}>
               <div className="h-full rounded-2xl border bg-card p-6 shadow-sm flex flex-col">
                 <Icon name="quote" className="h-7 w-7 text-gold/60" />
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{t.content}&rdquo;</p>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{item.content}&rdquo;</p>
                 <div className="mt-5 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-forest grid place-items-center text-white font-bold text-sm">
-                      {t.name.charAt(0)}
+                      {item.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-sm font-bold">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                      <p className="text-sm font-bold">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">{item.role}</p>
                     </div>
                   </div>
                   <div className="flex gap-0.5">
-                    {Array.from({ length: t.rating }).map((_, s) => (
+                    {Array.from({ length: item.rating }).map((_, s) => (
                       <Icon key={s} name="star" className="h-3.5 w-3.5 fill-gold text-gold" />
                     ))}
                   </div>
@@ -498,6 +556,7 @@ function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
 
 /* ================= BERITA TERBARU ================= */
 function LatestNews({ articles }: { articles: Article[] }) {
+  const { t, locale } = useT();
   if (!articles.length) return null;
   return (
     <section className="py-20 bg-mint/30 dark:bg-muted/30">
@@ -505,12 +564,12 @@ function LatestNews({ articles }: { articles: Article[] }) {
         <div className="flex items-end justify-between gap-4">
           <SectionHeading
             align="left"
-            eyebrow="Kabar Terbaru"
-            title="Berita & Pengumuman"
+            eyebrow={t("home.berita.eyebrow")}
+            title={t("home.berita.title")}
           />
           <Reveal>
             <Button variant="ghost" onClick={() => navigate("berita")} className="hidden sm:inline-flex text-primary">
-              Semua Berita <Icon name="arrow-right" className="h-4 w-4 ml-1" />
+              {t("home.berita.semua")} <Icon name="arrow-right" className="h-4 w-4 ms-1 icon-flip" />
             </Button>
           </Reveal>
         </div>
@@ -519,7 +578,7 @@ function LatestNews({ articles }: { articles: Article[] }) {
             <Reveal key={a.id} delay={i * 0.07}>
               <button
                 onClick={() => navigate(`berita/${a.slug}`)}
-                className="group h-full w-full text-left rounded-2xl border bg-card overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="group h-full w-full text-start rounded-2xl border bg-card overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="relative h-44 overflow-hidden">
                   { }
@@ -528,14 +587,14 @@ function LatestNews({ articles }: { articles: Article[] }) {
                     alt={a.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <Badge className="absolute top-3 left-3 bg-forest-deep/85 text-gold-soft backdrop-blur-sm border-none">
+                  <Badge className="absolute top-3 start-3 bg-forest-deep/85 text-gold-soft backdrop-blur-sm border-none">
                     {a.category}
                   </Badge>
                 </div>
                 <div className="p-5">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Icon name="calendar" className="h-3.5 w-3.5" />
-                    {formatDate(a.createdAt)}
+                    {formatDateL10n(a.createdAt, locale)}
                   </div>
                   <h3 className="mt-2 font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                     {a.title}
@@ -553,6 +612,7 @@ function LatestNews({ articles }: { articles: Article[] }) {
 
 /* ================= CTA ================= */
 function JoinCTA() {
+  const { t } = useT();
   return (
     <section className="py-20">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
@@ -563,12 +623,11 @@ function JoinCTA() {
             <div className="relative">
               <p className="font-arabic text-2xl text-gold" dir="rtl">{BRAND.arabic}</p>
               <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-white leading-tight">
-                Bersama Melayani Tamu Allah,<br />
-                <span className="text-gold-gradient">Sampai Rumah dengan Selamat</span>
+                {t("home.cta.title1")}<br />
+                <span className="text-gold-gradient">{t("home.cta.titleGold")}</span>
               </h2>
               <p className="mt-4 text-emerald-50/85 max-w-2xl mx-auto">
-                PPIU, PIHK, KBIHU, IPHI, dan Travel Wisata Halal-Ziarah — satukan langkah dalam
-                satu ekosistem yang amanah, profesional, dan terdigitalisasi.
+                {t("home.cta.body")}
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button
@@ -576,8 +635,8 @@ function JoinCTA() {
                   onClick={() => navigate("gabung")}
                   className="bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold h-12 px-8 hover:brightness-110"
                 >
-                  <Icon name="handshake" className="h-5 w-5 mr-2" />
-                  Daftar Keanggotaan
+                  <Icon name="handshake" className="h-5 w-5 me-2" />
+                  {t("home.cta.btnDaftar")}
                 </Button>
                 <Button
                   size="lg"
@@ -585,7 +644,7 @@ function JoinCTA() {
                   onClick={() => navigate("kontak")}
                   className="border-white/30 text-white hover:bg-white/10 h-12 px-8"
                 >
-                  Hubungi Kami
+                  {t("home.cta.btnKontak")}
                 </Button>
               </div>
             </div>
@@ -598,6 +657,7 @@ function JoinCTA() {
 
 /* ================= MAIN ================= */
 export function HomeView() {
+  const { t, locale } = useT();
   const [data, setData] = useState<{
     ecosystems: Ecosystem[];
     steps: JourneyStep[];
@@ -609,17 +669,17 @@ export function HomeView() {
 
   useEffect(() => {
     Promise.all([
-      apiGet<Ecosystem[]>("/api/ecosystems"),
-      apiGet<JourneyStep[]>("/api/journey"),
-      apiGet<Roadmap[]>("/api/roadmap"),
-      apiGet<Testimonial[]>("/api/testimonials"),
-      apiGet<Article[]>("/api/articles?limit=3"),
+      apiGet<Ecosystem[]>(`/api/ecosystems?locale=${locale}`),
+      apiGet<JourneyStep[]>(`/api/journey?locale=${locale}`),
+      apiGet<Roadmap[]>(`/api/roadmap?locale=${locale}`),
+      apiGet<Testimonial[]>(`/api/testimonials?locale=${locale}`),
+      apiGet<Article[]>(`/api/articles?limit=3&locale=${locale}`),
     ])
       .then(([ecosystems, steps, roadmap, testimonials, articles]) =>
         setData({ ecosystems, steps, roadmap, testimonials, articles })
       )
       .catch((e) => setError(e.message));
-  }, []);
+  }, [locale]);
 
   if (error) {
     return (
@@ -627,7 +687,7 @@ export function HomeView() {
         <Icon name="alert-triangle" className="h-10 w-10 mx-auto text-destructive" />
         <p className="mt-3 text-muted-foreground">{error}</p>
         <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-          <Icon name="rotate" className="h-4 w-4 mr-2" /> Muat Ulang
+          <Icon name="rotate" className="h-4 w-4 me-2" /> {t("home.umum.muatUlang")}
         </Button>
       </div>
     );

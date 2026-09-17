@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiGet, formatDate, timeAgo } from "@/lib/client-api";
+import { apiGet } from "@/lib/client-api";
 import { navigate } from "@/hooks/use-hash-route";
 import { toast } from "@/hooks/use-toast";
 import { Icon } from "@/components/site/icon";
@@ -10,51 +10,74 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MEMBER_TYPE_LABEL } from "@/lib/constants";
+import { useT, formatDateL10n, formatNumberL10n, type Locale } from "@/lib/i18n";
 import type { NusukMetrics, NusukPublicData, NusukSyncLog } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /* ================= KONSTANTA ================= */
 
-const NUSUK_SERVICES: Record<number, { service: string; level: "LIVE" | "PILOT" | string }> = {
-  1: { service: "Nusuk Visa Platform", level: "LIVE" },
-  2: { service: "Nusuk Ports & Handling", level: "LIVE" },
-  3: { service: "Nusuk Guide Registry", level: "LIVE" },
-  4: { service: "Mashaer & Haramain Link", level: "LIVE" },
-  5: { service: "Nusuk Mutawif Center", level: "LIVE" },
-  6: { service: "Nusuk e-Hotel Portal", level: "LIVE" },
-  7: { service: "Nusuk Transport Permit", level: "PILOT" },
-  8: { service: "Nusuk Rawdah Alternative Route", level: "PILOT" },
-  9: { service: "Nusuk Rawdah Permit", level: "LIVE" },
-  10: { service: "Nusuk Food License", level: "PILOT" },
-  11: { service: "Nusuk e-Thimar Retail", level: "Q3 2026" },
-  12: { service: "Nusuk One-Stop Service", level: "Q1 2027" },
-  13: { service: "Nusuk Oversight Link", level: "Q2 2027" },
+/** Layanan Nusuk per ekosistem — teks di kamus (nusuk.svc*), nomor & level tetap di kode. */
+const NUSUK_SERVICES: Record<number, { key: string; level: "LIVE" | "PILOT" | string }> = {
+  1: { key: "nusuk.svc1", level: "LIVE" },
+  2: { key: "nusuk.svc2", level: "LIVE" },
+  3: { key: "nusuk.svc3", level: "LIVE" },
+  4: { key: "nusuk.svc4", level: "LIVE" },
+  5: { key: "nusuk.svc5", level: "LIVE" },
+  6: { key: "nusuk.svc6", level: "LIVE" },
+  7: { key: "nusuk.svc7", level: "PILOT" },
+  8: { key: "nusuk.svc8", level: "PILOT" },
+  9: { key: "nusuk.svc9", level: "LIVE" },
+  10: { key: "nusuk.svc10", level: "PILOT" },
+  11: { key: "nusuk.svc11", level: "Q3 2026" },
+  12: { key: "nusuk.svc12", level: "Q1 2027" },
+  13: { key: "nusuk.svc13", level: "Q2 2027" },
 };
 
 /** Ekosistem dengan izin tersinkron live (VISA, HANDLING, MUTAWIF, HOTEL, TRANSPORT, RAUDAH) */
 const SYNCED_ECOSYSTEMS = new Set([1, 2, 3, 5, 6, 7, 9]);
 
-const PERMIT_TYPE_LABEL: Record<string, string> = {
-  VISA: "Visa Authorization",
-  HANDLING: "Handling Clearance",
-  MUTAWIF: "Mutawif License",
-  HOTEL: "Hotel Contract",
-  TRANSPORT: "Transport Permit",
-  RAUDAH: "Rawdah Permit",
+/** Kode → key kamus (kode tetap dipakai untuk logika, label via kamus). */
+const PERMIT_TYPE_KEYS: Record<string, string> = {
+  VISA: "nusuk.permitTypeVISA",
+  HANDLING: "nusuk.permitTypeHANDLING",
+  MUTAWIF: "nusuk.permitTypeMUTAWIF",
+  HOTEL: "nusuk.permitTypeHOTEL",
+  TRANSPORT: "nusuk.permitTypeTRANSPORT",
+  RAUDAH: "nusuk.permitTypeRAUDAH",
 };
 
-const PERMIT_STATUS: Record<string, { label: string; cls: string }> = {
-  ACTIVE: { label: "AKTIF", cls: "bg-primary text-white border-transparent shadow-md" },
-  PENDING: { label: "PENDING", cls: "bg-gold/15 text-gold-deep border-gold/50" },
-  EXPIRED: { label: "KEDALUWARSA", cls: "bg-muted text-muted-foreground border-border" },
-  REJECTED: { label: "DITOLAK", cls: "bg-destructive text-white border-transparent shadow-md" },
+const STATUS_KEYS: Record<string, string> = {
+  ACTIVE: "nusuk.statusACTIVE",
+  PENDING: "nusuk.statusPENDING",
+  EXPIRED: "nusuk.statusEXPIRED",
+  REJECTED: "nusuk.statusREJECTED",
 };
 
-const LOG_TYPE_LABEL: Record<string, string> = {
-  FULL_SYNC: "Full Sync",
-  WEBHOOK: "Webhook",
-  CONNECTION: "Koneksi",
+/** Kelas warna status izin — label teks via kamus. */
+const PERMIT_STATUS_CLS: Record<string, string> = {
+  ACTIVE: "bg-primary text-white border-transparent shadow-md",
+  PENDING: "bg-gold/15 text-gold-deep border-gold/50",
+  EXPIRED: "bg-muted text-muted-foreground border-border",
+  REJECTED: "bg-destructive text-white border-transparent shadow-md",
+};
+
+const LOG_TYPE_KEYS: Record<string, string> = {
+  FULL_SYNC: "nusuk.logTypeFULL_SYNC",
+  WEBHOOK: "nusuk.logTypeWEBHOOK",
+  CONNECTION: "nusuk.logTypeCONNECTION",
+};
+
+const ENV_KEYS: Record<string, string> = {
+  SANDBOX: "nusuk.envSANDBOX",
+  PRODUCTION: "nusuk.envPRODUCTION",
+};
+
+const MEMBER_TYPE_KEYS: Record<string, string> = {
+  PPIU: "nusuk.mtPPIU",
+  PIHK: "nusuk.mtPIHK",
+  KBIHU: "nusuk.mtKBIHU",
+  IPHI: "nusuk.mtIPHI",
+  TRAVEL_WISATA: "nusuk.mtTRAVEL_WISATA",
 };
 
 const API_ENDPOINTS = [
@@ -62,35 +85,31 @@ const API_ENDPOINTS = [
     method: "GET",
     path: "/api/nusuk/public",
     copy: "/api/nusuk/public",
-    desc: "Data Hub publik — status koneksi, metrik, ekosistem, dan aktivitas sinkronisasi.",
-    auth: "Publik",
+    descKey: "nusuk.epPublicDesc",
+    authKey: "nusuk.authPublic",
   },
   {
     method: "GET",
     path: "/api/nusuk/verify?no=…",
     copy: "/api/nusuk/verify?no=NSK-VSA-2026-482913",
-    desc: "Cek izin — verifikasi keaslian nomor izin Nusuk secara real-time.",
-    auth: "Publik",
+    descKey: "nusuk.epVerifyDesc",
+    authKey: "nusuk.authPublic",
   },
   {
     method: "POST",
     path: "/api/nusuk/webhook",
     copy: "/api/nusuk/webhook",
-    desc: "Webhook event dari Nusuk — diverifikasi via header X-Nusuk-Signature.",
-    auth: "Signature",
+    descKey: "nusuk.epWebhookDesc",
+    authKey: "nusuk.authSignature",
   },
   {
     method: "POST",
     path: "/api/nusuk/sync",
     copy: "/api/nusuk/sync",
-    desc: "Sinkronisasi penuh izin anggota — khusus admin ekosistem.",
-    auth: "Admin",
+    descKey: "nusuk.epSyncDesc",
+    authKey: "nusuk.authAdmin",
   },
 ];
-
-const CURL_EXAMPLE = `# Verifikasi izin Handling Clearance
-curl -s "https://muhdin.web.id/api/nusuk/verify?no=NSK-HDL-2026-152220" \\
-  -H "Accept: application/json"`;
 
 /* ================= TIPE LOKAL ================= */
 
@@ -112,17 +131,58 @@ interface VerifyResponse {
 
 /* ================= UTIL KECIL ================= */
 
-function fmtNum(n: number) {
-  return new Intl.NumberFormat("id-ID").format(Number(n) || 0);
+type TFn = (key: string, vars?: Record<string, string | number>) => string;
+
+function numL10n(n: number, locale: Locale) {
+  return formatNumberL10n(Number(n) || 0, locale);
 }
 
-function fmtRate(n: number) {
-  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+function rateL10n(n: number, locale: Locale) {
+  try {
+    return new Intl.NumberFormat(locale === "id" ? "id-ID" : locale === "ar" ? "ar" : "en-GB", {
+      maximumFractionDigits: 1,
+    }).format(Number(n) || 0);
+  } catch {
+    return String(n);
+  }
 }
 
-function fmtDuration(ms: number) {
-  if (ms < 1000) return `${ms} ms`;
-  return `${(ms / 1000).toFixed(1)} dtk`;
+/** Versi l10n dari timeAgo (client-api) — logika sama, teks via kamus. */
+function timeAgoL10n(iso: string | null | undefined, t: TFn) {
+  if (!iso) return t("nusuk.agoNever");
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const s = Math.max(1, Math.floor(diff / 1000));
+    if (s < 60) return t("nusuk.agoSec", { n: s });
+    const m = Math.floor(s / 60);
+    if (m < 60) return t("nusuk.agoMin", { n: m });
+    const h = Math.floor(m / 60);
+    if (h < 24) return t("nusuk.agoHour", { n: h });
+    const d = Math.floor(h / 24);
+    return t("nusuk.agoDay", { n: d });
+  } catch {
+    return iso ?? "";
+  }
+}
+
+function durL10n(ms: number, locale: Locale, t: TFn) {
+  if (ms < 1000) return t("nusuk.durMs", { n: numL10n(ms, locale) });
+  return t("nusuk.durSec", { n: rateL10n(ms / 1000, locale) });
+}
+
+function permitTypeLabel(type: string, t: TFn) {
+  const key = PERMIT_TYPE_KEYS[type];
+  return key ? t(key) : type;
+}
+
+function memberTypeLabel(type: string, t: TFn) {
+  const key = MEMBER_TYPE_KEYS[type];
+  return key ? t(key) : type;
+}
+
+function envLabelOf(env: string, t: TFn) {
+  const key = ENV_KEYS[env];
+  return key ? t(key) : env;
 }
 
 /* ================= CHIP & LABEL ================= */
@@ -150,41 +210,48 @@ function LevelChip({ level }: { level: string }) {
 }
 
 function LogTypeChip({ type }: { type: string }) {
+  const { t } = useT();
   const cls =
     type === "FULL_SYNC"
       ? "bg-primary/10 text-primary border-primary/30"
       : type === "WEBHOOK"
         ? "bg-gold/15 text-gold-deep border-gold/40"
         : "bg-muted text-muted-foreground border-border";
+  const key = LOG_TYPE_KEYS[type];
   return (
     <Badge variant="outline" className={cn("text-[10px] font-bold", cls)}>
       <Icon
         name={type === "FULL_SYNC" ? "refresh" : type === "WEBHOOK" ? "webhook" : "plug"}
-        className="h-3 w-3 mr-1"
+        className="h-3 w-3 me-1"
       />
-      {LOG_TYPE_LABEL[type] || type}
+      {key ? t(key) : type}
     </Badge>
   );
 }
 
 function CopyButton({ text, label }: { text: string; label?: string }) {
+  const { t } = useT();
   const onCopy = async () => {
     try {
       await navigator.clipboard.writeText(text);
-      toast({ title: "Disalin ✓", description: label || "Teks tersalin ke clipboard." });
+      toast({ title: t("nusuk.copiedTitle"), description: label || t("nusuk.copiedDesc") });
     } catch {
-      toast({ title: "Gagal menyalin", description: "Clipboard tidak tersedia di peramban ini.", variant: "destructive" });
+      toast({
+        title: t("nusuk.copyFailedTitle"),
+        description: t("nusuk.copyFailedDesc"),
+        variant: "destructive",
+      });
     }
   };
   return (
     <button
       type="button"
       onClick={onCopy}
-      aria-label={`Salin ${label || "teks"} ke clipboard`}
+      aria-label={t("nusuk.ariaCopy", { label: label || t("nusuk.fallbackCopyLabel") })}
       className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-100/80 transition-colors hover:bg-white/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
     >
       <Icon name="braces" className="h-3.5 w-3.5" />
-      Salin
+      {t("nusuk.copy")}
     </button>
   );
 }
@@ -192,6 +259,7 @@ function CopyButton({ text, label }: { text: string; label?: string }) {
 /* ================= HERO ================= */
 
 function Hero({ data }: { data: NusukPublicData | null }) {
+  const { t, locale } = useT();
   const connected = data?.connection.status === "CONNECTED";
   const sandbox = data?.connection.environment === "SANDBOX";
 
@@ -204,28 +272,26 @@ function Hero({ data }: { data: NusukPublicData | null }) {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20">
         <Reveal>
           <Badge className="bg-gold/20 text-gold border border-gold/40 hover:bg-gold/30 px-3.5 py-1.5 text-[10px] sm:text-xs font-bold tracking-[0.18em]">
-            <Icon name="satellite" className="h-3.5 w-3.5 mr-1.5 shrink-0" />
+            <Icon name="satellite" className="h-3.5 w-3.5 me-1.5 shrink-0" />
             NUSUK CONNECT
           </Badge>
           <h1 id="nusuk-hero-title" className="mt-4 text-4xl sm:text-5xl font-extrabold tracking-tight leading-[1.1]">
-            Terhubung Langsung dengan <span className="text-gold-gradient">Platform Nusuk</span>
+            {t("nusuk.heroTitle1")} <span className="text-gold-gradient">{t("nusuk.heroTitle2")}</span>
           </h1>
           <p className="mt-4 max-w-2xl text-base sm:text-lg text-emerald-50/80 leading-relaxed">
             {data ? (
               <>
-                Jembatan data resmi ekosistem MUHDIN ke Nusuk — platform digital Kementerian Hajj &amp; Umrah
-                Kerajaan Saudi Arabia. Sinkronisasi {data.connection.autoSync ? "otomatis berjalan" : "dijalankan manual"}{" "}
-                dan telah tercatat{" "}
-                <span className="font-semibold text-white">{fmtNum(data.connection.totalSyncs)}×</span> pada
-                lingkungan {data.connection.environment}.
+                {t(data.connection.autoSync ? "nusuk.heroDescAuto1" : "nusuk.heroDescManual1")}{" "}
+                <span className="font-semibold text-white">{numL10n(data.connection.totalSyncs, locale)}×</span>{" "}
+                {t("nusuk.heroDescPost", { env: envLabelOf(data.connection.environment, t) })}
               </>
             ) : (
-              "Mengambil status koneksi dari registri Nusuk Kementerian Hajj & Umrah Kerajaan Saudi Arabia…"
+              t("nusuk.heroLoading")
             )}
           </p>
 
           {/* 3 chip live */}
-          <div className="mt-7 flex flex-wrap items-center gap-2.5" aria-label="Status koneksi Nusuk">
+          <div className="mt-7 flex flex-wrap items-center gap-2.5" aria-label={t("nusuk.ariaConnStatus")}>
             {!data ? (
               <>
                 <Skeleton className="h-8 w-40 rounded-full bg-white/10" />
@@ -249,9 +315,10 @@ function Hero({ data }: { data: NusukPublicData | null }) {
                       )}
                     />
                   </span>
-                  {connected ? "Terhubung" : "Terputus"} · {data.connection.status}
+                  {connected ? t("nusuk.chipConnected") : t("nusuk.chipDisconnected")} · {data.connection.status}
                 </span>
                 <span
+                  title={data.connection.environment}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold",
                     sandbox
@@ -260,11 +327,11 @@ function Hero({ data }: { data: NusukPublicData | null }) {
                   )}
                 >
                   <Icon name="keyround" className="h-3.5 w-3.5 shrink-0" />
-                  {data.connection.environment}
+                  {envLabelOf(data.connection.environment, t)}
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-semibold">
                   <Icon name="timer" className="h-3.5 w-3.5 text-gold shrink-0" />
-                  Sinkron terakhir: {timeAgo(data.connection.lastSyncAt)}
+                  {t("nusuk.lastSync", { ago: timeAgoL10n(data.connection.lastSyncAt, t) })}
                 </span>
               </>
             )}
@@ -296,26 +363,27 @@ function MetricsSection({
   metrics: NusukMetrics;
   totalSyncs: number;
 }) {
+  const { t, locale } = useT();
   return (
     <section className="py-14 sm:py-20" aria-labelledby="nusuk-metrics-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Live Metrics"
-          title="Denyut Integrasi Nusuk"
-          subtitle="Angka real-time dari registri izin ekosistem MUHDIN yang tersinkron dengan platform Nusuk."
+          eyebrow={t("nusuk.metricsEyebrow")}
+          title={t("nusuk.metricsTitle")}
+          subtitle={t("nusuk.metricsSubtitle")}
         />
         <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Reveal>
-            <StatCard icon="shield-check" label="Izin Aktif" value={fmtNum(metrics.permitsActive)} />
+            <StatCard icon="shield-check" label={t("nusuk.statActivePermits")} value={numL10n(metrics.permitsActive, locale)} />
           </Reveal>
           <Reveal delay={0.06}>
-            <StatCard icon="grid-3x3" label="Anggota Tersinkron" value={fmtNum(metrics.membersConnected)} />
+            <StatCard icon="grid-3x3" label={t("nusuk.statMembersSynced")} value={numL10n(metrics.membersConnected, locale)} />
           </Reveal>
           <Reveal delay={0.12}>
-            <StatCard icon="activity" label="Tingkat Sukses Sinkron" value={`${fmtRate(metrics.successRate)}%`} />
+            <StatCard icon="activity" label={t("nusuk.statSyncSuccess")} value={`${rateL10n(metrics.successRate, locale)}%`} />
           </Reveal>
           <Reveal delay={0.18}>
-            <StatCard icon="refresh" label="Total Sinkronisasi" value={fmtNum(totalSyncs)} />
+            <StatCard icon="refresh" label={t("nusuk.statTotalSyncs")} value={numL10n(totalSyncs, locale)} />
           </Reveal>
         </div>
 
@@ -323,25 +391,29 @@ function MetricsSection({
           <div className="mt-4 rounded-2xl border bg-muted/40 p-4 flex flex-col lg:flex-row lg:items-center gap-3">
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground shrink-0 flex items-center gap-1.5">
               <Icon name="database-zap" className="h-3.5 w-3.5 text-primary" />
-              Izin per tipe
+              {t("nusuk.byTypeLabel")}
             </p>
             <div className="flex flex-wrap gap-2">
-              {metrics.byType.map((t) => (
+              {metrics.byType.map((bt) => (
                 <span
-                  key={t.type}
+                  key={bt.type}
                   className="inline-flex items-center gap-1.5 rounded-full bg-card border px-3 py-1 text-[11px] font-medium"
-                  title={`${PERMIT_TYPE_LABEL[t.type] || t.type}: ${t.total} total, ${t.active} aktif`}
+                  title={t("nusuk.typeChipTitle", {
+                    label: permitTypeLabel(bt.type, t),
+                    total: numL10n(bt.total, locale),
+                    active: numL10n(bt.active, locale),
+                  })}
                 >
-                  <span className="font-mono font-bold text-primary">{t.type}</span>
+                  <span className="font-mono font-bold text-primary">{bt.type}</span>
                   <span className="text-muted-foreground">
-                    {t.total} total · {t.active} aktif
+                    {t("nusuk.typeChip", { total: numL10n(bt.total, locale), active: numL10n(bt.active, locale) })}
                   </span>
                 </span>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground lg:ml-auto shrink-0 flex items-center gap-1.5">
+            <p className="text-xs text-muted-foreground lg:ms-auto shrink-0 flex items-center gap-1.5">
               <Icon name="timer" className="h-3.5 w-3.5 text-gold-deep" />
-              Rata-rata {fmtDuration(metrics.avgDurationMs)} · {metrics.syncsLast7d} sinkron / 7 hari
+              {t("nusuk.avgLine", { dur: durL10n(metrics.avgDurationMs, locale, t), n: numL10n(metrics.syncsLast7d, locale) })}
             </p>
           </div>
         </Reveal>
@@ -365,6 +437,7 @@ function InfoRow({ icon, label, children }: { icon: string; label: string; child
 }
 
 function PermitChecker() {
+  const { t, locale } = useT();
   const [no, setNo] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerifyResponse | null>(null);
@@ -374,7 +447,7 @@ function PermitChecker() {
     const q = no.trim().toUpperCase();
     if (!q) {
       setResult(null);
-      setError("Masukkan nomor izin Nusuk terlebih dahulu.");
+      setError(t("nusuk.errEmptyNo"));
       return;
     }
     setLoading(true);
@@ -390,7 +463,12 @@ function PermitChecker() {
     }
   };
 
-  const status = result ? PERMIT_STATUS[result.permit.status] || PERMIT_STATUS.EXPIRED : null;
+  const statusCls = result
+    ? PERMIT_STATUS_CLS[result.permit.status] || PERMIT_STATUS_CLS.EXPIRED
+    : PERMIT_STATUS_CLS.EXPIRED;
+  const statusKey = result
+    ? STATUS_KEYS[result.permit.status] || "nusuk.statusEXPIRED"
+    : "nusuk.statusEXPIRED";
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -402,10 +480,8 @@ function PermitChecker() {
                 <Icon name="scan" className="h-6 w-6" strokeWidth={2.2} />
               </div>
               <div>
-                <h3 className="font-extrabold text-lg leading-tight">Cek Izin Nusuk</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Verifikasi keaslian izin yang diterbitkan melalui integrasi Nusuk–MUHDIN.
-                </p>
+                <h3 className="font-extrabold text-lg leading-tight">{t("nusuk.checkerCardTitle")}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">{t("nusuk.checkerCardDesc")}</p>
               </div>
             </div>
           </div>
@@ -415,34 +491,34 @@ function PermitChecker() {
               <div className="relative flex-1">
                 <Icon
                   name="qr-code"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary pointer-events-none"
+                  className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary pointer-events-none"
                 />
                 <Input
                   value={no}
                   onChange={(e) => setNo(e.target.value.toUpperCase())}
                   onKeyDown={(e) => e.key === "Enter" && verify()}
-                  placeholder="Contoh: NSK-VSA-2026-482913"
-                  aria-label="Nomor izin Nusuk"
-                  className="pl-9 h-11 font-mono uppercase tracking-wider"
+                  placeholder={t("nusuk.checkerPlaceholder")}
+                  aria-label={t("nusuk.ariaPermitNo")}
+                  className="ps-9 h-11 font-mono uppercase tracking-wider"
                 />
               </div>
               <Button
                 onClick={verify}
                 disabled={loading}
-                aria-label="Verifikasi nomor izin sekarang"
+                aria-label={t("nusuk.ariaVerifyNow")}
                 className="h-11 px-6 bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold hover:brightness-110 shrink-0"
               >
                 {loading ? (
-                  <Icon name="loader-2" className="h-4 w-4 mr-2 animate-spin" />
+                  <Icon name="loader-2" className="h-4 w-4 me-2 animate-spin" />
                 ) : (
-                  <Icon name="scan" className="h-4 w-4 mr-2" />
+                  <Icon name="scan" className="h-4 w-4 me-2" />
                 )}
-                Verifikasi Sekarang
+                {t("nusuk.verifyNow")}
               </Button>
             </div>
             <p className="mt-2.5 text-xs text-muted-foreground flex items-start gap-1.5">
               <Icon name="info" className="h-3.5 w-3.5 mt-0.5 shrink-0 text-gold-deep" />
-              Nomor izin tercantum pada bukti pemesanan dari penyelenggara terverifikasi MUHDIN.
+              {t("nusuk.checkerHint")}
             </p>
 
             {error && (
@@ -452,38 +528,41 @@ function PermitChecker() {
               >
                 <Icon name="alert-triangle" className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-bold">Verifikasi gagal</p>
+                  <p className="font-bold">{t("nusuk.verifyFailed")}</p>
                   <p className="mt-0.5">{error}</p>
                 </div>
               </div>
             )}
 
-            {result && status && (
+            {result && (
               <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/[0.04] p-5 sm:p-6" aria-live="polite">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <Badge className={cn("px-3.5 py-1.5 text-xs font-extrabold tracking-wide", status.cls)}>
-                    <Icon name="badge-check" className="h-4 w-4 mr-1.5" />
-                    {status.label}
+                  <Badge className={cn("px-3.5 py-1.5 text-xs font-extrabold tracking-wide", statusCls)}>
+                    <Icon name="badge-check" className="h-4 w-4 me-1.5" />
+                    {t(statusKey)}
                   </Badge>
                   <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                     <Icon name="shield-check" className="h-3.5 w-3.5 text-primary" />
-                    {result.environment} · dicek {timeAgo(result.checkedAt)}
+                    {t("nusuk.checkedLine", {
+                      env: envLabelOf(result.environment, t),
+                      ago: timeAgoL10n(result.checkedAt, t),
+                    })}
                   </span>
                 </div>
 
                 <div className="mt-5 flex flex-col sm:flex-row sm:items-center gap-5">
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                      Nomor Izin
+                      {t("nusuk.permitNoLabel")}
                     </p>
-                    <p className="mt-1 font-mono text-xl sm:text-2xl font-bold tracking-tight break-all">
+                    <p className="mt-1 font-mono text-xl sm:text-2xl font-bold tracking-tight break-all" dir="ltr">
                       {result.permit.permitNo}
                     </p>
                     <p className="mt-2 text-sm font-bold text-primary">
-                      {PERMIT_TYPE_LABEL[result.permit.type] || result.permit.type}
+                      {permitTypeLabel(result.permit.type, t)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      a.n. <span className="font-semibold text-foreground">{result.permit.holderName}</span>
+                      {t("nusuk.onBehalf", { name: result.permit.holderName })}
                     </p>
                   </div>
                   <div className="shrink-0 w-full sm:w-48" aria-hidden="true">
@@ -494,32 +573,34 @@ function PermitChecker() {
                           "repeating-linear-gradient(90deg, transparent 0 2px, #d4af37 2px 3px, transparent 3px 6px, #d4af37 6px 9px, transparent 9px 10px, #d4af37 10px 11px, transparent 11px 15px)",
                       }}
                     />
-                    <p className="mt-1.5 text-center font-mono text-[10px] tracking-[0.2em] text-forest-deep/70">
+                    <p className="mt-1.5 text-center font-mono text-[10px] tracking-[0.2em] text-forest-deep/70" dir="ltr">
                       {result.permit.permitNo}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
-                  <InfoRow icon="building-2" label="Penyelenggara">
+                  <InfoRow icon="building-2" label={t("nusuk.labelHolder")}>
                     {result.member.name}
                     <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-normal text-muted-foreground">
                       <Badge variant="outline" className="text-[9px] font-bold px-1.5 py-0">
-                        {MEMBER_TYPE_LABEL[result.member.type] || result.member.type}
+                        {memberTypeLabel(result.member.type, t)}
                       </Badge>
-                      {result.member.city} · Izin{" "}
-                      <span className="font-mono font-semibold">{result.member.licenseNo}</span>
+                      {result.member.city} · {t("nusuk.licenseWord")}{" "}
+                      <span className="font-mono font-semibold" dir="ltr">
+                        {result.member.licenseNo}
+                      </span>
                     </span>
                   </InfoRow>
-                  <InfoRow icon="calendar" label="Masa Berlaku">
-                    {formatDate(result.permit.issuedAt)} → {formatDate(result.permit.expiresAt)}
+                  <InfoRow icon="calendar" label={t("nusuk.labelValidity")}>
+                    {formatDateL10n(result.permit.issuedAt, locale)} → {formatDateL10n(result.permit.expiresAt, locale)}
                     <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                      Sinkron terakhir {timeAgo(result.permit.lastSync)}
+                      {t("nusuk.lastSyncShort", { ago: timeAgoL10n(result.permit.lastSync, t) })}
                     </span>
                   </InfoRow>
                   {result.permit.meta && (
                     <div className="sm:col-span-2">
-                      <InfoRow icon="clipboard-list" label="Keterangan Izin">
+                      <InfoRow icon="clipboard-list" label={t("nusuk.labelPermitNote")}>
                         <span className="font-normal text-foreground/80">{result.permit.meta}</span>
                       </InfoRow>
                     </div>
@@ -533,9 +614,9 @@ function PermitChecker() {
 
       <Reveal delay={0.1} className="mt-6 grid gap-3 sm:grid-cols-3">
         {[
-          { icon: "fingerprint", title: "Data Registri Resmi", desc: "Sumber tunggal registri izin Nusuk-MUHDIN." },
-          { icon: "cable", title: "Real-Time Sync", desc: "Status mencerminkan sinkronisasi terakhir." },
-          { icon: "shield-ellipsis", title: "Anti-Izin Palsu", desc: "Lindungi jamaah dari dokumen tidak sah." },
+          { icon: "fingerprint", title: t("nusuk.trust1Title"), desc: t("nusuk.trust1Desc") },
+          { icon: "cable", title: t("nusuk.trust2Title"), desc: t("nusuk.trust2Desc") },
+          { icon: "shield-ellipsis", title: t("nusuk.trust3Title"), desc: t("nusuk.trust3Desc") },
         ].map((c) => (
           <div key={c.title} className="rounded-xl border bg-muted/30 p-4 text-center">
             <Icon name={c.icon} className="h-5 w-5 mx-auto text-primary" />
@@ -549,13 +630,14 @@ function PermitChecker() {
 }
 
 function PermitCheckerSection() {
+  const { t } = useT();
   return (
     <section className="py-14 sm:py-20 bg-mint/30 dark:bg-muted/30" aria-labelledby="nusuk-checker-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Permit Checker"
-          title="Cek Keaslian Izin Nusuk"
-          subtitle="Alat publik gratis untuk jamaah dan mitra: masukkan nomor izin dan dapatkan status resminya dalam sekejap."
+          eyebrow={t("nusuk.checkerEyebrow")}
+          title={t("nusuk.checkerTitle")}
+          subtitle={t("nusuk.checkerSubtitle")}
         />
         <div className="mt-10">
           <PermitChecker />
@@ -568,13 +650,14 @@ function PermitCheckerSection() {
 /* ================= MATRIKS 13 EKOSISTEM ================= */
 
 function MatrixSection({ ecosystems }: { ecosystems: NusukPublicData["ecosystems"] }) {
+  const { t } = useT();
   return (
     <section className="py-14 sm:py-20" aria-labelledby="nusuk-matrix-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Integrasi Matrix"
-          title="Matriks 13 Ekosistem × Nusuk"
-          subtitle="Peta cakupan layanan MUHDIN terhadap platform Nusuk — dari visa hingga pengawasan mutu, beserta tahapan ketersediaannya."
+          eyebrow={t("nusuk.matrixEyebrow")}
+          title={t("nusuk.matrixTitle")}
+          subtitle={t("nusuk.matrixSubtitle")}
         />
         <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {ecosystems.map((eco, i) => {
@@ -595,12 +678,12 @@ function MatrixSection({ ecosystems }: { ecosystems: NusukPublicData["ecosystems
                       </div>
                       <h3 className="mt-1 font-bold text-sm leading-snug">{eco.name}</h3>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {svc?.service || "Menyusun integrasi teknis"}
+                        {svc ? t(svc.key) : t("nusuk.matrixPending")}
                       </p>
                       {SYNCED_ECOSYSTEMS.has(eco.number) && (
                         <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-primary">
                           <Icon name="check-circle-2" className="h-3 w-3" />
-                          Izin tersinkron live
+                          {t("nusuk.syncedLive")}
                         </p>
                       )}
                     </div>
@@ -621,15 +704,16 @@ function EndpointRow({
   method,
   path,
   copy,
-  desc,
-  auth,
+  descKey,
+  authKey,
 }: {
   method: string;
   path: string;
   copy: string;
-  desc: string;
-  auth: string;
+  descKey: string;
+  authKey: string;
 }) {
+  const { t } = useT();
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4 px-4 sm:px-5 py-3.5 transition-colors hover:bg-white/[0.03]">
       <span
@@ -643,12 +727,14 @@ function EndpointRow({
         {method}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="font-mono text-xs sm:text-[13px] font-semibold text-white break-all">{path}</p>
-        <p className="mt-0.5 text-[11px] sm:text-xs text-emerald-100/60 leading-relaxed">{desc}</p>
+        <p className="font-mono text-xs sm:text-[13px] font-semibold text-white break-all" dir="ltr">
+          {path}
+        </p>
+        <p className="mt-0.5 text-[11px] sm:text-xs text-emerald-100/60 leading-relaxed">{t(descKey)}</p>
       </div>
       <div className="flex items-center gap-2 shrink-0 sm:justify-end">
         <span className="rounded-md bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-100/50">
-          {auth}
+          {t(authKey)}
         </span>
         <CopyButton text={copy} label={path} />
       </div>
@@ -657,13 +743,15 @@ function EndpointRow({
 }
 
 function ApiBridgeSection() {
+  const { t } = useT();
+  const curlExample = t("nusuk.curlExample");
   return (
     <section className="py-14 sm:py-20 bg-mint/30 dark:bg-muted/30" aria-labelledby="nusuk-api-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="API Bridge"
-          title="Nusuk API Bridge"
-          subtitle="Jembatan data terbuka antara MUHDIN dan Nusuk. Endpoint publik dapat dipakai mitra untuk integrasi mandiri."
+          eyebrow={t("nusuk.apiEyebrow")}
+          title={t("nusuk.apiTitle")}
+          subtitle={t("nusuk.apiSubtitle")}
         />
         <Reveal className="mt-10">
           <div className="rounded-2xl bg-forest-deep text-emerald-50 shadow-xl border border-white/10 overflow-hidden">
@@ -672,11 +760,11 @@ function ApiBridgeSection() {
               <span className="h-3 w-3 rounded-full bg-red-400/80" aria-hidden="true" />
               <span className="h-3 w-3 rounded-full bg-gold/80" aria-hidden="true" />
               <span className="h-3 w-3 rounded-full bg-primary/90" aria-hidden="true" />
-              <span className="ml-3 font-mono text-[11px] text-emerald-100/60 flex items-center gap-1.5 truncate">
+              <span className="ms-3 font-mono text-[11px] text-emerald-100/60 flex items-center gap-1.5 truncate" dir="ltr">
                 <Icon name="terminal" className="h-3.5 w-3.5 shrink-0" />
                 muhdin.web.id · nusuk-api-v1
               </span>
-              <span className="ml-auto hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary/15 border border-primary/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-200">
+              <span className="ms-auto hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary/15 border border-primary/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-200">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
                   <span className="relative h-2 w-2 rounded-full bg-emerald-400" />
@@ -685,7 +773,7 @@ function ApiBridgeSection() {
               </span>
             </div>
 
-            <div className="divide-y divide-white/5" role="list" aria-label="Daftar endpoint Nusuk API">
+            <div className="divide-y divide-white/5" role="list" aria-label={t("nusuk.ariaEndpointList")}>
               {API_ENDPOINTS.map((ep) => (
                 <EndpointRow key={ep.path} {...ep} />
               ))}
@@ -695,15 +783,16 @@ function ApiBridgeSection() {
               <div className="mb-2.5 flex items-center justify-between gap-2">
                 <p className="font-mono text-[11px] text-emerald-100/60 flex items-center gap-1.5">
                   <Icon name="braces" className="h-3.5 w-3.5 shrink-0" />
-                  Contoh permintaan cURL — cek izin
+                  {t("nusuk.curlLabel")}
                 </p>
-                <CopyButton text={CURL_EXAMPLE} label="Contoh cURL" />
+                <CopyButton text={curlExample} label={t("nusuk.curlLabel")} />
               </div>
               <pre
-                aria-label="Contoh perintah cURL"
-                className="overflow-x-auto scrollbar-thin rounded-xl bg-black/40 border border-white/10 p-4 font-mono text-[11px] sm:text-xs leading-relaxed text-emerald-100/90"
+                aria-label={t("nusuk.ariaCurlExample")}
+                dir="ltr"
+                className="overflow-x-auto scrollbar-thin rounded-xl bg-black/40 border border-white/10 p-4 font-mono text-[11px] sm:text-xs leading-relaxed text-emerald-100/90 text-left"
               >
-                <code>{CURL_EXAMPLE}</code>
+                <code>{curlExample}</code>
               </pre>
             </div>
           </div>
@@ -716,30 +805,31 @@ function ApiBridgeSection() {
 /* ================= WEBHOOK FEED ================= */
 
 function SyncFeedSection({ logs }: { logs: NusukSyncLog[] }) {
+  const { t, locale } = useT();
   return (
     <section className="py-14 sm:py-20" aria-labelledby="nusuk-feed-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Webhook Feed"
-          title="Aktivitas Sinkronisasi Terbaru"
-          subtitle="Jejak audit setiap event yang mengalir antara Nusuk dan registri MUHDIN — transparan dan dapat diperiksa publik."
+          eyebrow={t("nusuk.feedEyebrow")}
+          title={t("nusuk.feedTitle")}
+          subtitle={t("nusuk.feedSubtitle")}
         />
         <div className="mt-10 max-w-3xl mx-auto">
           {logs.length === 0 ? (
             <div className="rounded-2xl border bg-card p-10 text-center">
               <Icon name="radar" className="h-10 w-10 mx-auto text-muted-foreground/40" />
-              <p className="mt-3 text-sm text-muted-foreground">Belum ada aktivitas sinkronisasi tercatat.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t("nusuk.feedEmpty")}</p>
             </div>
           ) : (
-            <ol className="relative ml-2 border-l-2 border-primary/20 space-y-4">
+            <ol className="relative ms-2 border-s-2 border-primary/20 space-y-4">
               {logs.slice(0, 6).map((log, i) => {
                 const ok = log.status === "SUCCESS";
                 return (
-                  <li key={log.id} className="relative pl-6 sm:pl-8">
+                  <li key={log.id} className="relative ps-6 sm:ps-8">
                     <span
                       aria-hidden="true"
                       className={cn(
-                        "absolute -left-[9px] top-4 h-4 w-4 rounded-full border-[3px] border-background",
+                        "absolute -start-[9px] top-4 h-4 w-4 rounded-full border-[3px] border-background",
                         ok ? "bg-primary" : "bg-destructive"
                       )}
                     />
@@ -756,19 +846,19 @@ function SyncFeedSection({ logs }: { logs: NusukSyncLog[] }) {
                                 : "border-destructive/30 bg-destructive/5 text-destructive"
                             )}
                           >
-                            <Icon name={ok ? "check-circle-2" : "alert-triangle"} className="h-3 w-3 mr-1" />
-                            {ok ? "SUCCESS" : "FAILED"}
+                            <Icon name={ok ? "check-circle-2" : "alert-triangle"} className="h-3 w-3 me-1" />
+                            {ok ? t("nusuk.logSUCCESS") : t("nusuk.logFAILED")}
                           </Badge>
-                          <span className="ml-auto text-[11px] text-muted-foreground flex items-center gap-1.5">
+                          <span className="ms-auto text-[11px] text-muted-foreground flex items-center gap-1.5">
                             <Icon name="timer" className="h-3 w-3 shrink-0" />
-                            {fmtDuration(log.durationMs)} · {timeAgo(log.createdAt)}
+                            {durL10n(log.durationMs, locale, t)} · {timeAgoL10n(log.createdAt, t)}
                           </span>
                         </div>
                         <p className="mt-2 text-sm leading-relaxed text-foreground/85">{log.message}</p>
                         {log.recordsAffected > 0 && (
                           <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1.5">
                             <Icon name="database-zap" className="h-3.5 w-3.5 text-gold-deep" />
-                            {log.recordsAffected} record terdampak
+                            {t("nusuk.recordsAffected", { n: numL10n(log.recordsAffected, locale) })}
                           </p>
                         )}
                       </div>
@@ -787,18 +877,19 @@ function SyncFeedSection({ logs }: { logs: NusukSyncLog[] }) {
 /* ================= ANGGOTA PALING PATUH ================= */
 
 function TopMembersSection({ members }: { members: NusukPublicData["topMembers"] }) {
+  const { t, locale } = useT();
   return (
     <section className="py-14 sm:py-20 bg-mint/30 dark:bg-muted/30" aria-labelledby="nusuk-members-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Compliance Leaderboard"
-          title="Anggota Paling Patuh"
-          subtitle="Peringkat anggota dengan izin Nusuk aktif terbanyak dan tingkat kepatuhan sinkronisasi tertinggi."
+          eyebrow={t("nusuk.topEyebrow")}
+          title={t("nusuk.topTitle")}
+          subtitle={t("nusuk.topSubtitle")}
         />
         <div className="mt-10 grid gap-3 md:grid-cols-2">
           {members.map((m, i) => (
-            <Reveal key={m.id} delay={Math.min(i * 0.05, 0.3)}>
-              <div className="flex items-center gap-3 sm:gap-4 rounded-2xl border bg-card p-4 shadow-sm transition-all hover:shadow-md hover:border-primary/40">
+            <Reveal key={m.id} delay={Math.min(i * 0.05, 0.3)} className="min-w-0">
+              <div className="min-w-0 flex items-center gap-3 sm:gap-4 rounded-2xl border bg-card p-4 shadow-sm transition-all hover:shadow-md hover:border-primary/40">
                 <span
                   className={cn(
                     "h-9 w-9 shrink-0 rounded-full grid place-items-center font-extrabold text-sm shadow-sm",
@@ -806,7 +897,7 @@ function TopMembersSection({ members }: { members: NusukPublicData["topMembers"]
                       ? "bg-gradient-to-br from-gold-deep to-gold text-forest-deep"
                       : "bg-forest-deep text-gold-soft"
                   )}
-                  aria-label={`Peringkat ${i + 1}`}
+                  aria-label={t("nusuk.ariaRank", { n: i + 1 })}
                 >
                   {i + 1}
                 </span>
@@ -814,7 +905,7 @@ function TopMembersSection({ members }: { members: NusukPublicData["topMembers"]
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-bold text-sm truncate">{m.name}</p>
                     <Badge variant="outline" className="text-[9px] font-bold px-1.5 py-0 shrink-0">
-                      {MEMBER_TYPE_LABEL[m.type] || m.type}
+                      {memberTypeLabel(m.type, t)}
                     </Badge>
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1">
@@ -827,7 +918,7 @@ function TopMembersSection({ members }: { members: NusukPublicData["topMembers"]
                     aria-valuenow={m.compliance}
                     aria-valuemin={0}
                     aria-valuemax={100}
-                    aria-label={`Kepatuhan ${m.name}`}
+                    aria-label={t("nusuk.ariaCompliance", { name: m.name })}
                   >
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-primary to-forest"
@@ -835,10 +926,12 @@ function TopMembersSection({ members }: { members: NusukPublicData["topMembers"]
                     />
                   </div>
                 </div>
-                <div className="shrink-0 text-right">
-                  <p className="text-lg font-extrabold leading-none">{m.activePermits}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">izin aktif</p>
-                  <p className="mt-1 text-[10px] font-bold text-primary">{m.compliance}% patuh</p>
+                <div className="shrink-0 text-end">
+                  <p className="text-lg font-extrabold leading-none">{numL10n(m.activePermits, locale)}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{t("nusuk.activePermitsShort")}</p>
+                  <p className="mt-1 text-[10px] font-bold text-primary">
+                    {t("nusuk.pctCompliant", { n: rateL10n(m.compliance, locale) })}
+                  </p>
                 </div>
               </div>
             </Reveal>
@@ -852,6 +945,7 @@ function TopMembersSection({ members }: { members: NusukPublicData["topMembers"]
 /* ================= CTA ================= */
 
 function CtaSection() {
+  const { t } = useT();
   return (
     <section className="py-14 sm:py-20" aria-labelledby="nusuk-cta-title">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
@@ -864,31 +958,28 @@ function CtaSection() {
                 <Icon name="radio-tower" className="h-7 w-7" />
               </div>
               <h2 id="nusuk-cta-title" className="mt-5 text-3xl sm:text-4xl font-extrabold text-white leading-tight">
-                Penyelenggara Anda Belum <span className="text-gold-gradient">Terhubung Nusuk?</span>
+                {t("nusuk.ctaTitle1")} <span className="text-gold-gradient">{t("nusuk.ctaTitle2")}</span>
               </h2>
-              <p className="mt-4 text-emerald-50/85 max-w-2xl mx-auto leading-relaxed">
-                Bergabunglah dengan ekosistem MUHDIN dan nikmati sinkronisasi izin otomatis ke platform Nusuk —
-                visa, handling, hotel, hingga Rawdah — tanpa kerumitan administrasi terpisah.
-              </p>
+              <p className="mt-4 text-emerald-50/85 max-w-2xl mx-auto leading-relaxed">{t("nusuk.ctaDesc")}</p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button
                   size="lg"
                   onClick={() => navigate("gabung")}
-                  aria-label="Gabung MUHDIN sekarang"
+                  aria-label={t("nusuk.ariaJoin")}
                   className="bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold h-12 px-8 hover:brightness-110"
                 >
-                  <Icon name="handshake" className="h-5 w-5 mr-2" />
-                  Gabung MUHDIN
+                  <Icon name="handshake" className="h-5 w-5 me-2" />
+                  {t("nusuk.ctaJoin")}
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   onClick={() => navigate("kontak")}
-                  aria-label="Hubungi tim integrasi"
+                  aria-label={t("nusuk.ariaContactTeam")}
                   className="border-white/30 text-white hover:bg-white/10 h-12 px-8"
                 >
-                  <Icon name="send" className="h-5 w-5 mr-2" />
-                  Hubungi Tim Integrasi
+                  <Icon name="send" className="h-5 w-5 me-2" />
+                  {t("nusuk.ctaContact")}
                 </Button>
               </div>
             </div>
@@ -902,11 +993,12 @@ function CtaSection() {
 /* ================= LOADING & ERROR ================= */
 
 function LoadingSkeleton() {
+  const { t } = useT();
   return (
     <div
       className="mx-auto max-w-7xl px-4 sm:px-6 py-14 sm:py-20 space-y-8"
       aria-busy="true"
-      aria-label="Memuat data Nusuk Hub"
+      aria-label={t("nusuk.ariaLoading")}
     >
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
@@ -925,21 +1017,22 @@ function LoadingSkeleton() {
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const { t } = useT();
   return (
-    <section className="py-14 sm:py-20" aria-label="Gagal memuat data">
+    <section className="py-14 sm:py-20" aria-label={t("nusuk.ariaError")}>
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <div role="alert" className="rounded-2xl border border-destructive/30 bg-destructive/10 p-8 text-center">
           <Icon name="alert-triangle" className="h-10 w-10 mx-auto text-destructive" />
-          <h2 className="mt-3 text-lg font-extrabold text-destructive">Gagal Memuat Nusuk Hub</h2>
+          <h2 className="mt-3 text-lg font-extrabold text-destructive">{t("nusuk.errorTitle")}</h2>
           <p className="mt-1.5 text-sm text-destructive/90">{message}</p>
           <Button
             variant="outline"
             onClick={onRetry}
-            aria-label="Coba muat ulang data Nusuk"
+            aria-label={t("nusuk.ariaRetry")}
             className="mt-5 border-destructive/40 text-destructive hover:bg-destructive hover:text-white"
           >
-            <Icon name="refresh" className="h-4 w-4 mr-2" />
-            Coba Lagi
+            <Icon name="refresh" className="h-4 w-4 me-2" />
+            {t("nusuk.retry")}
           </Button>
         </div>
       </div>
@@ -950,6 +1043,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 /* ================= MAIN ================= */
 
 export function NusukView() {
+  const { locale } = useT();
   const [data, setData] = useState<NusukPublicData | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -957,7 +1051,7 @@ export function NusukView() {
 
   useEffect(() => {
     let cancelled = false;
-    apiGet<NusukPublicData>("/api/nusuk/public")
+    apiGet<NusukPublicData>(`/api/nusuk/public?locale=${locale}`)
       .then((d) => {
         if (!cancelled) setData(d);
       })
@@ -970,7 +1064,7 @@ export function NusukView() {
     return () => {
       cancelled = true;
     };
-  }, [attempt]);
+  }, [attempt, locale]);
 
   const retry = () => {
     setError("");

@@ -9,16 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MEMBER_TYPES, MEMBER_TYPE_LABEL } from "@/lib/constants";
+import { useT, formatNumberL10n } from "@/lib/i18n";
+import { MEMBER_TYPES } from "@/lib/constants";
 import type { Member } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const TYPE_FILTERS = [
-  { value: "all", label: "Semua Jenis" },
-  ...MEMBER_TYPES.map((t) => ({ value: t, label: MEMBER_TYPE_LABEL[t] })),
-];
+/** Kode tipe member (DB) tetap utk filter/query; label tampil lewat kamus. */
+function memberTypeLabel(ty: string, t: (k: string) => string): string {
+  const val = t(`members.type.${ty}`);
+  return val === `members.type.${ty}` ? ty : val;
+}
 
 export function MembersView() {
+  const { t } = useT();
   return (
     <div className="flex flex-col">
       <section className="relative bg-forest-deep text-white overflow-hidden">
@@ -27,13 +30,10 @@ export function MembersView() {
           <Reveal>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold">
               <span className="h-px w-6 bg-current opacity-60" />
-              Direktori Resmi
+              {t("members.eyebrow")}
             </span>
-            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">Anggota &amp; Verifikasi Ekosistem</h1>
-            <p className="mt-3 max-w-2xl text-emerald-50/80">
-              Direktori publik penyelenggara terverifikasi MUHDIN. Legalitas dan rekam jejak
-              diverifikasi, sanksi ditegakkan konsisten, dan mutu diaudit berkala.
-            </p>
+            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">{t("members.title")}</h1>
+            <p className="mt-3 max-w-2xl text-emerald-50/80">{t("members.subtitle")}</p>
           </Reveal>
         </div>
       </section>
@@ -43,10 +43,10 @@ export function MembersView() {
           <Tabs defaultValue="direktori" className="w-full">
             <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
               <TabsTrigger value="direktori" className="gap-2">
-                <Icon name="grid-3x3" className="h-4 w-4" /> Direktori Anggota
+                <Icon name="grid-3x3" className="h-4 w-4" /> {t("members.tabDirectory")}
               </TabsTrigger>
               <TabsTrigger value="verifikasi" className="gap-2">
-                <Icon name="shield-check" className="h-4 w-4" /> Cek Verifikasi
+                <Icon name="shield-check" className="h-4 w-4" /> {t("members.tabVerify")}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="direktori">
@@ -64,13 +64,21 @@ export function MembersView() {
 
 /* ============ DIREKTORI ============ */
 function DirectoryTab() {
+  const { t, locale } = useT();
   const [members, setMembers] = useState<Member[] | null>(null);
   const [type, setType] = useState("all");
   const [q, setQ] = useState("");
 
+  const TYPE_FILTERS = [
+    { value: "all", label: t("members.filterAll") },
+    ...MEMBER_TYPES.map((ty) => ({ value: ty, label: memberTypeLabel(ty, t) })),
+  ];
+
   useEffect(() => {
-    apiGet<Member[]>("/api/members").then(setMembers).catch(() => setMembers([]));
-  }, []);
+    apiGet<Member[]>(`/api/members?locale=${locale}`)
+      .then(setMembers)
+      .catch(() => setMembers([]));
+  }, [locale]);
 
   const filtered = useMemo(() => {
     if (!members) return [];
@@ -104,9 +112,15 @@ function DirectoryTab() {
             </button>
           ))}
         </div>
-        <div className="relative lg:ml-auto w-full lg:w-72">
-          <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari nama, kota, provinsi…" className="pl-9" />
+        <div className="relative lg:ms-auto w-full lg:w-72">
+          <Icon name="search" className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={t("members.searchPlaceholder")}
+            aria-label={t("members.searchAria")}
+            className="ps-9"
+          />
         </div>
       </div>
 
@@ -119,7 +133,7 @@ function DirectoryTab() {
       ) : filtered.length === 0 ? (
         <div className="py-20 text-center">
           <Icon name="search" className="h-10 w-10 mx-auto text-muted-foreground/40" />
-          <p className="mt-3 text-muted-foreground">Tidak ada anggota yang cocok dengan filter.</p>
+          <p className="mt-3 text-muted-foreground">{t("members.empty")}</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -134,7 +148,7 @@ function DirectoryTab() {
                     <div>
                       <h3 className="font-bold text-sm leading-snug">{m.name}</h3>
                       <p className="text-[11px] text-muted-foreground">
-                        {MEMBER_TYPE_LABEL[m.type] || m.type} · Sejak {m.memberSince}
+                        {memberTypeLabel(m.type, t)} · {t("members.since", { year: formatNumberL10n(m.memberSince, locale) })}
                       </p>
                     </div>
                   </div>
@@ -148,13 +162,17 @@ function DirectoryTab() {
                   </p>
                   <p className="flex items-center gap-1.5">
                     <Icon name="file-text" className="h-3.5 w-3.5 text-primary" />
-                    Izin: <span className="font-mono font-semibold text-foreground/80">{m.licenseNo}</span>
+                    {t("members.licensePrefix")}: <span className="font-mono font-semibold text-foreground/80">{m.licenseNo}</span>
                   </p>
                   {m.description && <p className="line-clamp-2 pt-1">{m.description}</p>}
                 </div>
 
                 <div className="mt-4 flex items-center justify-between border-t pt-3">
-                  <div className="flex items-center gap-1">
+                  <div
+                    className="flex items-center gap-1"
+                    role="img"
+                    aria-label={`${t("members.ratingLabel")}: ${formatNumberL10n(m.rating, locale)}`}
+                  >
                     {Array.from({ length: 5 }).map((_, s) => (
                       <Icon
                         key={s}
@@ -165,7 +183,7 @@ function DirectoryTab() {
                         )}
                       />
                     ))}
-                    <span className="ml-1 text-xs font-bold">{m.rating.toFixed(1)}</span>
+                    <span className="ms-1 text-xs font-bold">{formatNumberL10n(m.rating, locale)}</span>
                   </div>
                   {m.phone && (
                     <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -183,22 +201,24 @@ function DirectoryTab() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    TERVERIFIKASI: { label: "Terverifikasi", cls: "bg-primary/10 text-primary border-primary/30" },
-    PENDING: { label: "Dalam Proses", cls: "bg-gold/15 text-gold-deep border-gold/40" },
-    SUSPENDED: { label: "Ditangguhkan", cls: "bg-destructive/10 text-destructive border-destructive/30" },
+  const { t } = useT();
+  const cls: Record<string, string> = {
+    TERVERIFIKASI: "bg-primary/10 text-primary border-primary/30",
+    PENDING: "bg-gold/15 text-gold-deep border-gold/40",
+    SUSPENDED: "bg-destructive/10 text-destructive border-destructive/30",
   };
-  const s = map[status] || map.PENDING;
+  const code = cls[status] ? status : "PENDING";
   return (
-    <Badge variant="outline" className={cn("text-[10px] font-bold shrink-0", s.cls)}>
-      {status === "TERVERIFIKASI" && <Icon name="badge-check" className="h-3 w-3 mr-1" />}
-      {s.label}
+    <Badge variant="outline" className={cn("text-[10px] font-bold shrink-0", cls[code])}>
+      {code === "TERVERIFIKASI" && <Icon name="badge-check" className="h-3 w-3 me-1" />}
+      {t(`members.status.${code}`)}
     </Badge>
   );
 }
 
 /* ============ VERIFIKASI ============ */
 function VerifyTab() {
+  const { t, locale } = useT();
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ found: boolean; warning: string | null; results: Member[] } | null>(null);
@@ -208,13 +228,13 @@ function VerifyTab() {
     setError("");
     setResult(null);
     if (query.trim().length < 3) {
-      setError("Masukkan minimal 3 karakter nama penyelenggara atau nomor izin.");
+      setError(t("members.minCharsError"));
       return;
     }
     setLoading(true);
     try {
       const res = await apiGet<{ found: boolean; warning: string | null; results: Member[] }>(
-        `/api/members/verify?q=${encodeURIComponent(query.trim())}`
+        `/api/members/verify?q=${encodeURIComponent(query.trim())}&locale=${locale}`
       );
       setResult(res);
     } catch (e) {
@@ -227,27 +247,28 @@ function VerifyTab() {
   return (
     <div className="max-w-3xl mx-auto">
       <SectionHeading
-        eyebrow="Verifikasi Satu Klik"
-        title="Periksa Legalitas Sebelum Bertransaksi"
-        subtitle="Masukkan nama penyelenggara atau nomor izin. Hasil verifikasi berbasis direktori resmi MUHDIN — melindungi jamaah dari pelaku ilegal."
+        eyebrow={t("members.verifyEyebrow")}
+        title={t("members.verifyTitle")}
+        subtitle={t("members.verifySubtitle")}
       />
 
       <Reveal className="mt-8">
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Icon name="shield-check" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <Icon name="shield-check" className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && verify()}
-                placeholder="Contoh: PT Insan Barokah atau PPIU-2026-0011"
-                className="pl-9 h-11"
+                placeholder={t("members.verifyPlaceholder")}
+                aria-label={t("members.verifyAria")}
+                className="ps-9 h-11"
               />
             </div>
             <Button onClick={verify} disabled={loading} className="h-11 px-6 bg-gradient-to-r from-primary to-forest text-white">
-              {loading ? <Icon name="loader-2" className="h-4 w-4 mr-2 animate-spin" /> : <Icon name="search" className="h-4 w-4 mr-2" />}
-              Verifikasi
+              {loading ? <Icon name="loader-2" className="h-4 w-4 me-2 animate-spin" /> : <Icon name="search" className="h-4 w-4 me-2" />}
+              {t("members.verifyButton")}
             </Button>
           </div>
           {error && (
@@ -270,7 +291,7 @@ function VerifyTab() {
                       <div>
                         <p className="font-bold">{m.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {MEMBER_TYPE_LABEL[m.type]} · {m.city}, {m.province} · Izin {m.licenseNo}
+                          {memberTypeLabel(m.type, t)} · {m.city}, {m.province} · {t("members.licensePrefix")} {m.licenseNo}
                         </p>
                       </div>
                       <StatusBadge status={m.status} />
@@ -280,13 +301,9 @@ function VerifyTab() {
               ) : (
                 <div className="rounded-xl bg-gold/10 border border-gold/30 p-4">
                   <p className="font-bold text-gold-deep flex items-center gap-2">
-                    <Icon name="alert-triangle" className="h-4 w-4" /> Tidak Ditemukan dalam Direktori
+                    <Icon name="alert-triangle" className="h-4 w-4" /> {t("members.notFoundTitle")}
                   </p>
-                  <p className="mt-1.5 text-sm text-foreground/75">
-                    Penyelenggara dengan nama/izin tersebut tidak terdaftar di ekosistem MUHDIN.
-                    Hati-hati terhadap pelaku ilegal — pastikan selalu memverifikasi legalitas
-                    melalui kanal resmi sebelum menyetorkan dana.
-                  </p>
+                  <p className="mt-1.5 text-sm text-foreground/75">{t("members.notFoundDesc")}</p>
                 </div>
               )}
             </div>
@@ -296,9 +313,9 @@ function VerifyTab() {
 
       <Reveal delay={0.1} className="mt-6 grid gap-3 sm:grid-cols-3">
         {[
-          { icon: "badge-check", title: "Legalitas Terverifikasi", desc: "Izin resmi dan rekam jejak diverifikasi tim MUHDIN." },
-          { icon: "wallet", title: "Dana Terlindungi", desc: "Escrow dan takaful sebagai standar ekosistem." },
-          { icon: "shield-alert", title: "Nol Toleransi Penipuan", desc: "Sanksi berjenjang hingga pelaporan ke regulator." },
+          { icon: "badge-check", title: t("members.trustTitle"), desc: t("members.trustDesc") },
+          { icon: "wallet", title: t("members.fundsTitle"), desc: t("members.fundsDesc") },
+          { icon: "shield-alert", title: t("members.fraudTitle"), desc: t("members.fraudDesc") },
         ].map((c) => (
           <div key={c.title} className="rounded-xl border bg-muted/30 p-4 text-center">
             <Icon name={c.icon} className="h-6 w-6 mx-auto text-primary" />

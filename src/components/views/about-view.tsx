@@ -10,19 +10,21 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BRAND, CORE_VALUES, PARTNERS, KPI_ROWS } from "@/lib/constants";
+import { useT } from "@/lib/i18n";
 import type { ManagementMember, Roadmap, SiteSettings } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export function AboutView() {
+  const { t, locale } = useT();
   const [management, setManagement] = useState<ManagementMember[] | null>(null);
   const [roadmap, setRoadmap] = useState<Roadmap[] | null>(null);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
     Promise.all([
-      apiGet<ManagementMember[]>("/api/management"),
-      apiGet<Roadmap[]>("/api/roadmap"),
-      apiGet<SiteSettings>("/api/settings"),
+      apiGet<ManagementMember[]>(`/api/management?locale=${locale}`),
+      apiGet<Roadmap[]>(`/api/roadmap?locale=${locale}`),
+      apiGet<SiteSettings>(`/api/settings?locale=${locale}`),
     ])
       .then(([management, roadmap, settings]) => ({ management, roadmap, settings }))
       .then((d) => {
@@ -35,7 +37,7 @@ export function AboutView() {
         setRoadmap([]);
         setSettings({});
       });
-  }, []);
+  }, [locale]);
 
   return (
     <div className="flex flex-col">
@@ -46,14 +48,10 @@ export function AboutView() {
           <Reveal>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold">
               <span className="h-px w-6 bg-current opacity-60" />
-              Tentang MUHDIN
+              {t("about.eyebrow")}
             </span>
-            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">Asosiasi di Atas Asosiasi</h1>
-            <p className="mt-3 max-w-2xl text-emerald-50/80">
-              MUHDIN bukan pesaing pelaku industri — melainkan lapisan federasi yang menetapkan
-              standar mutu, menyatukan akses Nusuk, mengelola teknologi bersama, dan mengawal
-              kualitas layanan secara menyeluruh.
-            </p>
+            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">{t("about.title")}</h1>
+            <p className="mt-3 max-w-2xl text-emerald-50/80">{t("about.subtitle")}</p>
           </Reveal>
         </div>
       </section>
@@ -66,10 +64,9 @@ export function AboutView() {
               <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
               <div className="relative">
                 <Icon name="target" className="h-8 w-8 text-gold" />
-                <h2 className="mt-4 text-2xl font-extrabold">Visi</h2>
+                <h2 className="mt-4 text-2xl font-extrabold">{t("about.visionTitle")}</h2>
                 <p className="mt-3 text-emerald-50/90 leading-relaxed">
-                  {settings?.vision ||
-                    "Menjadi jaringan ekosistem layanan umroh dan haji paling tepercaya, terstandar, dan terdigitalisasi dari dan menuju Indonesia pada tahun 2030."}
+                  {settings?.vision || t("about.visionFallback")}
                 </p>
                 <p className="mt-6 font-arabic text-2xl text-gold" dir="rtl">{BRAND.arabic}</p>
               </div>
@@ -78,20 +75,14 @@ export function AboutView() {
           <Reveal delay={0.1}>
             <div className="h-full rounded-3xl border bg-card p-8 shadow-sm">
               <Icon name="compass" className="h-8 w-8 text-primary" />
-              <h2 className="mt-4 text-2xl font-extrabold">Lima Misi</h2>
+              <h2 className="mt-4 text-2xl font-extrabold">{t("about.missionTitle")}</h2>
               <ol className="mt-3 space-y-2.5">
-                {[
-                  "Mengonsolidasikan penyelenggara jasa ibadah Indonesia dalam satu payung tata kelola standar mutu dan etika bersama.",
-                  "Mengintegrasikan seluruh rantai layanan jamaah melalui platform digital real-time dengan Nusuk dan regulator.",
-                  "Meningkatkan profesionalisme SDM ibadah melalui sertifikasi tour leader dan mutawif yang seragam.",
-                  "Melindungi jamaah melalui transparansi harga, kepastian layanan, dan mekanisme perlindungan finansial.",
-                  "Meningkatkan daya saing industri Indonesia dalam kemitraan dengan pemerintah dan penyedia layanan Arab Saudi.",
-                ].map((m, i) => (
+                {Array.from({ length: 5 }).map((_, i) => (
                   <li key={i} className="flex gap-3 text-sm text-foreground/80">
                     <span className="shrink-0 h-6 w-6 rounded-full bg-primary/10 text-primary grid place-items-center text-xs font-bold">
                       {i + 1}
                     </span>
-                    {m}
+                    {t(`about.missions.m${i + 1}`)}
                   </li>
                 ))}
               </ol>
@@ -104,27 +95,15 @@ export function AboutView() {
       <section className="py-14 bg-mint/30 dark:bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
-            eyebrow="Arsitektur Kelembagaan"
-            title="Prinsip Federasi: Menghubungkan, Bukan Menggantikan"
-            subtitle="Sebagaimana IATA bagi industri penerbangan — MUHDIN menyediakan infrastruktur bersama, standar interoperabilitas, dan penjaminan mutu yang tidak efisien bila dibangun setiap pelaku secara terpisah."
+            eyebrow={t("about.fedEyebrow")}
+            title={t("about.fedTitle")}
+            subtitle={t("about.fedSubtitle")}
           />
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {[
-              {
-                icon: "badge-check",
-                title: "Sertifikasi & Rating Mutu",
-                desc: "Dinilai dari kepatuhan operasional, kepuasan jamaah, dan integritas keuangan.",
-              },
-              {
-                icon: "scale",
-                title: "Dewan Etik & Sanksi Berjenjang",
-                desc: "Teguran, penghentian sementara, hingga pemberhentian keanggotaan dan pelaporan regulator.",
-              },
-              {
-                icon: "bar-chart-3",
-                title: "Audit Mutu Berkala",
-                desc: "Hasil audit terintegrasi ke dashboard monitoring dan menjadi dasar peringkat publik.",
-              },
+              { icon: "badge-check", title: t("about.principles.p1Title"), desc: t("about.principles.p1Desc") },
+              { icon: "scale", title: t("about.principles.p2Title"), desc: t("about.principles.p2Desc") },
+              { icon: "bar-chart-3", title: t("about.principles.p3Title"), desc: t("about.principles.p3Desc") },
             ].map((c, i) => (
               <Reveal key={c.title} delay={i * 0.08}>
                 <div className="h-full rounded-2xl border bg-card p-6 shadow-sm text-center hover:shadow-lg transition-shadow">
@@ -148,7 +127,7 @@ export function AboutView() {
                   </div>
                   <div>
                     <p className="text-sm font-extrabold text-primary">{p.name}</p>
-                    <p className="text-[10px] text-muted-foreground leading-snug">{p.fullName}</p>
+                    <p className="text-[10px] text-muted-foreground leading-snug">{t(`about.partners.${p.code}`)}</p>
                   </div>
                 </div>
               </Reveal>
@@ -160,16 +139,16 @@ export function AboutView() {
       {/* Nilai */}
       <section className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <SectionHeading eyebrow="Nilai Utama" title="Lima Nilai, Satu Standar Kerja" />
+          <SectionHeading eyebrow={t("about.valuesEyebrow")} title={t("about.valuesTitle")} />
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {CORE_VALUES.map((v, i) => (
               <Reveal key={v.name} delay={i * 0.06}>
                 <div className="h-full rounded-xl border bg-card p-4">
                   <div className="flex items-center gap-2">
                     <Icon name={v.icon} className="h-4.5 w-4.5 text-gold-deep" />
-                    <p className="font-bold text-sm">{v.name}</p>
+                    <p className="font-bold text-sm">{t(`about.values.${v.name}.name`)}</p>
                   </div>
-                  <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed line-clamp-4">{v.meaning}</p>
+                  <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed line-clamp-4">{t(`about.values.${v.name}.meaning`)}</p>
                 </div>
               </Reveal>
             ))}
@@ -181,9 +160,9 @@ export function AboutView() {
       <section className="py-14 bg-mint/30 dark:bg-muted/30">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <SectionHeading
-            eyebrow="Struktur Organisasi"
-            title="Dewan Pengurus MUHDIN"
-            subtitle="Kepengurusan yang berintegritas memastikan standar ekosistem ditegakkan secara konsisten."
+            eyebrow={t("about.mgmtEyebrow")}
+            title={t("about.mgmtTitle")}
+            subtitle={t("about.mgmtSubtitle")}
           />
           {!management ? (
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -216,8 +195,8 @@ export function AboutView() {
       <section className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
-            eyebrow="Peta Jalan 2026-2030"
-            title="Implementasi Bertahap Berbasis Bukti"
+            eyebrow={t("about.roadmapEyebrow")}
+            title={t("about.roadmapTitle")}
           />
           {!roadmap ? (
             <Skeleton className="mt-10 h-48 rounded-2xl" />
@@ -231,8 +210,8 @@ export function AboutView() {
                       <h3 className="mt-2 font-extrabold text-primary">{r.phase}</h3>
                       <p className="text-xs font-semibold text-foreground/60 mt-1">{r.focus}</p>
                     </div>
-                    <div className="sm:border-l sm:border-border sm:pl-5">
-                      <p className="text-xs font-bold uppercase tracking-wide text-gold-deep mb-1.5">Deliverables Kunci</p>
+                    <div className="sm:border-s sm:border-border sm:ps-5">
+                      <p className="text-xs font-bold uppercase tracking-wide text-gold-deep mb-1.5">{t("about.deliverablesLabel")}</p>
                       <p className="text-sm text-foreground/75 leading-relaxed">{r.deliverables}</p>
                     </div>
                   </div>
@@ -243,25 +222,23 @@ export function AboutView() {
 
           {/* KPI Table */}
           <Reveal className="mt-14">
-            <h3 className="text-xl font-extrabold mb-1">Indikator Keberhasilan 2030</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Dilaporkan tahunan kepada Dewan Pengurus dan regulator — ambisius, terukur, dan dikalibrasi bersama asosiasi mitra.
-            </p>
+            <h3 className="text-xl font-extrabold mb-1">{t("about.kpi.title")}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{t("about.kpi.subtitle")}</p>
             <div className="rounded-2xl border overflow-hidden shadow-sm max-h-96 overflow-y-auto scrollbar-thin">
               <Table>
                 <TableHeader className="bg-primary text-white">
                   <TableRow className="hover:bg-primary">
-                    <TableHead className="text-white font-bold">Indikator</TableHead>
-                    <TableHead className="text-white font-bold">Baseline 2026</TableHead>
-                    <TableHead className="text-white font-bold">Target 2030</TableHead>
+                    <TableHead className="text-white font-bold">{t("about.kpi.colIndicator")}</TableHead>
+                    <TableHead className="text-white font-bold">{t("about.kpi.colBaseline")}</TableHead>
+                    <TableHead className="text-white font-bold">{t("about.kpi.colTarget")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {KPI_ROWS.map((k, i) => (
-                    <TableRow key={k.indicator} className={i % 2 ? "bg-muted/40" : ""}>
-                      <TableCell className="font-medium text-sm">{k.indicator}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{k.baseline}</TableCell>
-                      <TableCell className="text-sm font-bold text-primary">{k.target}</TableCell>
+                  {KPI_ROWS.map((_, i) => (
+                    <TableRow key={`about.kpi.rows.r${i + 1}`} className={i % 2 ? "bg-muted/40" : ""}>
+                      <TableCell className="font-medium text-sm">{t(`about.kpi.rows.r${i + 1}.indicator`)}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{t(`about.kpi.rows.r${i + 1}.baseline`)}</TableCell>
+                      <TableCell className="text-sm font-bold text-primary">{t(`about.kpi.rows.r${i + 1}.target`)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -271,8 +248,8 @@ export function AboutView() {
 
           <Reveal className="mt-12 text-center">
             <Button size="lg" onClick={() => navigate("gabung")} className="bg-gradient-to-r from-primary to-forest text-white">
-              <Icon name="handshake" className="h-5 w-5 mr-2" />
-              Bergabung Bersama MUHDIN
+              <Icon name="handshake" className="h-5 w-5 me-2" />
+              {t("about.cta")}
             </Button>
           </Reveal>
         </div>

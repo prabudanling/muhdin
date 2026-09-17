@@ -12,16 +12,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import type { Faq, SiteSettings } from "@/lib/types";
+import { useT } from "@/lib/i18n";
+import type { Faq } from "@/lib/types";
 
 const CONTACT_CARDS = [
-  { icon: "mail", title: "Email Resmi", value: "info@muhdin.web.id", desc: "Respons maksimal 1×24 jam kerja" },
-  { icon: "phone", title: "Telepon Sekretariat", value: "+62 21 1234 5678", desc: "Senin–Jumat, 09.00–17.00 WIB" },
-  { icon: "map-pin", title: "Alamat", value: "Gedung Asosiasi MUHDIN", desc: "Jakarta Pusat, Indonesia" },
-  { icon: "shield-check", title: "Laporan Penipuan", value: "Kanal Prioritas 24/7", desc: "Laporkan pelaku yang mengaku anggota" },
+  { icon: "mail", value: "info@muhdin.web.id", titleKey: "contact.cardEmailTitle", descKey: "contact.cardEmailDesc" },
+  { icon: "phone", value: "+62 21 1234 5678", titleKey: "contact.cardPhoneTitle", descKey: "contact.cardPhoneDesc" },
+  { icon: "map-pin", value: "Gedung Asosiasi MUHDIN", titleKey: "contact.cardAddressTitle", descKey: "contact.cardAddressDesc" },
+  { icon: "shield-check", value: "Kanal Prioritas 24/7", titleKey: "contact.cardFraudTitle", descKey: "contact.cardFraudDesc" },
 ];
 
 export function ContactView() {
+  const { t } = useT();
   return (
     <div className="flex flex-col">
       <section className="relative bg-forest-deep text-white overflow-hidden">
@@ -30,13 +32,10 @@ export function ContactView() {
           <Reveal>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold">
               <span className="h-px w-6 bg-current opacity-60" />
-              Hubungi Kami
+              {t("contact.eyebrow")}
             </span>
-            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">Kanal Resmi MUHDIN</h1>
-            <p className="mt-3 max-w-2xl text-emerald-50/80">
-              Konsultasi, pertanyaan, laporan, atau masukan — seluruh kanal resmi MUHDIN
-              terpusat di halaman ini. Waspadai kanal tidak resmi yang mengatasnamakan MUHDIN.
-            </p>
+            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">{t("contact.title")}</h1>
+            <p className="mt-3 max-w-2xl text-emerald-50/80">{t("contact.subtitle")}</p>
           </Reveal>
         </div>
       </section>
@@ -46,14 +45,14 @@ export function ContactView() {
           {/* Contact cards */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-12">
             {CONTACT_CARDS.map((c, i) => (
-              <Reveal key={c.title} delay={i * 0.06}>
+              <Reveal key={c.titleKey} delay={i * 0.06}>
                 <div className="h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg transition-shadow">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
                     <Icon name={c.icon} className="h-5 w-5" />
                   </div>
-                  <p className="mt-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">{c.title}</p>
+                  <p className="mt-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">{t(c.titleKey)}</p>
                   <p className="mt-1 font-bold text-sm break-words">{c.value}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{c.desc}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{t(c.descKey)}</p>
                 </div>
               </Reveal>
             ))}
@@ -62,10 +61,10 @@ export function ContactView() {
           <Tabs defaultValue="pesan" className="w-full max-w-4xl mx-auto">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="pesan" className="gap-2">
-                <Icon name="message-square" className="h-4 w-4" /> Kirim Pesan
+                <Icon name="message-square" className="h-4 w-4" /> {t("contact.tabMessage")}
               </TabsTrigger>
               <TabsTrigger value="faq" className="gap-2">
-                <Icon name="help-circle" className="h-4 w-4" /> Tanya Jawab
+                <Icon name="help-circle" className="h-4 w-4" /> {t("contact.tabFaq")}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="pesan">
@@ -83,6 +82,7 @@ export function ContactView() {
 
 function MessageForm() {
   const { toast } = useToast();
+  const { t } = useT();
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
   const [loading, setLoading] = useState(false);
 
@@ -90,10 +90,10 @@ function MessageForm() {
     setLoading(true);
     try {
       await apiSend("/api/messages", "POST", form);
-      toast({ title: "Pesan terkirim ✓", description: "Terima kasih! Tim MUHDIN akan merespons segera." });
+      toast({ title: t("contact.toastSuccessTitle"), description: t("contact.toastSuccessDesc") });
       setForm({ name: "", email: "", phone: "", subject: "", message: "" });
     } catch (e) {
-      toast({ title: "Gagal mengirim", description: (e as Error).message, variant: "destructive" });
+      toast({ title: t("contact.toastFailTitle"), description: (e as Error).message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -107,29 +107,29 @@ function MessageForm() {
       <div className="rounded-2xl border bg-card p-6 sm:p-8 shadow-sm">
         <SectionHeading
           align="left"
-          title="Kirim Pesan kepada Sekretariat"
-          subtitle="Isi formulir berikut — pesan Anda langsung masuk ke inbox resmi tim MUHDIN."
+          title={t("contact.formTitle")}
+          subtitle={t("contact.formSubtitle")}
         />
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="c-name">Nama Lengkap *</Label>
-            <Input id="c-name" value={form.name} onChange={set("name")} placeholder="Nama Anda" />
+            <Label htmlFor="c-name">{t("contact.labelName")}</Label>
+            <Input id="c-name" value={form.name} onChange={set("name")} placeholder={t("contact.namePlaceholder")} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="c-email">Email *</Label>
-            <Input id="c-email" type="email" value={form.email} onChange={set("email")} placeholder="nama@email.com" />
+            <Label htmlFor="c-email">{t("contact.labelEmail")}</Label>
+            <Input id="c-email" type="email" value={form.email} onChange={set("email")} placeholder={t("contact.emailPlaceholder")} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="c-phone">Nomor WhatsApp</Label>
-            <Input id="c-phone" value={form.phone} onChange={set("phone")} placeholder="08xxxxxxxxxx" />
+            <Label htmlFor="c-phone">{t("contact.labelPhone")}</Label>
+            <Input id="c-phone" value={form.phone} onChange={set("phone")} placeholder={t("contact.phonePlaceholder")} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="c-subject">Subjek *</Label>
-            <Input id="c-subject" value={form.subject} onChange={set("subject")} placeholder="Perihal pesan" />
+            <Label htmlFor="c-subject">{t("contact.labelSubject")}</Label>
+            <Input id="c-subject" value={form.subject} onChange={set("subject")} placeholder={t("contact.subjectPlaceholder")} />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="c-message">Pesan *</Label>
-            <Textarea id="c-message" value={form.message} onChange={set("message")} rows={5} placeholder="Tulis pesan Anda…" />
+            <Label htmlFor="c-message">{t("contact.labelMessage")}</Label>
+            <Textarea id="c-message" value={form.message} onChange={set("message")} rows={5} placeholder={t("contact.messagePlaceholder")} />
           </div>
         </div>
         <Button
@@ -137,8 +137,8 @@ function MessageForm() {
           disabled={loading}
           className="mt-6 w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-primary to-forest text-white"
         >
-          {loading ? <Icon name="loader-2" className="h-4 w-4 mr-2 animate-spin" /> : <Icon name="send" className="h-4 w-4 mr-2" />}
-          Kirim Pesan
+          {loading ? <Icon name="loader-2" className="h-4 w-4 me-2 animate-spin" /> : <Icon name="send" className="h-4 w-4 me-2" />}
+          {t("contact.btnSend")}
         </Button>
       </div>
     </Reveal>
@@ -146,11 +146,12 @@ function MessageForm() {
 }
 
 function FaqSection() {
+  const { t, locale } = useT();
   const [faqs, setFaqs] = useState<Faq[] | null>(null);
 
   useEffect(() => {
-    apiGet<Faq[]>("/api/faqs").then(setFaqs).catch(() => setFaqs([]));
-  }, []);
+    apiGet<Faq[]>(`/api/faqs?locale=${locale}`).then(setFaqs).catch(() => setFaqs([]));
+  }, [locale]);
 
   if (!faqs)
     return (
@@ -161,12 +162,15 @@ function FaqSection() {
       </div>
     );
 
+  if (faqs.length === 0)
+    return <div className="py-12 text-center text-sm text-muted-foreground">{t("contact.faqEmpty")}</div>;
+
   return (
     <Accordion type="single" collapsible className="space-y-3">
       {faqs.map((f, i) => (
         <Reveal key={f.id} delay={Math.min(i * 0.04, 0.3)}>
           <AccordionItem value={f.id} className="rounded-xl border bg-card px-5 shadow-sm">
-            <AccordionTrigger className="text-sm font-bold text-left hover:text-primary hover:no-underline">
+            <AccordionTrigger className="text-sm font-bold text-start hover:text-primary hover:no-underline">
               <span className="flex items-center gap-2.5">
                 <Icon name="help-circle" className="h-4 w-4 text-primary shrink-0" />
                 {f.question}

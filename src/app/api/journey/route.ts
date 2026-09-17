@@ -1,11 +1,20 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const steps = await db.journeyStep.findMany({ orderBy: { step: "asc" } });
-    return ok(steps);
+    const locale = localeFromRequest(req);
+    const localized = await applyEntityTranslations({
+      entity: "JourneyStep",
+      rows: steps,
+      locale,
+      keyOf: (s) => String(s.step),
+      fields: ["title", "activity", "output"],
+    });
+    return ok(localized);
   } catch {
     return fail("Gagal memuat alur perjalanan.", 500);
   }

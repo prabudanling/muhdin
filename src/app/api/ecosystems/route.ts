@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,7 +10,15 @@ export async function GET(req: NextRequest) {
       where: cluster ? { cluster } : {},
       orderBy: { number: "asc" },
     });
-    return ok(ecosystems);
+    const locale = localeFromRequest(req);
+    const localized = await applyEntityTranslations({
+      entity: "Ecosystem",
+      rows: ecosystems,
+      locale,
+      keyOf: (e) => String(e.number),
+      fields: ["name", "scope", "standard", "description"],
+    });
+    return ok(localized);
   } catch {
     return fail("Gagal memuat ekosistem.", 500);
   }

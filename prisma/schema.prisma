@@ -228,3 +228,23 @@ model NusukSyncLog {
   durationMs      Int            @default(0)
   createdAt       DateTime       @default(now())
 }
+
+// ==================== I18N — TRANSLASI KONTEN (Task 14) ====================
+
+/// Terjemahan konten database (EN/AR). entity = nama model sumber,
+/// entityKey = id/slug baris sumber, field = nama kolom yang diterjemahkan.
+model ContentTranslation {
+  id        String   @id @default(cuid())
+  entity    String
+  entityKey String
+  locale    String // "en" | "ar"
+  field     String
+  value     String
+  engine    String   @default("ai") // "ai" | "manual"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([entity, entityKey, locale, field])
+  @@index([entity, locale])
+  @@index([locale, entityKey])
+}

@@ -14,7 +14,7 @@ import { AdminDashboard } from "@/components/admin/admin-dashboard";
 import {
   AdminArticles, AdminEcosystems, AdminJourney, AdminRoadmap, AdminMembers,
   AdminTutorials, AdminFaqs, AdminTestimonials, AdminManagement,
-  AdminMessages, AdminApplications, AdminNusuk, AdminSettings,
+  AdminMessages, AdminApplications, AdminNusuk, AdminSettings, AdminTranslator,
 } from "@/components/admin/admin-sections";
 import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -34,6 +34,7 @@ const MENU = [
   { id: "testimonials", label: "Testimoni", icon: "quote" },
   { id: "management", label: "Struktur Organisasi", icon: "users" },
   { id: "settings", label: "Pengaturan Situs", icon: "settings" },
+  { id: "translator", label: "Penerjemah Cerdas", icon: "languages" },
 ];
 
 export function AdminView() {
@@ -171,6 +172,7 @@ export function AdminView() {
           {section === "testimonials" && <AdminTestimonials />}
           {section === "management" && <AdminManagement />}
           {section === "settings" && <AdminSettings />}
+          {section === "translator" && <AdminTranslator />}
         </main>
 
         <footer className="border-t px-6 py-4 text-center text-xs text-muted-foreground pb-[max(1rem,env(safe-area-inset-bottom))]">

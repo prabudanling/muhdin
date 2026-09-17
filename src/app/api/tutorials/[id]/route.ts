@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { guardAdmin, ok, fail, slugify } from "@/lib/api-helpers";
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;

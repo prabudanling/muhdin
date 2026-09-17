@@ -15,39 +15,42 @@ import { ContactView } from "@/components/views/contact-view";
 import { JoinView } from "@/components/views/join-view";
 import { NusukView } from "@/components/views/nusuk-view";
 import { AdminView } from "@/components/admin/admin-view";
+import { LocaleProvider, useT } from "@/lib/i18n";
 
 function LoadingSplash() {
+  const { t } = useT();
   return (
     <div className="min-h-screen grid place-items-center bg-background">
       <div className="flex flex-col items-center gap-3">
         <div className="h-10 w-10 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-        <p className="text-sm text-muted-foreground">Memuat portal MUHDIN…</p>
+        <p className="text-sm text-muted-foreground">{t("misc.loading")}</p>
       </div>
     </div>
   );
 }
 
 function NotFound() {
+  const { t } = useT();
   return (
     <div className="flex-1 grid place-items-center py-32 px-4">
       <div className="text-center space-y-4">
-        <p className="text-7xl font-extrabold text-primary/20">404</p>
-        <h1 className="text-2xl font-bold">Halaman tidak ditemukan</h1>
+        <p className="text-7xl font-extrabold text-primary/20">{t("misc.notfound.code")}</p>
+        <h1 className="text-2xl font-bold">{t("misc.notfound.title")}</h1>
         <p className="text-muted-foreground max-w-md">
-          Halaman yang Anda cari tidak tersedia. Silakan kembali ke beranda untuk melanjutkan perjalanan.
+          {t("misc.notfound.body")}
         </p>
         <button
           onClick={() => navigate("beranda")}
           className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-forest transition-colors"
         >
-          Kembali ke Beranda
+          {t("misc.notfound.cta")}
         </button>
       </div>
     </div>
   );
 }
 
-export function MuhdinApp() {
+export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en" | "ar" }) {
   const route = useHashRoute();
   const root = route[0] || "beranda";
   const isAdmin = root === "admin";
@@ -99,20 +102,20 @@ export function MuhdinApp() {
       content = <NotFound />;
   }
 
-  if (isAdmin) {
-    return (
-      <div className="min-h-screen bg-muted/40 flex flex-col">
-        <AdminView />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-      <main className="flex-1 flex flex-col">{content}</main>
-      <Footer />
-    </div>
+    <LocaleProvider initialLocale={initialLocale}>
+      {isAdmin ? (
+        <div className="min-h-screen bg-muted/40 flex flex-col">
+          <AdminView />
+        </div>
+      ) : (
+        <div className="min-h-screen flex flex-col bg-background">
+          <Navbar />
+          <main className="flex-1 flex flex-col">{content}</main>
+          <Footer />
+        </div>
+      )}
+    </LocaleProvider>
   );
 }
 

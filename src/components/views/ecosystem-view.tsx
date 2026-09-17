@@ -11,19 +11,35 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
+import { useT } from "@/lib/i18n";
 import { CLUSTERS } from "@/lib/constants";
 import type { Ecosystem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+/** Kode klaster (nilai DB) tetap utk logika/filter; label tampil lewat kamus. */
+const CLUSTER_KEY: Record<string, string> = {
+  "Akses & Mobilitas": "ecosystem.cluster.access",
+  "Pengalaman Ibadah": "ecosystem.cluster.worship",
+  "Nilai Tambah & Jaminan Mutu": "ecosystem.cluster.quality",
+};
+
 export function EcosystemView() {
+  const { t, locale } = useT();
   const [ecosystems, setEcosystems] = useState<Ecosystem[] | null>(null);
   const [cluster, setCluster] = useState<string>("all");
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Ecosystem | null>(null);
 
+  const clusterLabel = (name: string) => {
+    const key = CLUSTER_KEY[name];
+    return key ? t(key) : name;
+  };
+
   useEffect(() => {
-    apiGet<Ecosystem[]>("/api/ecosystems").then(setEcosystems).catch(() => setEcosystems([]));
-  }, []);
+    apiGet<Ecosystem[]>(`/api/ecosystems?locale=${locale}`)
+      .then(setEcosystems)
+      .catch(() => setEcosystems([]));
+  }, [locale]);
 
   const filtered = useMemo(() => {
     if (!ecosystems) return [];
@@ -46,14 +62,10 @@ export function EcosystemView() {
           <Reveal>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold">
               <span className="h-px w-6 bg-current opacity-60" />
-              Arsitektur 13 Ekosistem
+              {t("ecosystem.eyebrow")}
             </span>
-            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">Ekosistem Layanan Terintegrasi</h1>
-            <p className="mt-3 max-w-2xl text-emerald-50/80">
-              Tiga belas ekosistem membentuk satu rangkaian utuh perjalanan Tamu Allah. Setiap
-              ekosistem dikelola mitra terverifikasi, dibingkai standar MUHDIN, dan terhubung
-              pada satu tulang punggung data.
-            </p>
+            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">{t("ecosystem.title")}</h1>
+            <p className="mt-3 max-w-2xl text-emerald-50/80">{t("ecosystem.subtitle")}</p>
           </Reveal>
         </div>
       </section>
@@ -62,23 +74,28 @@ export function EcosystemView() {
       <section className="sticky top-16 z-30 glass border-b border-border/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3 flex flex-col sm:flex-row gap-3 sm:items-center">
           <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-0.5">
-            <FilterChip active={cluster === "all"} onClick={() => setCluster("all")} label="Semua (13)" />
+            <FilterChip
+              active={cluster === "all"}
+              onClick={() => setCluster("all")}
+              label={t("ecosystem.filterAll", { count: 13 })}
+            />
             {CLUSTERS.map((c) => (
               <FilterChip
                 key={c.name}
                 active={cluster === c.name}
                 onClick={() => setCluster(c.name)}
-                label={c.name}
+                label={clusterLabel(c.name)}
               />
             ))}
           </div>
-          <div className="relative sm:ml-auto w-full sm:w-64">
-            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative sm:ms-auto w-full sm:w-64">
+            <Icon name="search" className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Cari ekosistem…"
-              className="pl-9 h-9"
+              placeholder={t("ecosystem.searchPlaceholder")}
+              aria-label={t("ecosystem.searchAria")}
+              className="ps-9 h-9"
             />
           </div>
         </div>
@@ -96,7 +113,7 @@ export function EcosystemView() {
           ) : filtered.length === 0 ? (
             <div className="py-20 text-center">
               <Icon name="search" className="h-10 w-10 mx-auto text-muted-foreground/40" />
-              <p className="mt-3 text-muted-foreground">Tidak ada ekosistem yang cocok dengan pencarian.</p>
+              <p className="mt-3 text-muted-foreground">{t("ecosystem.empty")}</p>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -117,9 +134,9 @@ export function EcosystemView() {
                     <h3 className="mt-4 font-bold leading-snug">{e.name}</h3>
                     <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2">{e.scope}</p>
                     <div className="mt-4 flex items-center justify-between">
-                      <Badge variant="secondary" className="text-[10px]">{e.cluster}</Badge>
+                      <Badge variant="secondary" className="text-[10px]">{clusterLabel(e.cluster)}</Badge>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
-                        Detail <Icon name="chevron-right" className="h-3.5 w-3.5" />
+                        {t("ecosystem.detail")} <Icon name="chevron-right" className="h-3.5 w-3.5 icon-flip" />
                       </span>
                     </div>
                   </button>
@@ -142,9 +159,12 @@ export function EcosystemView() {
                   </div>
                   <div>
                     <DialogDescription className="text-xs font-semibold text-gold-deep uppercase tracking-wide">
-                      Ekosistem {String(selected.number).padStart(2, "0")} — {selected.cluster}
+                      {t("ecosystem.detailEyebrow", {
+                        number: String(selected.number).padStart(2, "0"),
+                        cluster: clusterLabel(selected.cluster),
+                      })}
                     </DialogDescription>
-                    <DialogTitle className="text-2xl text-left mt-1">{selected.name}</DialogTitle>
+                    <DialogTitle className="text-2xl text-start mt-1">{selected.name}</DialogTitle>
                   </div>
                 </div>
               </DialogHeader>
@@ -159,30 +179,27 @@ export function EcosystemView() {
                 )}
                 <div>
                   <h4 className="flex items-center gap-2 text-sm font-bold text-primary">
-                    <Icon name="info" className="h-4 w-4" /> Tentang Ekosistem
+                    <Icon name="info" className="h-4 w-4" /> {t("ecosystem.aboutTitle")}
                   </h4>
                   <p className="mt-2 text-sm leading-relaxed text-foreground/85">{selected.description}</p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-xl border bg-muted/40 p-4">
                     <h5 className="flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wide">
-                      <Icon name="target" className="h-3.5 w-3.5" /> Ruang Lingkup
+                      <Icon name="target" className="h-3.5 w-3.5" /> {t("ecosystem.scopeTitle")}
                     </h5>
                     <p className="mt-1.5 text-sm text-foreground/80">{selected.scope}</p>
                   </div>
                   <div className="rounded-xl border bg-muted/40 p-4">
                     <h5 className="flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wide">
-                      <Icon name="badge-check" className="h-3.5 w-3.5" /> Standar MUHDIN
+                      <Icon name="badge-check" className="h-3.5 w-3.5" /> {t("ecosystem.standardTitle")}
                     </h5>
                     <p className="mt-1.5 text-sm text-foreground/80">{selected.standard}</p>
                   </div>
                 </div>
                 <div className="rounded-xl bg-gold/10 border border-gold/25 p-4 text-sm">
-                  <p className="font-semibold text-gold-deep">Komitmen Mutu</p>
-                  <p className="mt-1 text-foreground/75">
-                    Layanan pada ekosistem ini diaudit berkala dan hasilnya terintegrasi ke dashboard
-                    monitoring — reputasi menjadi mata uang kolektif ekosistem.
-                  </p>
+                  <p className="font-semibold text-gold-deep">{t("ecosystem.commitmentTitle")}</p>
+                  <p className="mt-1 text-foreground/75">{t("ecosystem.commitmentText")}</p>
                 </div>
               </div>
             </>

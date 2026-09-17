@@ -4,23 +4,26 @@ import { useEffect, useState } from "react";
 import { useHashRoute, navigate } from "@/hooks/use-hash-route";
 import { MuhdinBrand } from "@/components/site/logo";
 import { Icon } from "@/components/site/icon";
+import { LocaleSwitcher } from "@/components/site/locale-switcher";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { path: "beranda", label: "Beranda" },
-  { path: "nusuk", label: "Nusuk Hub" },
-  { path: "ekosistem", label: "13 Ekosistem" },
-  { path: "anggota", label: "Direktori Anggota" },
-  { path: "tutorial", label: "Tutorial" },
-  { path: "berita", label: "Berita" },
-  { path: "tentang", label: "Tentang" },
-  { path: "kontak", label: "Kontak" },
-];
+  { path: "beranda" },
+  { path: "nusuk" },
+  { path: "ekosistem" },
+  { path: "anggota" },
+  { path: "tutorial" },
+  { path: "berita" },
+  { path: "tentang" },
+  { path: "kontak" },
+] as const;
 
 export function Navbar() {
   const route = useHashRoute();
+  const { t } = useT();
   const current = route[0] || "beranda";
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -46,11 +49,11 @@ export function Navbar() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between gap-3">
-          <button onClick={() => go("beranda")} className="focus:outline-none" aria-label="Beranda MUHDIN">
+          <button onClick={() => go("beranda")} className="focus:outline-none" aria-label={t("navbar.aria.brand")}>
             <MuhdinBrand />
           </button>
 
-          <nav className="hidden lg:flex items-center gap-1" aria-label="Navigasi utama">
+          <nav className="hidden lg:flex items-center gap-1" aria-label={t("navbar.aria.nav")}>
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.path}
@@ -62,34 +65,35 @@ export function Navbar() {
                     : "text-foreground/70 hover:text-primary hover:bg-primary/5"
                 )}
               >
-                {item.label}
+                {t(`navbar.items.${item.path}`)}
               </button>
             ))}
           </nav>
 
           <div className="hidden lg:flex items-center gap-2">
+            <LocaleSwitcher />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => go("admin")}
               className="text-foreground/60 hover:text-primary"
             >
-              <Icon name="login" className="h-4 w-4 mr-1.5" />
-              Portal Mitra
+              <Icon name="login" className="h-4 w-4 me-1.5" />
+              {t("navbar.portalMitra")}
             </Button>
             <Button
               size="sm"
               onClick={() => go("gabung")}
               className="bg-gradient-to-r from-primary to-forest text-white shadow-md hover:shadow-lg hover:from-forest hover:to-primary"
             >
-              Gabung MUHDIN
-              <Icon name="arrow-right" className="h-4 w-4 ml-1.5" />
+              {t("navbar.gabung")}
+              <Icon name="arrow-right" className="h-4 w-4 ms-1.5 icon-flip" />
             </Button>
           </div>
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="lg:hidden" aria-label="Buka menu">
+              <Button variant="outline" size="icon" className="lg:hidden" aria-label={t("navbar.aria.menu")}>
                 <Icon name="menu" className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -102,7 +106,7 @@ export function Navbar() {
                     </div>
                   </SheetTitle>
                 </div>
-                <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin" aria-label="Navigasi mobile">
+                <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin" aria-label={t("navbar.aria.navMobile")}>
                   {NAV_ITEMS.map((item) => (
                     <button
                       key={item.path}
@@ -114,18 +118,19 @@ export function Navbar() {
                           : "text-foreground/75 hover:bg-muted"
                       )}
                     >
-                      {item.label}
-                      <Icon name="chevron-right" className="h-4 w-4 opacity-50" />
+                      {t(`navbar.items.${item.path}`)}
+                      <Icon name="chevron-right" className="h-4 w-4 opacity-50 icon-flip" />
                     </button>
                   ))}
                 </nav>
                 <div className="p-4 border-t space-y-2">
+                  <LocaleSwitcher variant="mobile" />
                   <Button className="w-full" onClick={() => go("gabung")}>
-                    Gabung MUHDIN
+                    {t("navbar.gabung")}
                   </Button>
                   <Button variant="outline" className="w-full" onClick={() => go("admin")}>
-                    <Icon name="login" className="h-4 w-4 mr-2" />
-                    Portal Mitra / Admin
+                    <Icon name="login" className="h-4 w-4 me-2" />
+                    {t("navbar.mobilePortal")}
                   </Button>
                 </div>
               </div>

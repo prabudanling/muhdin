@@ -169,3 +169,169 @@ Stage Summary:
 - Zero-config di hosting: DATABASE_URL ter-resolve otomatis (placeholder __APP__), engine Prisma multi-platform ter-bundle, tanpa npm install di server
 - Fitur baru CMS: ganti password admin (wajib pasca go-live) + kartu Status Server health hosting
 - Panduan lengkap: PANDUAN-SHARED-HOSTING.md; kredensial admin tetap admin@muhdin.web.id / muhdin2026 (WAJIB diganti setelah go-live via kartu Keamanan Akun)
+
+---
+Task ID: 14-c
+Agent: frontend-styling-expert (i18n agent — tutorial/berita/kontak/gabung)
+Task: Migrasi i18n 3 bahasa (id/en/ar) untuk tutorial-view, news-view, contact-view, join-view + 4 namespace kamus
+
+Work Log:
+- Membaca worklog.md (konteks Task 13-14), src/lib/i18n/index.tsx (useT/formatDateL10n/formatNumberL10n, fallback en→id→key), dictionaries.ts, stub 4 namespace milikku, 4 view, constants.ts, client-api.ts, dan route API terkait
+- Mengisi 4 kamus (key identik di id/en/ar, verifikasi via script bun — semua OK): tutorial 24 key, news 15 key, contact 30 key, join 55 key (total 124). Nilai id = string ASLI existing (tanpa parafrase); en formal; ar MSA tanpa tasyakil. Label berbasis kode DB dipetakan: kategori tutorial Umum/CMS/Jamaah/Mitra → catUmum/catCms/catJamaah/catMitra; level Pemula/Menengah/Mahir → levelPemula/Menengah/Mahir; kategori berita Berita/Pengumuman/Artikel/Press Release → catBerita/catPengumuman/catArtikel/catPressRelease (kode tetap untuk logika/filter/query)
+- tutorial-view: heading/eyebrow/subtitle, chip filter + tombol "Semua", badge kategori/level (map), meta durasi "{n} menit"/"{n} menit baca" & "{n}× dibaca" via formatNumberL10n, empty state, tombol back + CTA box, placeholder + aria-label pencarian; fetch /api/tutorials?locale=${locale} (dep [locale]) dan /api/tutorials/slug/${slug}?locale=${locale} (dep [slug, locale]); pesan error API diganti teks terlokalisasi t("tutorial.loadError"); variabel loop `t` yang men-shadow fungsi terjemahan di-rename; konten markdown dari API tidak disentuh
+- news-view: heading, badge "Utama", "Baca selengkapnya", filter chip + "Semua", meta formatDateL10n + views terformat, empty kategori, back button; fetch /api/articles?locale=${locale} (dep [locale]) dan /api/articles/slug/${slug}?locale=${locale} (dep [slug, locale]); error terlokalisasi t("news.loadError")
+- contact-view: 4 kartu info — value (email/telepon/alamat) TIDAK diubah, title/desc via t(); tab "Kirim Pesan"/"Tanya Jawab"; form lengkap (5 label + 5 placeholder + tombol + toast sukses/gagal via t); FAQ fetch /api/faqs?locale=${locale} (dep [locale], question/answer otomatis dari lapisan API) + empty state baru t("contact.faqEmpty"); aria/tombol tidak berubah perilaku submit POST /api/messages
+- join-view: hero, 4 langkah proses, 6 manfaat (teks inline dipindah ke kamus), dues note, seluruh label/placeholder form (id=j-* + aria-label pada Select), toast sukses/gagal, disclaimer; pilihan tipe member: value tetap kode DB (PPIU/PIHK/KBIHU/IPHI/TRAVEL_WISATA), label via join.type*; kartu PARTNERS: nama TW + fullName semua kode via join.partnerNameTW/join.partnerFull*; submit tetap POST /api/applications tanpa locale
+- RTL & polish: icon-flip pada arrow-right back-button & read-more (kombinasi rotate-180 + icon-flip sudah benar arah di RTL); margin ikon fisik mr-* → logis me-*; posisi fisik left-4/left-3 → start-4/start-3, pl-9 → ps-9, border-l-4/pl-4 → border-s-4/ps-4, text-left → text-start pada trigger accordion FAQ; aria-pressed pada chip filter
+- Verifikasi: bunx eslint pada 8 file milikku → 0 error 0 warning; tsc --noEmit → 0 error di file milikku; curl / → 500 KARENA src/lib/i18n/locales/common.ts (file agent lain, diimpor dictionaries.ts) BELUM ADA di momen ini — modul-not-found hanya pada common.ts, bukan file milikku; verifikasi browser diserahkan ke orkestrator setelah common.ts tersedia
+- Tidak mengubah file di luar 4 view + 4 kamus milikku; tidak restart dev server; tidak menjalankan perintah db
+
+Stage Summary:
+- 4 view (tutorial/berita/kontak/gabung) kini full i18n id/en/ar via useT: semua teks UI terlokalisasi, fetch data membawa ?locale=${locale} + refetch saat locale/slug berubah, tanggal & angka per-locale, RTL siap (icon-flip + util logis), label kode DB dipetakan ke kamus dengan fallback kode asli
+- Files: EDIT src/components/views/{tutorial,news,contact,join}-view.tsx; EDIT src/lib/i18n/locales/{tutorial,news,contact,join}.ts
+- Kamus: tutorial 24, news 15, contact 30, join 55 key per locale (identik id=en=ar)
+- Lint: 0 error; TS: 0 error (file milikku). Runtime pending common.ts dari agent lain
+
+---
+Task ID: 14-e
+Agent: frontend-styling-expert (CMS Penerjemah Cerdas agent)
+Task: Membangun modul CMS Admin "Penerjemah Cerdas" (kelola terjemahan AI EN/AR konten database) + wiring menu & render
+
+Work Log:
+- Membaca worklog.md (Task 13 & 14), mempelajari pola AdminNusuk & AdminServerStatusCard di admin-sections.tsx (state + apiGet/apiSend + toast + kartu rounded-2xl + tabel max-h-96 overflow + Skeleton), admin-view.tsx (MENU + render section), admin-dashboard.tsx, lib/client-api.ts (apiGet/apiSend/timeAgo), site/icon.tsx (ikon "languages" tersedia), serta kontrak API /api/translations (route.ts + lib/translate-engine.ts: translationStatus, jobState, startBulkJob, ENTITY_NAMES) untuk mencocokkan tipe payload
+- admin-sections.tsx: APPEND di akhir file TANPA mengubah kode existing sedikit pun (diff: +500/-0; tanpa impor baru karena seluruh dependensi sudah ada di file): tipe lokal TranslatorLocale/TranslatorEntityStatus/TranslatorJobState/TranslatorStatusPayload sesuai kontrak GET, peta label entitas Indonesia (Article→"Berita & Artikel", dst — fallback nama mentah), konstanta TRANSLATOR_LOCALES (English 🇬🇧 / العربية 🇸🇦 — emoji teks, bukan gambar), helper translatorPct (total 0 → dianggap 100%) & TranslatorMiniBar (bar mini h-1.5 role=progressbar + angka font-mono), lalu export function AdminTranslator():
+  (A) Header: judul + deskripsi singkat (AI menerjemahkan konten database ke English & العربية; konten yang belum diterjemahkan otomatis tampil dalam Bahasa Indonesia) + badge "AI Engine" + badge "Job berjalan" (pulse) saat running
+  (B) 2 kartu locale rounded-2xl: flag emoji, persen coverage besar (EN emerald / AR gold), coverage bar width % + role progressbar (aria-valuenow/min/max/aria-label), teks "x dari y field telah diterjemahkan · sisa z", tombol "Terjemahkan {locale} — yang belum ada" (POST /api/translations {locale} TANPA entities) disabled saat job.running atau saat aksi start lain berjalan
+  (C) Tabel entitas (sticky header, max-h-96 overflow-y-auto scrollbar-thin, min-w-[720px] + overflow-x): kolom Entitas (label Indonesia + nama mentah mono), Total field, Terjemahan EN (bar mini + angka), Terjemahan AR (bar mini + angka), Aksi: tombol kecil "Isi EN"/"Isi AR" per baris → POST {locale, entities:[entity]}; spinner saat busy, ikon check + disabled saat cakupan baris-locale 100% (engine idempoten — hanya yang belum ada yang diisi), semua tombol disabled saat job.running
+  (D) Panel progres job (muncul saat job.running || job.finishedAt): badge Berjalan (pulse)/Selesai, badge locale, "Dimulai/Selesai {timeAgo}", tombol "Segarkan" (dengan spinner), progress bar total — weighted (entitas selesai + fraksi done/total entitas berjalan; backend mereset done/total per entitas sehingga dihitung dari entityIndex/entityTotal), caption entitas berjalan entityIndex/entityTotal + nama + done/total item (aria-live polite), chip statistik translated/gagal/pesan galat, daftar errors font-mono text-xs max-h-40 overflow-y-auto scrollbar-thin ("Tidak ada galat." bila kosong)
+  (E) Polling: setInterval 2000ms di useEffect hanya saat job.running — berhenti otomatis saat running=false, interval dibersihkan saat unmount & saat running berubah; effect transisi berjalan→selesai memuat ulang status/cakupan final + toast "Terjemahan selesai ✓" berisi statistik (sekali saja, deteksi via statusRef prev.running vs next.running); POST sukses langsung mengisi job dari respons agar panel tampil instan lalu GET ulang
+  (F) UX/a11y: Skeleton saat memuat (2 kartu + blok tabel), kartu error + "Coba Lagi" (state attempt) bila GET gagal & belum ada data (kegagalan polling bersifat silent agar tidak spam toast), toast sukses/gagal semua aksi, format angka toLocaleString("id-ID"), timeAgo untuk startedAt/finishedAt, aria-label semua tombol/bar, empty state tabel, catatan teknis text-xs muted di bawah: "Terjemahan disimpan di tabel ContentTranslation dan langsung dipakai situs publik (?locale=en|ar)."
+- admin-view.tsx: impor AdminTranslator; MENU + { id:"translator", label:"Penerjemah Cerdas", icon:"languages" } TEPAT setelah menu "Pengaturan Situs"; render {section === "translator" && <AdminTranslator />} setelah baris settings mengikuti pola existing
+- Verifikasi: bunx eslint src/components/admin/admin-sections.tsx src/components/admin/admin-view.tsx → 0 error 0 warning (exit 0); tsc --noEmit → 0 error pada kedua file milikku (error lain yang muncul bukan milikku: admin-dashboard memberByType & crud-manager pra-ada, examples/skills, api/tutorials slugify, dan src/lib/i18n/dictionaries.ts milik agent lain)
+- Catatan lingkungan (bukan cakupan 14-e): dev server saat ini mengembalikan 500 untuk semua route karena src/lib/i18n/locales/common.ts (diimpor dictionaries.ts — file agent lain Task 14-c) belum ada → module-not-found di seluruh graph halaman; verifikasi runtime UI diserahkan ke orkestrator setelah common.ts tersedia; TIDAK restart dev server, TIDAK menjalankan perintah db, TIDAK memakai agent-browser
+
+Stage Summary:
+- Modul CMS "Penerjemah Cerdas" (menu terakhir sidebar, setelah Pengaturan Situs) lengkap sesuai spesifikasi 1-6: 2 kartu locale + coverage bar, tabel cakupan per entitas + aksi "Isi EN/AR" per baris, panel progres job dengan polling 2 detik + tombol Segarkan + statistik + daftar galat, skeleton/toast/format id-ID/timeAgo, catatan teknis — UI Bahasa Indonesia, brand emerald/forest + gold tanpa biru/indigo
+- Kontrak API dipakai: GET /api/translations (entities, locales, job, entityNames) + POST /api/translations ({locale} tanpa entities untuk locale penuh / {locale, entities:[entity]} per baris); kedua endpoint ter-guard admin (401 bila belum login)
+- File diubah: admin-sections.tsx (APPEND AdminTranslator + helper, kode existing tak tersentuh), admin-view.tsx (impor + MENU + render)
+- Lint: 0 error, 0 warning; TS bersih untuk file milikku; runtime UI pending common.ts dari agent lain (lihat catatan lingkungan)
+
+---
+Task ID: 14-d
+Agent: frontend-styling-expert (i18n Nusuk Hub)
+Task: Migrasi i18n 3 bahasa (id/en/ar) untuk halaman publik "Nusuk Hub" — src/components/views/nusuk-view.tsx (~1009 baris, 8 seksi) + kamus namespace src/lib/i18n/locales/nusuk.ts
+
+Work Log:
+- Membaca worklog.md (konteks Task 12/12-a/12-b), src/lib/i18n/index.tsx (useT/LocaleProvider/formatDateL10n/formatNumberL10n), dictionaries.ts (agregator, lookup nested satu titik), locale-switcher.tsx (pola pemakaian), nusuk-view.tsx lama, client-api.ts, constants.ts (MEMBER_TYPE_LABEL), types.ts (Nusuk*), API /api/nusuk/public
+- nusuk.ts: mengisi 139 key × 3 locale dalam struktur nested { nusuk: { ... } } per locale (sesuai lookup key.split(".")); nama key datar tanpa "."; script verifikasi bun: parity key id=en=ar=139, parity variabel interpolasi {var} antar locale OK, tanpa "." dalam nama key; nilai id = string ASLI dari file lama (tidak diparafrase), en formal alami, ar MSA formal tanpa tasyakil (عمرة/الحج/ضيوف الرحمن tidak dipakai langsung di halaman ini; istilah: نوسك, منصة نوسك, ترخيص المطوف, تصريح الروضة, ضيوف/منظم)
+- Cakupan migrasi teks: hero (judul 2 segmen utk span gold, deskripsi dinamis autoSync 3 segmen + var {count}/{env}, chip Terhubung/Terputus, sinkron terakhir), 4 StatCard + strip byType (chips + title attr) + rata-rata durasi, Permit Checker (judul, placeholder, hint, error kosong, "Verifikasi Sekarang", hasil: status izin, nomor, a.n., penyelenggara, masa berlaku, keterangan, 3 kartu kepercayaan), Matriks 13 Ekosistem (13 nama layanan svc1-svc13 + fallback "Menyusun integrasi teknis" + "Izin tersinkron live"; eco.name/cluster dari DB TIDAK diterjemahkan), API Bridge (4 deskripsi endpoint, 3 label auth, contoh cURL lengkap via kamus dengan komentar dilokalkan, label salin), Webhook Feed (judul, empty state, "{n} record terdampak", badge SUCCESS/FAILED), Top Members (judul, aria rank/kepatuhan, "izin aktif", "{n}% patuh"), CTA (judul 2 segmen, deskripsi, 2 tombol), Loading/Error (aria + judul + "Coba Lagi"), CopyButton (2 toast + aria + "Salin")
+- Label berbasis kode dipetakan lewat kamus, kode tetap utk logika: PERMIT_TYPE (6: permitTypeVISA..RAUDAH), status izin (4: statusACTIVE..REJECTED; kelas warna tetap di kode), tipe log (3: logTypeFULL_SYNC/WEBHOOK/CONNECTION), environment (envSANDBOX/envPRODUCTION — chip menampilkan label kamus, kode asli dipertahankan pada atribut title & teks kode status), MEMBER_TYPE (5: mtPPIU..mtTRAVEL_WISATA) — konstanta hardcoded PERMIT_TYPE_LABEL/PERMIT_STATUS/LOG_TYPE_LABEL/MEMBER_TYPE_LABEL dihapus dari view
+- Waktu/angka: helper lokal timeAgoL10n (logika identik timeAgo client-api, teks via kamus agoNever/agoSec/agoMin/agoHour/agoDay), durL10n (durMs/durSec), numL10n & rateL10n memakai formatNumberL10n/Intl per-locale (maximumFractionDigits 1) — semua metrik, durasi, recordsAffected, activePermits, compliance, totalSyncs kini terformat per-locale; tanggal masa berlaku izin pakai formatDateL10n; import formatDate/timeAgo/MEMBER_TYPE_LABEL dibuang
+- Fetch data: GET /api/nusuk/public?locale=${locale} dengan locale masuk dependency useEffect ([attempt, locale]) + guard `cancelled` — refetch sekali per pergantian bahasa, tanpa fetch liar; endpoint verify/webhook tidak diubah; konten DB (nama member, kota, pesan log, meta izin, pesan error API) dibiarkan apa adanya
+- RTL: tidak ada ikon arrow/chevron di view ini (tidak perlu icon-flip); margin/fisik ikon-teks & timeline diganti utilitas logis Tailwind v4 (me-*/ms-*/ps-*/start-*/border-s-*/-start-[9px]/text-end/lg:ms-auto) agar mengikuti dir=rtl; blok teknis dipagari dir="ltr" (permitNo mono & barcode, path endpoint, hostname window bar, <pre> cURL)
+- Kualitas: struktur JSX/kelas visual tidak diubah (reveal, skeleton, barcode CSS, terminal bridge); aria-label tetap lengkap dan kini dilokalkan; tsc --noEmit → 0 error di kedua file saya (satu-satunya error terkait i18n adalah common.ts yang belum dibuat agent lain — di luar cakupan)
+- bunx eslint src/components/views/nusuk-view.tsx src/lib/i18n/locales/nusuk.ts → EXIT 0, 0 error 0 warning
+- Tidak menyentuh file lain, tidak restart dev server, tidak build, tidak menjalankan perintah db, tidak memakai agent-browser
+
+Stage Summary:
+- Nusuk Hub kini 100% i18n: 139 key (id/en/ar) di namespace "nusuk", 0 string UI hardcode tersisa di view; kode tetap untuk logika, teks via kamus; angka & tanggal terformat per-locale; fetch /api/nusuk/public membawa ?locale dan refetch saat bahasa berganti; RTL aman via utilitas logis + dir="ltr" pada blok teknis
+- File diubah: src/lib/i18n/locales/nusuk.ts (139×3 entri), src/components/views/nusuk-view.tsx (1103 baris)
+- Lint: 0 error, 0 warning; catatan: dictionaries.ts menunggu locales/common.ts dari agent namespace lain agar aplikasi terkompilasi penuh
+
+---
+Task ID: 14-b
+Agent: i18n frontend agent (ecosystem+journey+members+about)
+Task: Migrasi i18n 3 bahasa (id/en/ar) untuk ecosystem-view, journey-view, members-view, about-view + kamus namespace ecosystem/journey/members/about
+
+Work Log:
+- Baca worklog.md (konteks Task 13 & 14), src/lib/i18n/index.tsx (useT/formatDateL10n/formatNumberL10n), dictionaries.ts, i18n-server.ts, translate-engine.ts, constants.ts, types.ts, kontrak API terkait, serta keempat view milik saya sebelum mengedit
+- Kamus (id/en/ar, key identik — diverifikasi skrip parity: 0 diff, 0 duplikat, 0 leaf bertitik): ecosystem.ts 17 key, journey.ts 10 key, members.ts 35 key, about.ts 70 key. Nilai Indonesia = string asli existing (tidak diparafrase); English formal; Arab MSA tanpa tasyakil; interpolasi {var} dipakai (filterAll "Semua ({count})", detailEyebrow, since "Sejak {year}")
+- ecosystem-view: useT; hero/filter/empty/dialog (Tentang Ekosistem, Ruang Lingkup, Standar MUHDIN, Komitmen Mutu) lewat t("ecosystem.*"); label klaster DB ("Akses & Mobilitas" dll) dipetakan ke kamus via CLUSTER_KEY (kode tetap utk filter/query); chevron-right + icon-flip; fetch /api/ecosystems?locale=${locale} + deps [locale]; aria-label pencarian; penyesuaian RTL logis (ms-auto, start-3, ps-9, text-start)
+- journey-view: useT; hero (subtitle "zero-gap handover" tetap di-highlight via 3 key), label "Aktor Utama"/"Output Digital", SectionHeading, CTA; fetch /api/journey?locale=${locale} + deps [locale]; ikon mr-2 → me-2
+- members-view: useT di 4 komponen; MEMBER_TYPE_LABEL diganti peta t("members.type.*") (kode TRAVEL_WISATA dst tetap utk filter, fallback kode jika key tak ada); badge status (TERVERIFIKASI/PENDING/SUSPENDED) via t("members.status.*"), warna tetap di kode; kartu: "Sejak {year}" + formatNumberL10n, "Izin:", rating aria-label + formatNumberL10n; Cek Verifikasi: semua teks, error min-3-karakter, hasil not-found, 3 kartu jaminan; fetch /api/members?locale=${locale} + deps [locale]; verify /api/members/verify?...&locale=${locale}; aria-label input; RTL logis (ms-auto, start-3, ps-9, me-1, ms-1)
+- about-view: useT; semua teks statis + konten constants.ts pindah ke kamus (misinya m1-m5, prinsip p1-p3, partner fullName per code, nilai 5×(name+meaning), KPI 7×(indicator/baseline/target), header tabel, CTA, label "Deliverables Kunci"); visi/misi settings & roadmap & management dari API tak disentuh (fallback vision → about.visionFallback); PARTNERS/CORE_VALUES/KPI_ROWS tetap dipakai utk ikon/iterasi; fetch management/roadmap/settings +?locale=${locale} + deps [locale]; RTL logis (sm:border-s, sm:ps-5, me-2)
+- Konten DB (nama/deskripsi ekosistem, tahap journey, member, roadmap, management) TIDAK diterjemahkan di frontend — cukup param locale untuk lapisan API
+- Verifikasi: bunx eslint pada 8 file milik saya → 0 error 0 warning; tsc --noEmit → 0 error di 8 file saya (sisa error global di luar daftar: common.ts milik agent lain belum ada, admin-dashboard, crud-manager, examples/, skills/, api/tutorials — bukan cakupan 14-b); tidak restart dev server, tidak build, tidak jalankan perintah db, tidak pakai agent-browser
+
+Stage Summary:
+- 4 view (ecosystem/journey/members/about) full i18n id/en/ar + RTL-ready (icon-flip, logical properties), semua fetch data membawa ?locale=${locale} dengan locale di deps useEffect → refetch otomatis saat ganti bahasa
+- Kamus: ecosystem 17 + journey 10 + members 35 + about 70 = 132 key per locale, key identik 3 locale
+- Catatan lintas-agent: src/lib/i18n/locales/common.ts (dipegang agent lain) belum ada di disk sehingga dictionaries.ts masih gagal resolve — di luar cakupan saya; file saya tidak bergantung pada common.*
+
+---
+Task ID: 14-a
+Agent: frontend-styling-expert (i18n home+nav+footer agent)
+Task: Migrasi i18n 3 bahasa (id/en/ar) untuk home-view, navbar, footer, muhdin-app (LoadingSplash & NotFound) + pasang Language Switcher + ?locale pada semua fetch milik sendiri
+
+Work Log:
+- Membaca worklog.md (Task 12-a/12-b/13), src/lib/i18n/index.tsx (useT/formatDateL10n/formatNumberL10n), dictionaries.ts (agregator, 1 file per namespace), locale-switcher.tsx (kontrak desktop/mobile), constants.ts, client-api.ts, reveal.tsx (SectionHeading props string) sebelum menulis
+- Kamus (id = string ASLI existing verbatim; en formal; ar MSA tanpa tasyakil; key identik 3 locale, tanpa "." di nama key; diverifikasi script paritas key id/en/ar = 0 selisih):
+  - locales/home.ts: 127 leaf key — hero (badge/title1/titleGold/title2/motto+subtitle interpolasi {motto}/imgAlt/2 CTA), stats (4 stat value+label, angka format en "1,000,000+"), nusukLive (aria/label/sub/izinAktif/sinkronTerakhir/belumSinkron/4 satuan relatif/btn/btnAria), nusukBar (title/sub/p1-p6), ekosistem heading, klaster 3x(name/range/desc), alur 4, mitra 3 + 5 mitra x3 field, nilai 3 + 5 nilai x2 field, teknologi 3 + 4 badge privasi + 6 pilar x2 field, roadmap 3, manfaat title+b1-b7, testimoni 3, berita 3, cta 5, umum (selengkapnya/muatUlang)
+  - locales/navbar.ts: 15 key — items 8 path, portalMitra, gabung, mobilePortal, aria 4 (brand/nav/menu/navMobile)
+  - locales/footer.ts: 23 key — desc, tagline, connecting, 3 judul kolom, nav 9, eco 6, addr, copyright (interpolasi {year}/{brand})
+  - locales/misc.ts: 5 key — loading, notfound.code/title/body/cta
+- home-view.tsx: semua string UI -> t("home.*"); komponen memanggil useT() masing-masing; array statis constants (PARTNERS/CORE_VALUES/TECH_PILLARS/CLUSTERS/STATS_HIGHLIGHT/BENEFITS/poin NusukBar/badge privasi) -> teks ke kamus via pemetaan key lokal (HERO_STAT_KEYS, CLUSTER_KEYS, PARTNER_KEYS, VALUE_KEYS, PILLAR_KEYS, PRIVACY_KEYS, BENEFIT_KEYS, NUSUK_BAR_KEYS), ikon & warna tetap di kode; filter klaster tetap pakai cluster.name (kode DB) untuk logika, label tampil via t(); konten API (ekosistem/journey/roadmap/testimoni/artikel) tidak disentuh; 6 fetch diberi ?locale=${locale} (ecosystems/journey/roadmap/testimonials/articles?limit=3&locale + nusuk/public) dengan locale di dep array useEffect; formatDate -> formatDateL10n(a.createdAt, locale); angka izin & satuan waktu -> formatNumberL10n + timeAgoL10n lokal (kamus, angka lokal); rename map var (t)->(item) di TestimonialSection agar tak menutup t dari useT; arrow/chevron berarah + icon-flip; margin ikon fisik mr-/ml- -> logis me-/ms- (RTL-safe), text-left -> text-start, Badge left-3 -> start-3, lg:ml-auto -> lg:ms-auto
+- navbar.tsx: NAV_ITEMS tinggal path (label = t("navbar.items.<path>")); semua aria-label via kamus; desktop: <LocaleSwitcher /> di div actions kanan SEBELUM tombol Portal Mitra; mobile: <LocaleSwitcher variant="mobile" /> di bagian bawah Sheet DI ATAS tombol Gabung; arrow-right/chevron-right + icon-flip
+- footer.tsx: useT dipanggil sebelum early-return admin (rules of hooks aman); desc/3 kolom/9 nav link/6 eco link/addr/copyright/tagline-connecting -> t("footer.*"); nomor telepon & website diberi dir="ltr" agar tak terbalik di RTL; tanpa ikon berarah (tidak perlu icon-flip)
+- muhdin-app.tsx: hanya LoadingSplash ("misc.loading") & NotFound ("misc.notfound.code/title/body/cta") — import useT ditambahkan, keduanya render di dalam LocaleProvider
+- locale dari LocaleProvider tersimpan di localStorage & html[dir=rtl] otomatis (index.tsx orkestrator); LocaleSwitcher, globals.css icon-flip, namespace file stub sudah disiapkan — dipakai apa adanya
+- Verifikasi: bunx eslint pada 8 file milikmu -> 0 error 0 warning; bunx tsc --noEmit -> 0 error di 8 file milikmu (15 error proyek semuanya di luar daftarku: admin-dashboard/crud-manager pre-existing, dictionaries.ts TS2307 menunggu locales/common.ts dari agent lain, api/tutorials, skills/, examples/); script paritas key kamus id/en/ar -> identik (home 127, navbar 15, footer 23, misc 5)
+- CATATAN UNTUK ORKESTRATOR: GET / masih 500 saat laporan ini dibuat BUKAN karena file saya — root cause: src/lib/i18n/locales/common.ts (milik agent Task 14 lain) belum dibuat, padahal dictionaries.ts mengimpornya; begitu common.ts dibuat, seluruh route compile normal. Juga API-layer ?locale= (backend) milik agent lain — param sudah kirim dari sisi saya.
+
+Stage Summary:
+- Beranda/Navbar/Footer/NotFound/LoadingSplash kini full i18n id/en/ar + RTL (icon-flip, ms/me/logical utilities, dir=ltr utk telepon/website), Language Switcher terpasang desktop & mobile, 6 fetch home refetch saat ganti bahasa
+- Files: EDIT src/components/views/home-view.tsx, src/components/site/navbar.tsx, src/components/site/footer.tsx, src/components/muhdin-app.tsx; isi kamus src/lib/i18n/locales/home.ts (127), navbar.ts (15), footer.ts (23), misc.ts (5) — total 170 key x 3 locale
+- Lint: 0 error, 0 warning pada 8 file; tsc bersih untuk file milikmu
+- PENDING (bukan scope 14-a): locales/common.ts oleh agent lain (bloker compile sementara), dukungan ?locale di API routes oleh agent backend
+
+---
+Task ID: 14-f
+Agent: backend-api agent (locale wiring 10 routes)
+Task: Menyambungkan parameter ?locale=en|ar ke 10 API publik GET agar konten database otomatis dikembalikan dalam bahasa diminta (fallback Indonesia) via localeFromRequest + applyEntityTranslations
+
+Work Log:
+- Membaca worklog.md (Task 13 & 14-a..14-e), src/lib/i18n-server.ts (helper localeFromRequest + applyEntityTranslations — passthrough saat locale "id", kembalikan array baru shallow-copy ber-field tergantikan, lazy queue utk teks >300 char) dan src/lib/translate-engine.ts (translateBatch, TargetLocale "en"|"ar")
+- Wiring lapis akhir GET publik pada 10 route (pola seragam: const locale = localeFromRequest(req); rows = await applyEntityTranslations({ entity, rows, locale, keyOf, fields }); return ok(localized)) — GET signature diganti GET(req: NextRequest) di journey/roadmap/management/settings yang semula tanpa param; POST/PUT/DELETE, guardAdmin, /api/stats, /api/auth/*, /api/nusuk/* TIDAK disentuh:
+  - articles → entity Article, keyOf slug, fields title/excerpt/content (filter status/category/featured/limit/q tetap)
+  - tutorials → Tutorial, slug, title/summary/content (published/category/q/all tetap)
+  - ecosystems → Ecosystem, String(number), name/scope/standard/description (filter cluster tetap)
+  - journey → JourneyStep, String(step), title/activity/output
+  - roadmap → Roadmap, id, phase/focus/deliverables
+  - members → Member, id, description (type/status/q tetap)
+  - faqs → Faq, id, question/answer (filter category tetap)
+  - testimonials → Testimonial, id, role/content (all/published tetap; POST publik tidak disentuh)
+  - management → Management, id, position/bio
+  - settings → SiteSetting, key, value — KHUSUS: GET tetap mengembalikan OBJEK map { key: value }; records di-fetch, diterapkan applyEntityTranslations pada array, lalu map disusun ulang persis bentuk semula; locale=id identik 100% dengan sebelumnya (helper passthrough)
+- TypeScript aman tanpa any: generic T di-infer dari rows Prisma (applyEntityTranslations<T>), keyOf bertipe (row) => string, tanpa cast keras
+- Uji curl (dev server port 3000, tanpa restart/build/db): /api/articles?locale=en → 200 JSON array, title/excerpt/content English ("MUHDIN Officially Appointed as Indonesia's Nusuk Operator"); /api/settings?locale=en → 200 objek map, tagline/heroTitle/vision English; /api/faqs?locale=ar → 200 question Arab ("ما هو MUHDIN؟"), answer panjang fallback Indonesia sesuai desain helper (lazy queue); /api/ecosystems?locale=ar → 200 name/scope/standard Arab; 10 route × (default-id & en) semua HTTP 200; verifikasi shape parity settings: keys map sorted locale=id === locale=en (diff kosong)
+- bunx eslint pada 10 file milikku → exit 0, 0 error 0 warning; bunx tsc --noEmit → 0 error yang menyebut 10 route milikku (error lain milik agent lain, diabaikan sesuai instruksi)
+- Proses bun translate-content lain yang sedang menulis DB tidak diganggu; tidak restart dev server, tidak build, tidak jalankan perintah db, tidak pakai agent-browser
+
+Stage Summary:
+- 10 endpoint publik (articles, tutorials, ecosystems, journey, roadmap, members, faqs, testimonials, management, settings) kini menerima ?locale=en|ar dan mengembalikan konten DB terjemahan dari tabel ContentTranslation (cache) — fallback Indonesia bila terjemahan belum ada; tanpa locale → perilaku lama identik
+- Bentuk respons konsisten: array routes tetap array; /api/settings tetap map { key: value } (shape parity id vs en terverifikasi)
+- File diubah: src/app/api/{articles,tutorials,ecosystems,journey,roadmap,members,faqs,testimonials,management,settings}/route.ts
+- Verifikasi: curl 200 semua route (id & en) + sampel ar; eslint 0 error; tsc bersih utk file milikku
+
+---
+Task ID: 14 (i18n 3 Bahasa + Pelengkapan)
+Agent: Z.ai Code (orkestrator + subagent 14-a..14-f)
+Task: Melengkapi yang kurang + aplikasi 3 bahasa (Indonesia/English/العربية RTL) + mesin terjemahan konten DB via AI
+
+Work Log:
+- i18n core: src/lib/i18n/{index.tsx,dictionaries.ts,locales/*} — LocaleProvider (cookie "muhdin-locale" sbg sumber kebenaran; SSR html lang/dir + teks konsisten → BEBAS hydration mismatch), useT() dengan fallback en→id→key + interpolasi {var}, formatDateL10n/formatNumberL10n, 14 namespace kamus (612+ key × 3 locale)
+- LocaleSwitcher (desktop dropdown + mobile grid 3 tombol) dipasang di navbar & footer oleh 14-a
+- Font: Noto Kufi Arabic ditambahkan ke layout (html[lang=ar] memakai Kufi; Amiri utk kaligrafi); globals.css: aturan RTL (icon-flip utk ikon panah, markdown RTL, .font-mono LTR embed)
+- Bugfix kritis: (1) common.ts sempat gagal ter-tulis → Module not found (laporan user) — dibuat ulang, struktur nested "common.*"; (2) hydration mismatch radix useId saat locale tersimpan → diganti pendekatan cookie-based SSR (useSyncExternalStore & microtask-restore terbukti masih racy di hydration konkuren) → 0 mismatch terverifikasi di siklus id→ar→reload→en→reload; (3) 4 namespace (tutorial/news/contact/join) ternyata FLAT → dinested ulang terprogram; (4) subroute dinamis /api/{articles,tutorials}/slug/[slug] belum tersambung locale → di-wire manual (detail kini full EN/AR)
+- Mesin terjemahan konten DB: model ContentTranslation (db push) + src/lib/translate-engine.ts (batch JSON via z-ai-web-dev-sdk, glossary hajj/umrah, timeout 120s + retry 3, chunk 1200 char, throttle antar-chunk, idempoten, registry 10 entitas, job bulk in-memory + status) + src/lib/i18n-server.ts (localeFromRequest + applyEntityTranslations: terjemahan tersimpan diterapkan di lapisan API, lazy inline utk field pendek + antrean latar utk field panjang, allowlist SiteSetting — identitas/kontak/sosmed dikecualikan)
+- API locale: 12 route publik di-wire (articles, articles/slug, tutorials, tutorials/slug, ecosystems, journey, roadmap, members, faqs, testimonials, management, settings map shape-identik)
+- 5 pass CLI scripts/translate-content.mts: HASIL AKHIR 100% semua entitas utk EN & AR (229/229 field per locale; sisa 9 bandel akhirnya terisi; 10 baris SiteSetting invalid dihapus)
+- CMS "Penerjemah Cerdas" (14-e): menu baru — 2 kartu coverage EN/AR (bar + persen), tabel entitas dgn bar mini + tombol "Isi EN/AR" per entitas, panel progres job berpolling 2s (entitas x/y, translated/gagal, errors), toast; diuji LIVE: tombol AR mengisi 28 field → polling jalan → selesai
+- Verifikasi E2E Agent Browser: switch id/en/ar di navbar (desktop+mobile), persistensi reload (cookie), hero/nav/konten DB ikut locale, RTL mirror sempurna + font Kufi (screenshot), 0 hydration mismatch, sapu 30 halaman×3 locale → 0 raw key leak, sweep overflow 10 halaman @390px → 1 bug ditemukan & diperbaiki (kartu top-member nusuk-view butuh min-w-0), detail artikel EN full (judul+isi), 0 page error; lint 0 error
+- Bug pra-ada diperbaiki: api/tutorials/[id] memakai slugify tanpa import (crash saat PUT)
+
+Stage Summary:
+- Situs publik kini TRIBAHASA penuh: 🇮🇩 Indonesia (default), 🇬🇧 English, 🇸🇦 العربية (RTL + font Kufi); pilihan tersimpan di cookie (SSR konsisten) & localStorage
+- Konten database (artikel, tutorial, ekosistem, alur, roadmap, anggota, FAQ, testimoni, manajemen, pengaturan situs) terjemahan AI 100% EN & AR tersimpan di tabel ContentTranslation — tampil otomatis via ?locale=en|ar; konten baru lazy-translate otomatis (fallback Indonesia)
+- CMS: menu "Penerjemah Cerdas" untuk mengisi/melengkapi terjemahan kapan pun (1 klik, progress live)
+- Admin tetap Bahasa Indonesia (by design); AR layout RTL penuh dgn icon-flip & font khusus

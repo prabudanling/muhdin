@@ -1,11 +1,20 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const items = await db.management.findMany({ orderBy: { order: "asc" } });
-    return ok(items);
+    const locale = localeFromRequest(req);
+    const localized = await applyEntityTranslations({
+      entity: "Management",
+      rows: items,
+      locale,
+      keyOf: (m) => m.id,
+      fields: ["position", "bio"],
+    });
+    return ok(localized);
   } catch {
     return fail("Gagal memuat struktur organisasi.", 500);
   }

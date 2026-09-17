@@ -260,3 +260,46 @@
     animation: float-soft 5s ease-in-out infinite;
   }
 }
+
+/* ============================================================
+   i18n — Bahasa Arab (RTL) & dukungan multibahasa (Task 14)
+   ============================================================ */
+
+/* Font UI Arab (Noto Kufi Arabic) menggantikan Jakarta saat lang="ar" */
+html[lang="ar"] body,
+html[lang="ar"] button,
+html[lang="ar"] input,
+html[lang="ar"] textarea,
+html[lang="ar"] select {
+  font-family: var(--font-kufi), var(--font-amiri), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+/* Judul kaligrafi tetap boleh memakai Amiri */
+html[lang="ar"] .font-arabic {
+  font-family: var(--font-amiri), serif;
+}
+
+/* Ikon panah arah (chevron/arrow) otomatis menghadap kiri di RTL */
+html[dir="rtl"] .icon-flip {
+  transform: scaleX(-1);
+}
+
+/* Penyesuaian kecil RTL */
+html[dir="rtl"] .markdown-body ul,
+html[dir="rtl"] .markdown-body ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+html[dir="rtl"] .markdown-body blockquote {
+  border-right-width: 4px;
+  border-left-width: 0;
+}
+
+/* Nomor & kode tetap LTR di tengah teks RTL */
+html[dir="rtl"] .font-mono,
+html[dir="rtl"] code,
+html[dir="rtl"] pre {
+  direction: ltr;
+  unicode-bidi: embed;
+}

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail, slugify } from "@/lib/api-helpers";
+import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -28,7 +29,15 @@ export async function GET(req: NextRequest) {
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
       ...(limit > 0 ? { take: limit } : {}),
     });
-    return ok(articles);
+    const locale = localeFromRequest(req);
+    const localized = await applyEntityTranslations({
+      entity: "Article",
+      rows: articles,
+      locale,
+      keyOf: (a) => a.slug,
+      fields: ["title", "excerpt", "content"],
+    });
+    return ok(localized);
   } catch {
     return fail("Gagal memuat artikel.", 500);
   }

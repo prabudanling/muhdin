@@ -8,15 +8,19 @@ import { Reveal, SectionHeading } from "@/components/site/reveal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { JourneyStep } from "@/lib/types";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function JourneyView() {
+  const { t, locale } = useT();
   const [steps, setSteps] = useState<JourneyStep[] | null>(null);
   const [active, setActive] = useState(1);
 
   useEffect(() => {
-    apiGet<JourneyStep[]>("/api/journey").then(setSteps).catch(() => setSteps([]));
-  }, []);
+    apiGet<JourneyStep[]>(`/api/journey?locale=${locale}`)
+      .then(setSteps)
+      .catch(() => setSteps([]));
+  }, [locale]);
 
   return (
     <div className="flex flex-col">
@@ -26,13 +30,13 @@ export function JourneyView() {
           <Reveal>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold">
               <span className="h-px w-6 bg-current opacity-60" />
-              End-to-End Journey
+              {t("journey.eyebrow")}
             </span>
-            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">Alur Perjalanan Jamaah 13 Tahap</h1>
+            <h1 className="mt-3 text-4xl font-extrabold tracking-tight">{t("journey.title")}</h1>
             <p className="mt-3 max-w-2xl text-emerald-50/80">
-              Setiap tahap menghasilkan rekaman digital yang menjadi dasar tahap berikutnya —
-              prinsip <span className="text-gold font-semibold">zero-gap handover</span>: tidak ada
-              perpindahan tanggung jawab tanpa rekaman dan konfirmasi digital.
+              {t("journey.subtitleBefore")}
+              <span className="text-gold font-semibold">{t("journey.handover")}</span>
+              {t("journey.subtitleAfter")}
             </p>
           </Reveal>
         </div>
@@ -100,11 +104,11 @@ export function JourneyView() {
                       {active === s.step && (
                         <div className="mt-4 grid gap-3 sm:grid-cols-2 border-t pt-4">
                           <div className="rounded-xl bg-primary/5 p-3.5">
-                            <p className="text-[11px] font-bold uppercase tracking-wide text-primary">Aktor Utama</p>
+                            <p className="text-[11px] font-bold uppercase tracking-wide text-primary">{t("journey.actorLabel")}</p>
                             <p className="mt-1 text-sm font-medium">{s.actor}</p>
                           </div>
                           <div className="rounded-xl bg-gold/10 p-3.5">
-                            <p className="text-[11px] font-bold uppercase tracking-wide text-gold-deep">Output Digital</p>
+                            <p className="text-[11px] font-bold uppercase tracking-wide text-gold-deep">{t("journey.outputLabel")}</p>
                             <p className="mt-1 text-sm font-medium">{s.output}</p>
                           </div>
                         </div>
@@ -118,13 +122,13 @@ export function JourneyView() {
 
           <Reveal className="mt-12">
             <SectionHeading
-              title="Kepemilikan Masalah Jelas di Setiap Titik"
-              subtitle="Tour leader bertanggung jawab atas kehadiran jamaah, handler atas mobilitas, mutawif atas pembinaan ibadah, dan command center atas keseluruhan orkestrasi."
+              title={t("journey.ownershipTitle")}
+              subtitle={t("journey.ownershipSubtitle")}
             />
             <div className="mt-6 text-center">
               <Button onClick={() => navigate("gabung")} size="lg" className="bg-gradient-to-r from-primary to-forest text-white">
-                <Icon name="handshake" className="h-5 w-5 mr-2" />
-                Gabung dalam Ekosistem
+                <Icon name="handshake" className="h-5 w-5 me-2" />
+                {t("journey.cta")}
               </Button>
             </div>
           </Reveal>

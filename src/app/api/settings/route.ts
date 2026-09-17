@@ -1,12 +1,20 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const settings = await db.siteSetting.findMany();
+    const localized = await applyEntityTranslations({
+      entity: "SiteSetting",
+      rows: settings,
+      locale: localeFromRequest(req),
+      keyOf: (s) => s.key,
+      fields: ["value"],
+    });
     const map: Record<string, string> = {};
-    settings.forEach((s) => (map[s.key] = s.value));
+    localized.forEach((s) => (map[s.key] = s.value));
     return ok(map);
   } catch {
     return fail("Gagal memuat pengaturan.", 500);

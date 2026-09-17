@@ -1,11 +1,20 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const items = await db.roadmap.findMany({ orderBy: { order: "asc" } });
-    return ok(items);
+    const locale = localeFromRequest(req);
+    const localized = await applyEntityTranslations({
+      entity: "Roadmap",
+      rows: items,
+      locale,
+      keyOf: (r) => r.id,
+      fields: ["phase", "focus", "deliverables"],
+    });
+    return ok(localized);
   } catch {
     return fail("Gagal memuat roadmap.", 500);
   }

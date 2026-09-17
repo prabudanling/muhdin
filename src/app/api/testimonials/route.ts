@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
+import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,7 +10,15 @@ export async function GET(req: NextRequest) {
       where: all ? {} : { published: true },
       orderBy: { createdAt: "desc" },
     });
-    return ok(testimonials);
+    const locale = localeFromRequest(req);
+    const localized = await applyEntityTranslations({
+      entity: "Testimonial",
+      rows: testimonials,
+      locale,
+      keyOf: (t) => t.id,
+      fields: ["role", "content"],
+    });
+    return ok(localized);
   } catch {
     return fail("Gagal memuat testimoni.", 500);
   }

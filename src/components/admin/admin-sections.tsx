@@ -1897,3 +1897,503 @@ export function AdminSecurityCard() {
     </div>
   );
 }
+
+/* ================= PENERJEMAH CERDAS (custom) ================= */
+
+type TranslatorLocale = "en" | "ar";
+
+type TranslatorEntityStatus = {
+  entity: string;
+  total: number;
+  translated: Record<string, number>;
+};
+
+type TranslatorJobState = {
+  running: boolean;
+  locale: TranslatorLocale | null;
+  entity: string | null;
+  entityIndex: number;
+  entityTotal: number;
+  entityDone: number;
+  done: number;
+  total: number;
+  translated: number;
+  failed: number;
+  errors: string[];
+  startedAt: string | null;
+  finishedAt: string | null;
+};
+
+type TranslatorStatusPayload = {
+  entities: TranslatorEntityStatus[];
+  locales: string[];
+  job: TranslatorJobState;
+  entityNames: string[];
+};
+
+const TRANSLATOR_ENTITY_LABELS: Record<string, string> = {
+  Article: "Berita & Artikel",
+  Tutorial: "Tutorial",
+  Ecosystem: "13 Ekosistem",
+  JourneyStep: "Alur Perjalanan",
+  Roadmap: "Roadmap 2026-2030",
+  Member: "Direktori Anggota",
+  Faq: "FAQ",
+  Testimonial: "Testimoni",
+  Management: "Struktur Organisasi",
+  SiteSetting: "Pengaturan Situs",
+};
+
+const TRANSLATOR_LOCALES: { code: TranslatorLocale; name: string; flag: string; aria: string }[] = [
+  { code: "en", name: "English", flag: "🇬🇧", aria: "Inggris" },
+  { code: "ar", name: "العربية", flag: "🇸🇦", aria: "Arab" },
+];
+
+/** Persen cakupan 0-100 (total 0 dianggap lengkap). */
+function translatorPct(translated: number, total: number) {
+  if (total <= 0) return 100;
+  return Math.min(100, Math.round((translated / total) * 100));
+}
+
+/** Bar mini cakupan pada tabel entitas. */
+function TranslatorMiniBar({ pct, tone, countLabel, ariaLabel }: { pct: number; tone: "en" | "ar"; countLabel: string; ariaLabel: string }) {
+  return (
+    <div className="flex items-center gap-2 min-w-[9.5rem]">
+      <div
+        className="h-1.5 w-16 lg:w-20 rounded-full bg-muted overflow-hidden shrink-0"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        aria-label={ariaLabel}
+      >
+        <div className={`h-full rounded-full transition-all ${tone === "en" ? "bg-primary" : "bg-gold"}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-[11px] font-mono text-muted-foreground whitespace-nowrap">{countLabel}</span>
+    </div>
+  );
+}
+
+/** Modul CMS "Penerjemah Cerdas" — kelola terjemahan konten database (EN/AR) oleh AI. */
+export function AdminTranslator() {
+  const { toast } = useToast();
+  const [status, setStatus] = useState<TranslatorStatusPayload | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [starting, setStarting] = useState<TranslatorLocale | null>(null);
+  const [rowBusy, setRowBusy] = useState<string | null>(null);
+
+  const statusRef = useRef<TranslatorStatusPayload | null>(null);
+
+  const loadStatus = useCallback(async () => {
+    try {
+      const d = await apiGet<TranslatorStatusPayload>("/api/translations");
+      const prev = statusRef.current;
+      statusRef.current = d;
+      setStatus(d);
+      setLoadError("");
+      if (prev?.job.running && !d.job.running && d.job.finishedAt) {
+        toast({
+          title: "Terjemahan selesai ✓",
+          description: `${d.job.translated.toLocaleString("id-ID")} field diterjemahkan ke ${d.job.locale === "ar" ? "العربية" : "English"}${d.job.failed > 0 ? `, ${d.job.failed.toLocaleString("id-ID")} gagal` : ""} — cakupan situs publik kini diperbarui.`,
+        });
+      }
+    } catch (e) {
+      if (!statusRef.current) setLoadError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    void loadStatus();
+  }, [loadStatus, attempt]);
+
+  const job = status?.job ?? null;
+  const running = job?.running ?? false;
+
+  // Polling progres job tiap 2 detik — interval dibersihkan saat unmount & berhenti otomatis saat running=false.
+  useEffect(() => {
+    if (!running) return;
+    const t = setInterval(() => {
+      void loadStatus();
+    }, 2000);
+    return () => clearInterval(t);
+  }, [running, loadStatus]);
+
+  // Transisi berjalan → selesai: muat sekali lagi agar cakupan & finishedAt terbaru tampil.
+  const wasRunning = useRef(false);
+  useEffect(() => {
+    if (wasRunning.current && !running) void loadStatus();
+    wasRunning.current = running;
+  }, [running, loadStatus]);
+
+  const refreshNow = async () => {
+    setRefreshing(true);
+    await loadStatus();
+    setRefreshing(false);
+  };
+
+  const startTranslation = async (locale: TranslatorLocale, entities?: string[]) => {
+    if (entities) setRowBusy(`${entities[0]}:${locale}`);
+    else setStarting(locale);
+    try {
+      const res = await apiSend<{ started: boolean; job: TranslatorJobState; message?: string }>(
+        "/api/translations",
+        "POST",
+        entities ? { locale, entities } : { locale }
+      );
+      if (res.started) {
+        if (statusRef.current) {
+          statusRef.current = { ...statusRef.current, job: res.job };
+          setStatus(statusRef.current);
+        }
+        const target = entities
+          ? TRANSLATOR_ENTITY_LABELS[entities[0]] || entities[0]
+          : "seluruh entitas";
+        toast({
+          title: "Terjemahan dimulai ✓",
+          description: `AI sedang menerjemahkan ${target} ke ${locale === "ar" ? "العربية" : "English"} — pantau panel progres di bawah tabel entitas.`,
+        });
+        await loadStatus();
+      } else {
+        toast({ title: "Job lain sedang berjalan", description: res.message || "Tunggu job yang berjalan selesai sebelum memulai yang baru." });
+      }
+    } catch (e) {
+      toast({ title: "Gagal memulai terjemahan", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setStarting(null);
+      setRowBusy(null);
+    }
+  };
+
+  const entities = status?.entities ?? [];
+  const sumTotal = entities.reduce((a, e) => a + (e.total || 0), 0);
+  const sumFor = (loc: TranslatorLocale) => entities.reduce((a, e) => a + (e.translated?.[loc] ?? 0), 0);
+
+  // Progres total job = entitas selesai + fraksi entitas berjalan (done/total direset per entitas oleh backend).
+  const jobOverall = job
+    ? job.running
+      ? job.entityTotal > 0
+        ? Math.max(0, Math.min(100, Math.round((((job.entityIndex - 1) + (job.total > 0 ? job.done / job.total : 0)) / job.entityTotal) * 100)))
+        : 0
+      : 100
+    : 0;
+  const jobErrors = job?.errors ?? [];
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-6">
+        <div>
+          <h2 className="text-xl font-extrabold flex items-center gap-2.5">
+            <span className="h-9 w-9 rounded-xl bg-primary/10 grid place-items-center text-primary shrink-0">
+              <Icon name="languages" className="h-5 w-5" />
+            </span>
+            Penerjemah Cerdas
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+            AI menerjemahkan konten database ke English &amp; العربية — konten yang belum diterjemahkan
+            otomatis tampil dalam Bahasa Indonesia.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 sm:ml-auto sm:mt-1.5">
+          <Badge variant="outline" className="text-muted-foreground">
+            <Icon name="sparkles" className="h-3 w-3 mr-1 text-gold-deep" />
+            AI Engine
+          </Badge>
+          {running && (
+            <Badge className="bg-primary text-white border-transparent">
+              <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+              Job berjalan
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      {loadError && !status ? (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-center">
+          <Icon name="alert-triangle" className="h-8 w-8 mx-auto text-destructive" />
+          <p className="mt-2 text-sm text-destructive font-medium">{loadError || "Gagal memuat status terjemahan."}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => {
+              setLoading(true);
+              setLoadError("");
+              setAttempt((a) => a + 1);
+            }}
+          >
+            <Icon name="refresh" className="h-4 w-4 mr-2" />
+            Coba Lagi
+          </Button>
+        </div>
+      ) : !status ? (
+        <div className="space-y-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <Skeleton key={i} className="h-52 rounded-2xl" />
+            ))}
+          </div>
+          <Skeleton className="h-96 rounded-2xl" />
+        </div>
+      ) : (
+        <>
+          {/* Kartu ringkasan per locale */}
+          <div className="grid gap-4 lg:grid-cols-2">
+            {TRANSLATOR_LOCALES.map((l) => {
+              const done = sumFor(l.code);
+              const pct = translatorPct(done, sumTotal);
+              const remaining = Math.max(0, sumTotal - done);
+              return (
+                <section key={l.code} aria-label={`Cakupan terjemahan ${l.name}`} className="rounded-2xl border bg-card p-5 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <span className="h-10 w-10 rounded-xl bg-muted/60 grid place-items-center text-2xl shrink-0" aria-hidden>
+                      {l.flag}
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="font-bold leading-tight">{l.name}</h3>
+                      <p className="text-xs text-muted-foreground">Locale <span className="font-mono font-semibold">{l.code}</span></p>
+                    </div>
+                    <p className={`ml-auto text-2xl font-extrabold ${l.code === "en" ? "text-primary" : "text-gold-deep"}`} aria-hidden>
+                      {pct}%
+                    </p>
+                  </div>
+
+                  <div
+                    className="mt-4 h-2.5 rounded-full bg-muted overflow-hidden"
+                    role="progressbar"
+                    aria-label={`Cakupan terjemahan ${l.name}`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={pct}
+                  >
+                    <div
+                      className={`h-full rounded-full transition-all ${l.code === "en" ? "bg-gradient-to-r from-primary to-forest" : "bg-gradient-to-r from-gold to-gold-deep"}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    <b className="text-foreground">{done.toLocaleString("id-ID")}</b> dari {sumTotal.toLocaleString("id-ID")} field telah
+                    diterjemahkan{remaining > 0 ? <> · sisa <b className="text-gold-deep">{remaining.toLocaleString("id-ID")}</b></> : " · lengkap ✓"}
+                  </p>
+
+                  <Button
+                    onClick={() => void startTranslation(l.code)}
+                    disabled={running || starting !== null}
+                    aria-label={`Terjemahkan konten yang belum ada ke ${l.aria}`}
+                    className={
+                      l.code === "en"
+                        ? "mt-4 w-full h-9 bg-gradient-to-r from-primary to-forest text-white"
+                        : "mt-4 w-full h-9 border-gold/50 bg-gold/10 text-gold-deep hover:bg-gold/15 hover:text-gold-deep"
+                    }
+                    variant={l.code === "en" ? "default" : "outline"}
+                  >
+                    {starting === l.code
+                      ? <Icon name="loader-2" className="h-4 w-4 mr-2 animate-spin" />
+                      : <Icon name="sparkles" className="h-4 w-4 mr-2" />}
+                    Terjemahkan {l.name} — yang belum ada
+                  </Button>
+                </section>
+              );
+            })}
+          </div>
+
+          {/* Tabel cakupan per entitas */}
+          <section aria-label="Cakupan per entitas" className="mt-4 rounded-2xl border bg-card p-5 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+              <h3 className="font-bold flex items-center gap-2 shrink-0">
+                <span className="h-8 w-8 rounded-lg bg-gold/15 grid place-items-center text-gold-deep shrink-0">
+                  <Icon name="boxes" className="h-4 w-4" />
+                </span>
+                Cakupan per Entitas
+              </h3>
+              <p className="text-xs text-muted-foreground sm:ml-auto">
+                {entities.length.toLocaleString("id-ID")} entitas · {sumTotal.toLocaleString("id-ID")} field terjemahable
+              </p>
+            </div>
+
+            <div className="overflow-x-auto max-h-96 overflow-y-auto scrollbar-thin rounded-xl border" aria-busy={refreshing}>
+              <table className="w-full text-sm min-w-[720px]">
+                <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur border-b">
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+                    <th className="px-3 py-2.5 font-semibold">Entitas</th>
+                    <th className="px-3 py-2.5 font-semibold">Total Field</th>
+                    <th className="px-3 py-2.5 font-semibold">Terjemahan EN</th>
+                    <th className="px-3 py-2.5 font-semibold">Terjemahan AR</th>
+                    <th className="px-3 py-2.5 font-semibold">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entities.map((e) => {
+                    const label = TRANSLATOR_ENTITY_LABELS[e.entity] || e.entity;
+                    return (
+                      <tr key={e.entity} className="border-t last:border-b-0 hover:bg-primary/5 transition-colors">
+                        <td className="px-3 py-2.5">
+                          <p className="font-semibold">{label}</p>
+                          <p className="text-[11px] text-muted-foreground font-mono">{e.entity}</p>
+                        </td>
+                        <td className="px-3 py-2.5 font-semibold whitespace-nowrap">{e.total.toLocaleString("id-ID")}</td>
+                        <td className="px-3 py-2.5">
+                          <TranslatorMiniBar
+                            pct={translatorPct(e.translated?.en ?? 0, e.total)}
+                            tone="en"
+                            countLabel={`${(e.translated?.en ?? 0).toLocaleString("id-ID")}/${e.total.toLocaleString("id-ID")}`}
+                            ariaLabel={`Terjemahan English ${label}`}
+                          />
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <TranslatorMiniBar
+                            pct={translatorPct(e.translated?.ar ?? 0, e.total)}
+                            tone="ar"
+                            countLabel={`${(e.translated?.ar ?? 0).toLocaleString("id-ID")}/${e.total.toLocaleString("id-ID")}`}
+                            ariaLabel={`Terjemahan العربية ${label}`}
+                          />
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <div className="flex flex-wrap gap-1.5">
+                            {TRANSLATOR_LOCALES.map((l) => {
+                              const complete = e.total > 0 && (e.translated?.[l.code] ?? 0) >= e.total;
+                              const busy = rowBusy === `${e.entity}:${l.code}`;
+                              return (
+                                <Button
+                                  key={l.code}
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 px-2 text-[11px]"
+                                  disabled={running || rowBusy !== null}
+                                  onClick={() => void startTranslation(l.code, [e.entity])}
+                                  aria-label={`Terjemahkan ${label} ke ${l.aria}`}
+                                  title={complete ? "Semua field entitas ini sudah diterjemahkan" : `Antrekan terjemahan ${l.name} untuk ${label} (idempoten — hanya yang belum ada)`}
+                                >
+                                  {busy
+                                    ? <Icon name="loader-2" className="h-3 w-3 mr-1 animate-spin" />
+                                    : complete
+                                      ? <Icon name="check-circle-2" className="h-3 w-3 mr-1 text-primary" />
+                                      : null}
+                                  Isi {l.code.toUpperCase()}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {entities.length === 0 && (
+                <div className="py-14 text-center">
+                  <Icon name="languages" className="h-10 w-10 mx-auto text-muted-foreground/30" />
+                  <p className="mt-3 text-sm text-muted-foreground">Belum ada konten yang dapat diterjemahkan.</p>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Panel progres job */}
+          {job && (job.running || job.finishedAt) && (
+            <section aria-label="Progres job terjemahan" className="mt-4 rounded-2xl border bg-card p-5 shadow-sm">
+              <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                <span className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center text-primary shrink-0">
+                  <Icon name={job.running ? "loader-2" : "check-circle-2"} className={`h-4 w-4 ${job.running ? "animate-spin" : ""}`} />
+                </span>
+                <h3 className="font-bold">Progres Terjemahan</h3>
+                <Badge variant="outline" className={job.running ? "border-primary/40 bg-primary/10 text-primary" : "text-muted-foreground"}>
+                  <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${job.running ? "bg-primary animate-pulse" : "bg-muted-foreground/50"}`} />
+                  {job.running ? "Berjalan" : "Selesai"}
+                </Badge>
+                {job.locale && (
+                  <Badge variant="secondary" className="text-[10px]">
+                    {job.locale === "ar" ? "العربية (ar)" : "English (en)"}
+                  </Badge>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {job.running ? `Dimulai ${timeAgo(job.startedAt)}` : `Selesai ${timeAgo(job.finishedAt)}`}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto h-8"
+                  onClick={() => void refreshNow()}
+                  disabled={refreshing}
+                  aria-label="Segarkan status job terjemahan"
+                >
+                  <Icon name={refreshing ? "loader-2" : "refresh"} className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                  <span className="ml-1.5">Segarkan</span>
+                </Button>
+              </div>
+
+              <div
+                className="h-2.5 rounded-full bg-muted overflow-hidden"
+                role="progressbar"
+                aria-label="Progres total job terjemahan"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={jobOverall}
+              >
+                <div
+                  className={`h-full rounded-full transition-all ${job.running ? "bg-gradient-to-r from-primary to-forest" : "bg-primary"}`}
+                  style={{ width: `${jobOverall}%` }}
+                />
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs" aria-live="polite">
+                <p className="font-medium">
+                  {job.running
+                    ? job.entity
+                      ? <>Entitas <b>{job.entityIndex}/{job.entityTotal}</b> — {TRANSLATOR_ENTITY_LABELS[job.entity] || job.entity}</>
+                      : "Menyiapkan antrean terjemahan…"
+                    : "Semua entitas selesai diproses."}
+                </p>
+                {job.running && (
+                  <p className="font-mono text-muted-foreground">
+                    {job.done.toLocaleString("id-ID")}/{job.total.toLocaleString("id-ID")} item
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full bg-primary/10 border border-primary/30 text-primary px-3 py-1 text-xs font-bold">
+                  {job.translated.toLocaleString("id-ID")} diterjemahkan
+                </span>
+                <span className={`rounded-full px-3 py-1 text-xs font-bold border ${job.failed > 0 ? "bg-destructive/10 border-destructive/30 text-destructive" : "bg-muted border-border text-muted-foreground"}`}>
+                  {job.failed.toLocaleString("id-ID")} gagal
+                </span>
+                {jobErrors.length > 0 && (
+                  <span className="rounded-full bg-destructive/10 border border-destructive/30 text-destructive px-3 py-1 text-xs font-bold">
+                    {jobErrors.length.toLocaleString("id-ID")} pesan galat
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-3 max-h-40 overflow-y-auto scrollbar-thin rounded-lg border bg-muted/30 p-3">
+                {jobErrors.length === 0 ? (
+                  <p className="font-mono text-xs text-muted-foreground">Tidak ada galat.</p>
+                ) : (
+                  <ul className="space-y-1 font-mono text-xs text-destructive">
+                    {jobErrors.map((er, i) => (
+                      <li key={i}>• {er}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </section>
+          )}
+        </>
+      )}
+
+      {/* Catatan teknis */}
+      <p className="mt-4 text-xs text-muted-foreground flex items-start gap-1.5">
+        <Icon name="info" className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gold-deep" />
+        <span>
+          Terjemahan disimpan di tabel <code className="font-mono">ContentTranslation</code> dan langsung dipakai
+          situs publik (<code className="font-mono">?locale=en|ar</code>).
+        </span>
+      </p>
+    </div>
+  );
+}
