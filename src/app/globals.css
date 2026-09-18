@@ -148,6 +148,9 @@
   }
   html {
     scroll-behavior: smooth;
+    /* Task 21 — non-static root: diamankan utk useScroll({target}) framer-motion
+       (menghilangkan dev-warning "container has a non-static position") */
+    position: relative;
   }
 }
 
@@ -265,6 +268,73 @@
   }
   .animate-float-soft {
     animation: float-soft 5s ease-in-out infinite;
+  }
+
+  /* ============================================================
+     Task 21 — McKinsey-level motion toolkit (sinematik, CSS murni)
+     ============================================================ */
+
+  /* Ken Burns — latar hero "bernafas" pelan (zoom sinematik) */
+  @keyframes ken-burns {
+    0% {
+      transform: scale(1) translateY(0);
+    }
+    100% {
+      transform: scale(1.14) translateY(-2.5%);
+    }
+  }
+  .animate-ken-burns {
+    animation: ken-burns 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  /* Marquee — teks berjalan loop mulus (konten digandakan, geser -50%) */
+  @keyframes marquee-x {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee-x var(--marquee-duration, 24s) linear infinite;
+    will-change: transform;
+  }
+  .marquee-hover-pause:hover .animate-marquee {
+    animation-play-state: paused;
+  }
+  /* Tepi kiri-kanan memudar — kesan premium */
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, black 9%, black 91%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 9%, black 91%, transparent);
+  }
+
+  /* Indikator gulir — chevron menetes lembut */
+  @keyframes scroll-hint {
+    0% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+    35% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(12px);
+      opacity: 0;
+    }
+  }
+  .animate-scroll-hint {
+    animation: scroll-hint 1.9s ease-in-out infinite;
+  }
+
+  /* Hormati preferensi pengguna: matikan gerak dekoratif */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-ken-burns,
+    .animate-marquee,
+    .animate-scroll-hint {
+      animation: none;
+    }
   }
 }
 

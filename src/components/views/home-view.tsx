@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { apiGet } from "@/lib/client-api";
 import { navigate } from "@/hooks/use-hash-route";
 import { Icon } from "@/components/site/icon";
-import { Reveal, SectionHeading } from "@/components/site/reveal";
+import { Reveal, SectionHeading, Stagger, StaggerItem, CountUp } from "@/components/site/reveal";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -14,8 +15,16 @@ import type { Ecosystem, JourneyStep, Roadmap, Testimonial, Article, NusukPublic
 import { cn } from "@/lib/utils";
 
 /* Pemetaan ikon/urutan (dari lib/constants.ts) → key kamus. Ikon & warna tetap di kode. */
-const HERO_STAT_KEYS = ["jamaah", "mitra", "sdm", "command"] as const;
-const HERO_STAT_ICONS = ["users", "handshake", "badge-check", "shield-check"] as const;
+/* Task 21 — statistik hero: angka nyata untuk animasi CountUp (24/7 tetap teks) */
+const HERO_STATS: { k: string; icon: string; num?: number; suffix?: string }[] = [
+  { k: "jamaah", icon: "users", num: 1_000_000, suffix: "+" },
+  { k: "mitra", icon: "handshake", num: 1_000, suffix: "+" },
+  { k: "sdm", icon: "badge-check", num: 10_000 },
+  { k: "command", icon: "shield-check" },
+];
+
+/* Task 21 — kurva easing premium untuk koreografi hero */
+const EASE: [number, number, number, number] = [0.21, 0.47, 0.32, 0.98];
 const CLUSTER_KEYS = ["akses", "ibadah", "mutu"] as const;
 const PARTNER_KEYS = ["ppiu", "pihk", "kbihu", "iphi", "tw"] as const;
 const VALUE_KEYS = ["amanah", "profesional", "terintegrasi", "transparan", "tepercaya"] as const;
@@ -46,88 +55,187 @@ function timeAgoL10n(
   }
 }
 
-/* ================= HERO ================= */
+/* ================= HERO — Task 21 sinematik ala McKinsey ================= */
 function Hero() {
-  const { t } = useT();
+  const { t, locale } = useT();
+  const ref = useRef<HTMLElement | null>(null);
+
+  /* Parallax: konten naik & memudar, latar bergeser lebih lambat saat digulir */
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 90]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "16%"]);
+
+  /* Marquee MUDAH. MURAH. AMANAH. — dua paritan identik utk loop mulus */
+  const MOTTO_KEYS = ["motto1", "motto2", "motto3"] as const;
+  const marqueeSeq = Array.from({ length: 3 }, () => MOTTO_KEYS).flat();
+
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0">
-        { }
+    <section ref={ref} className="relative overflow-hidden">
+      {/* Latar: Ken Burns sinematik + parallax lembut */}
+      <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <img
           src="/images/hero-kaaba.jpg"
           alt={t("home.hero.imgAlt")}
-          className="h-full w-full object-cover bg-gradient-to-br from-forest-deep to-forest"
+          className="animate-ken-burns h-full w-full object-cover bg-gradient-to-br from-forest-deep to-forest"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/90 via-forest-deep/75 to-forest-deep/95" />
         <div className="absolute inset-0 bg-islamic-pattern-gold opacity-60" />
-      </div>
+      </motion.div>
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-24 sm:py-32 lg:py-36">
+      <motion.div
+        style={{ y: contentY, opacity: contentOpacity }}
+        className="relative mx-auto max-w-7xl px-4 sm:px-6 py-24 sm:py-32 lg:py-36"
+      >
         <div className="max-w-3xl">
-          <Reveal>
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE }}
+          >
             <Badge className="mb-5 bg-gold/20 text-gold-soft border border-gold/40 hover:bg-gold/30 hover:text-gold-soft px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-semibold tracking-wide max-w-full">
               <Icon name="sparkles" className="h-3.5 w-3.5 mr-1.5 shrink-0" />
               <span className="truncate">{t("home.hero.badge")}</span>
             </Badge>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-white">
-              {t("home.hero.title1")}{" "}
-              <span className="text-gold-gradient">{t("home.hero.titleGold")}</span>{" "}
-              {t("home.hero.title2")}
-            </h1>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <p className="mt-5 text-lg text-emerald-50/85 leading-relaxed max-w-2xl">
-              {t("home.hero.subtitle", { motto: t("home.hero.motto") })}
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 44, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.9, delay: 0.12, ease: EASE }}
+            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-white"
+          >
+            {t("home.hero.title1")}{" "}
+            <span className="text-gold-gradient">{t("home.hero.titleGold")}</span>{" "}
+            {t("home.hero.title2")}
+          </motion.h1>
+
+          {/* Task 21 — SYURGA TRAVEL · PELAYAN TAMU ALLAH (menggantikan kalimat motto) */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.34, ease: EASE }}
+            className="mt-7"
+          >
+            <p className="text-2xl sm:text-3xl lg:text-[2.6rem] font-black leading-tight tracking-[0.02em] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
+              {t("home.hero.brandName")}
             </p>
-          </Reveal>
-          <Reveal delay={0.3}>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button
-                size="lg"
-                onClick={() => navigate("ekosistem")}
-                className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold shadow-xl hover:brightness-105 h-12 px-7 text-base"
+            <p className="mt-2 flex items-center gap-3 text-lg sm:text-xl lg:text-2xl font-extrabold">
+              <span
+                aria-hidden
+                className="h-px w-10 shrink-0 bg-gradient-to-r from-gold to-transparent rtl:bg-gradient-to-l"
+              />
+              <span className="text-gold-gradient">{t("home.hero.brandTag")}</span>
+            </p>
+          </motion.div>
+
+          {/* Task 21 — MUDAH. MURAH. AMANAH. teks berjalan agar mudah dibaca */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.46, ease: EASE }}
+            className="mt-7 max-w-xl"
+          >
+            <p className="sr-only">{t("home.hero.mottoAria")}</p>
+            <div
+              aria-hidden="true"
+              dir="ltr"
+              className="marquee-hover-pause marquee-mask relative overflow-hidden rounded-2xl border border-gold/25 bg-forest-deep/50 py-3.5 backdrop-blur-md"
+            >
+              <div
+                className="animate-marquee flex w-max items-center"
+                style={{ "--marquee-duration": "22s" } as React.CSSProperties}
               >
-                {t("home.hero.ctaEcosystems")}
-                <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate("anggota")}
-                className="bg-transparent border-emerald-100/40 text-white hover:bg-white/10 hover:text-white h-12 px-7 text-base"
-              >
-                <Icon name="shield-check" className="h-4 w-4 me-2" />
-                {t("home.hero.ctaVerify")}
-              </Button>
+                {[0, 1].map((copy) => (
+                  <div key={copy} className="flex items-center">
+                    {marqueeSeq.map((k, i) => (
+                      <span key={`${copy}-${i}`} className="flex items-center whitespace-nowrap">
+                        <span className="px-5 text-base sm:text-lg font-extrabold tracking-[0.16em] text-white">
+                          {t(`home.hero.${k}`)}
+                        </span>
+                        <span className="text-sm text-gold">✦</span>
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
-          </Reveal>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.56, ease: EASE }}
+            className="mt-6 text-lg text-emerald-50/85 leading-relaxed max-w-2xl"
+          >
+            {t("home.hero.subtitle")}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.66, ease: EASE }}
+            className="mt-8 flex flex-wrap gap-3"
+          >
+            <Button
+              size="lg"
+              onClick={() => navigate("ekosistem")}
+              className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold shadow-xl hover:brightness-105 h-12 px-7 text-base"
+            >
+              {t("home.hero.ctaEcosystems")}
+              <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => navigate("anggota")}
+              className="bg-transparent border-emerald-100/40 text-white hover:bg-white/10 hover:text-white h-12 px-7 text-base"
+            >
+              <Icon name="shield-check" className="h-4 w-4 me-2" />
+              {t("home.hero.ctaVerify")}
+            </Button>
+          </motion.div>
         </div>
 
-        {/* Floating stats */}
-        <Reveal delay={0.45} className="mt-14">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {HERO_STAT_KEYS.map((k, i) => (
-              <div
-                key={k}
-                className="rounded-2xl border border-white/15 bg-forest-deep/40 backdrop-blur-md p-4 sm:p-5 flex items-center gap-3.5"
-              >
-                <div className="h-11 w-11 shrink-0 rounded-xl bg-gold/20 grid place-items-center text-gold">
-                  <Icon name={HERO_STAT_ICONS[i]} className="h-5.5 w-5.5" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-white leading-none">
-                    {t(`home.stats.${k}.value`)}
+        {/* Floating stats — CountUp sinematik dgn cascade premium */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8, ease: EASE }}
+          className="mt-14"
+        >
+          <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" stagger={0.1}>
+            {HERO_STATS.map((s) => (
+              <StaggerItem key={s.k}>
+                <div className="h-full rounded-2xl border border-white/15 bg-forest-deep/40 backdrop-blur-md p-4 sm:p-5 flex items-center gap-3.5">
+                  <div className="h-11 w-11 shrink-0 rounded-xl bg-gold/20 grid place-items-center text-gold">
+                    <Icon name={s.icon} className="h-5.5 w-5.5" />
                   </div>
-                  <div className="text-[11px] sm:text-xs text-emerald-100/70 mt-1.5">
-                    {t(`home.stats.${k}.label`)}
+                  <div className="min-w-0">
+                    <div className="text-xl sm:text-2xl font-extrabold text-white leading-none whitespace-nowrap">
+                      {s.num != null ? (
+                        <CountUp value={s.num} suffix={s.suffix ?? ""} locale={locale} />
+                      ) : (
+                        t(`home.stats.${s.k}.value`)
+                      )}
+                    </div>
+                    <div className="text-[11px] sm:text-xs text-emerald-100/70 mt-1.5">
+                      {t(`home.stats.${s.k}.label`)}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
-        </Reveal>
+          </Stagger>
+        </motion.div>
+      </motion.div>
+
+      {/* Petunjuk gulir — chevron menetes lembut */}
+      <div
+        aria-hidden
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 hidden md:block text-gold/80"
+      >
+        <Icon name="chevron-down" className="animate-scroll-hint h-6 w-6" />
       </div>
     </section>
   );
@@ -261,9 +369,9 @@ function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
                     </p>
                   </div>
                 </Reveal>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                  {items.map((e, i) => (
-                    <Reveal key={e.id} delay={i * 0.05}>
+                <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" stagger={0.06}>
+                  {items.map((e) => (
+                    <StaggerItem key={e.id}>
                       <button
                         onClick={() => navigate("ekosistem")}
                         className="group h-full w-full text-start rounded-2xl border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
@@ -282,9 +390,9 @@ function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
                           {t("home.umum.selengkapnya")} <Icon name="chevron-right" className="h-3 w-3 icon-flip" />
                         </span>
                       </button>
-                    </Reveal>
+                    </StaggerItem>
                   ))}
-                </div>
+                </Stagger>
               </div>
             );
           })}
@@ -307,9 +415,9 @@ function JourneySection({ steps }: { steps: JourneyStep[] }) {
           title={t("home.alur.title")}
           subtitle={t("home.alur.subtitle")}
         />
-        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {steps.slice(0, 8).map((s, i) => (
-            <Reveal key={s.id} delay={i * 0.04}>
+        <Stagger className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" stagger={0.05}>
+          {steps.slice(0, 8).map((s) => (
+            <StaggerItem key={s.id}>
               <div className="h-full rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm hover:bg-white/10 hover:border-gold/40 transition-all">
                 <div className="flex items-center gap-3">
                   <span className="h-9 w-9 shrink-0 rounded-full bg-gold text-forest-deep grid place-items-center font-extrabold text-sm">
@@ -320,9 +428,9 @@ function JourneySection({ steps }: { steps: JourneyStep[] }) {
                 </div>
                 <p className="mt-2.5 text-xs text-emerald-100/65 leading-relaxed line-clamp-2">{s.activity}</p>
               </div>
-            </Reveal>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
         <Reveal className="mt-8 text-center">
           <Button
             variant="outline"
@@ -349,11 +457,11 @@ function PartnersSection() {
           title={t("home.mitra.title")}
           subtitle={t("home.mitra.subtitle")}
         />
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" stagger={0.08}>
           {PARTNERS.map((p, i) => {
             const k = PARTNER_KEYS[i];
             return (
-              <Reveal key={p.code} delay={i * 0.07}>
+              <StaggerItem key={p.code}>
                 <div className="group h-full rounded-2xl border bg-card p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-gold/50">
                   <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold-soft shadow-md group-hover:scale-110 transition-transform">
                     <Icon name={p.icon} className="h-7 w-7" />
@@ -364,10 +472,10 @@ function PartnersSection() {
                   </p>
                   <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{t(`home.mitra.${k}.role`)}</p>
                 </div>
-              </Reveal>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
@@ -384,11 +492,11 @@ function ValuesSection() {
           title={t("home.nilai.title")}
           subtitle={t("home.nilai.subtitle")}
         />
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" stagger={0.08}>
           {CORE_VALUES.map((v, i) => {
             const k = VALUE_KEYS[i];
             return (
-              <Reveal key={k} delay={i * 0.07}>
+              <StaggerItem key={k}>
                 <div className="h-full rounded-2xl border bg-card p-6 shadow-sm hover:shadow-lg transition-shadow">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold-deep">
@@ -400,10 +508,10 @@ function ValuesSection() {
                     {t(`home.nilai.${k}.meaning`)}
                   </p>
                 </div>
-              </Reveal>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
@@ -431,11 +539,11 @@ function TechSection() {
             ))}
           </Reveal>
         </div>
-        <div className="grid gap-3.5 sm:grid-cols-2">
+        <Stagger className="grid gap-3.5 sm:grid-cols-2" stagger={0.07}>
           {TECH_PILLARS.map((p, i) => {
             const k = PILLAR_KEYS[i];
             return (
-              <Reveal key={k} delay={i * 0.06}>
+              <StaggerItem key={k}>
                 <div className="h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
                     <Icon name={p.icon} className="h-5 w-5" />
@@ -445,10 +553,10 @@ function TechSection() {
                     {t(`home.teknologi.${k}.desc`)}
                   </p>
                 </div>
-              </Reveal>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
@@ -465,9 +573,9 @@ function RoadmapSection({ roadmap }: { roadmap: Roadmap[] }) {
           title={t("home.roadmap.title")}
           subtitle={t("home.roadmap.subtitle")}
         />
-        <div className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Stagger className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4" stagger={0.09}>
           {roadmap.map((r, i) => (
-            <Reveal key={r.id} delay={i * 0.08}>
+            <StaggerItem key={r.id}>
               <div className="relative h-full rounded-2xl border bg-card p-6 shadow-sm overflow-hidden">
                 <span aria-hidden className="absolute -right-3 -top-4 text-7xl font-extrabold text-primary/5 select-none">
                   {i + 1}
@@ -477,9 +585,9 @@ function RoadmapSection({ roadmap }: { roadmap: Roadmap[] }) {
                 <p className="mt-1 text-xs font-semibold text-foreground/70">{r.focus}</p>
                 <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{r.deliverables}</p>
               </div>
-            </Reveal>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
@@ -496,16 +604,16 @@ function BenefitsSection() {
           <h2 className="text-2xl sm:text-3xl font-extrabold">{t("home.manfaat.title")}</h2>
           <div className="gold-divider w-40 mx-auto mt-4" />
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-2.5">
-          {BENEFIT_KEYS.map((k, i) => (
-            <Reveal key={k} delay={i * 0.04}>
+        <Stagger className="mt-8 flex flex-wrap justify-center gap-2.5" stagger={0.04}>
+          {BENEFIT_KEYS.map((k) => (
+            <StaggerItem key={k}>
               <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-white/5 px-4 py-2 text-sm font-medium backdrop-blur-sm">
                 <Icon name="check-circle-2" className="h-4 w-4 text-gold-soft" />
                 {t(`home.manfaat.${k}`)}
               </span>
-            </Reveal>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
@@ -523,9 +631,9 @@ function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
           title={t("home.testimoni.title")}
           subtitle={t("home.testimoni.subtitle")}
         />
-        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.slice(0, 6).map((item, i) => (
-            <Reveal key={item.id} delay={i * 0.06}>
+        <Stagger className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3" stagger={0.08}>
+          {testimonials.slice(0, 6).map((item) => (
+            <StaggerItem key={item.id}>
               <div className="h-full rounded-2xl border bg-card p-6 shadow-sm flex flex-col">
                 <Icon name="quote" className="h-7 w-7 text-gold/60" />
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{item.content}&rdquo;</p>
@@ -546,9 +654,9 @@ function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
                   </div>
                 </div>
               </div>
-            </Reveal>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
@@ -573,9 +681,9 @@ function LatestNews({ articles }: { articles: Article[] }) {
             </Button>
           </Reveal>
         </div>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {articles.map((a, i) => (
-            <Reveal key={a.id} delay={i * 0.07}>
+        <Stagger className="mt-10 grid gap-5 md:grid-cols-3" stagger={0.09}>
+          {articles.map((a) => (
+            <StaggerItem key={a.id}>
               <button
                 onClick={() => navigate(`berita/${a.slug}`)}
                 className="group h-full w-full text-start rounded-2xl border bg-card overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -602,9 +710,9 @@ function LatestNews({ articles }: { articles: Article[] }) {
                   <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{a.excerpt}</p>
                 </div>
               </button>
-            </Reveal>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

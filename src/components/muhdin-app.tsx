@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { useHashRoute, navigate, useScrollToTopOnRoute } from "@/hooks/use-hash-route";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
@@ -32,6 +33,23 @@ function LoadingSplash() {
         <p className="text-sm text-muted-foreground">{t("misc.loading")}</p>
       </div>
     </div>
+  );
+}
+
+/**
+ * Task 21 — Scroll Progress: garis rambut emas di puncak viewport yang
+ * mengikuti posisi gulir (sentuhan konsultan kelas dunia, ala McKinsey).
+ * RTL-aware (dari kanan di bahasa Arab), tersembunyi di rute admin.
+ */
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 28, restDelta: 0.001 });
+  return (
+    <motion.div
+      aria-hidden
+      style={{ scaleX }}
+      className="fixed top-0 inset-x-0 z-[70] h-[3px] origin-left rtl:origin-right bg-gradient-to-r from-gold via-gold-soft to-gold shadow-[0_0_12px_rgba(212,175,55,0.55)]"
+    />
   );
 }
 
@@ -126,6 +144,7 @@ export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en
   return (
     <LocaleProvider initialLocale={initialLocale}>
       <RegisterSW />
+      {!isAdmin && <ScrollProgress />}
       {isAdmin ? (
         <div className="min-h-screen bg-muted/40 flex flex-col">
           <AdminView />
