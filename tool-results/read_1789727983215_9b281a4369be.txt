@@ -1,0 +1,647 @@
+     1→/**
+     2→ * namespace "home" — dikelola oleh agent Task 14-a.
+     3→ * Struktur wajib: { id: {...}, en: {...}, ar: {...} } — key identik di ketiganya.
+     4→ * Teks id = string ASLI existing di home-view.tsx / constants.ts (tanpa parafrase).
+     5→ */
+     6→export const homeDict = {
+     7→  id: {
+     8→    home: {
+     9→      hero: {
+    10→        badge: "Asosiasi di Atas Asosiasi Penyelenggara Ibadah — Operator Nusuk Indonesia",
+    11→        title1: "Transformasi Digitalisasi",
+    12→        titleGold: "Umroh & Haji",
+    13→        title2: "Indonesia 2030",
+    14→        motto: "Melayani dengan Amanah, Profesional, Terstandar dan Penuh Keberkahan",
+    15→        brandName: "SYURGA TRAVEL",
+    16→        brandTag: "PELAYAN TAMU ALLAH",
+    17→        motto1: "MUDAH",
+    18→        motto2: "MURAH",
+    19→        motto3: "AMANAH",
+    20→        mottoAria: "Mudah, Murah, Amanah",
+    21→        subtitle:
+    22→          "13 ekosistem layanan terintegrasi yang mengawal perjalanan Tamu Allah dari Indonesia hingga Tanah Suci — dengan kepastian kuota, transparansi mutu, dan pengawalan 24/7.",
+    23→        imgAlt: "Kabah Masjidil Haram saat senja keemasan",
+    24→        ctaEcosystems: "Jelajahi 13 Ekosistem",
+    25→        ctaVerify: "Verifikasi Penyelenggara",
+    26→      },
+    27→      stats: {
+    28→        jamaah: { value: "1.000.000+", label: "Target Jamaah / Tahun 2030" },
+    29→        mitra: { value: "1.000+", label: "Target Mitra Terverifikasi" },
+    30→        sdm: { value: "10.000", label: "SDM Ibadah Bersertifikasi" },
+    31→        command: { value: "24/7", label: "Command Center Pengawalan" },
+    32→      },
+    33→      nusukLive: {
+    34→        aria: "Status integrasi Nusuk",
+    35→        label: "Nusuk Live",
+    36→        sub: "Status integrasi platform Nusuk",
+    37→        izinAktif: "{n} izin aktif",
+    38→        sinkronTerakhir: "Sinkron terakhir {time}",
+    39→        belumSinkron: "belum pernah",
+    40→        detik: "{n} detik lalu",
+    41→        menit: "{n} menit lalu",
+    42→        jam: "{n} jam lalu",
+    43→        hari: "{n} hari lalu",
+    44→        btn: "Buka Nusuk Hub",
+    45→        btnAria: "Buka halaman Nusuk Hub",
+    46→      },
+    47→      nusukBar: {
+    48→        title: "MUHDIN — Operator Nusuk Indonesia",
+    49→        sub: "Official Operator from Indonesia",
+    50→        p1: "Terintegrasi Nusuk Saudi",
+    51→        p2: "Kuota & Jadwal Terverifikasi",
+    52→        p3: "Sistem Booking Real Time",
+    53→        p4: "Data Jamaah Terverifikasi",
+    54→        p5: "Terhubung dengan Kemenag RI",
+    55→        p6: "Compliance dengan Standar Saudi",
+    56→      },
+    57→      ekosistem: {
+    58→        eyebrow: "Arsitektur Layanan",
+    59→        title: "13 Ekosistem MUHDIN",
+    60→        subtitle:
+    61→          "Syurga bagi pengusaha pelayan Tamu Allah dan kenyamanan jamaah dalam ibadah — satu rangkaian utuh perjalanan, dari titik masuk pertama hingga kepulangan.",
+    62→      },
+    63→      klaster: {
+    64→        akses: {
+    65→          name: "Akses & Mobilitas",
+    66→          range: "Ekosistem 1-5",
+    67→          desc: "Memastikan jamaah bergerak secara legal, cepat, dan terpandu — dari visa hingga pembimbingan ibadah.",
+    68→        },
+    69→        ibadah: {
+    70→          name: "Pengalaman Ibadah",
+    71→          range: "Ekosistem 6-10",
+    72→          desc: "Kualitas inti pengalaman ibadah — akomodasi, transportasi, ziarah, Raudah, dan konsumsi.",
+    73→        },
+    74→        mutu: {
+    75→          name: "Nilai Tambah & Jaminan Mutu",
+    76→          range: "Ekosistem 11-13",
+    77→          desc: "Nilai ekonomi dan jaminan mutu — retail UMKM, layanan satu pintu, dan command center 24/7.",
+    78→        },
+    79→      },
+    80→      alur: {
+    81→        eyebrow: "End-to-End Journey",
+    82→        title: "Alur 13 Tahap Perjalanan Jamaah",
+    83→        subtitle:
+    84→          "Zero-gap handover: tidak ada perpindahan tanggung jawab tanpa rekaman dan konfirmasi digital. Seluruh rombongan terpantau dari satu dashboard.",
+    85→        cta: "Lihat 13 Tahap Lengkap",
+    86→      },
+    87→      mitra: {
+    88→        eyebrow: "5 Mitra Utama",
+    89→        title: "Punggung Industri Penyelenggaraan Ibadah Indonesia",
+    90→        subtitle:
+    91→          "Setiap mitra mempertahankan identitas dan fungsi bisnisnya, sekaligus menerima standar layanan, teknologi bersama, dan penjaminan mutu dari ekosistem.",
+    92→        ppiu: {
+    93→          name: "PPIU",
+    94→          fullName: "Perusahaan Perjalanan Ibadah Umrah",
+    95→          role: "Pintu layanan utama jamaah umrah; penanggung jawab paket, itinerary, dan pengalaman jamaah end-to-end",
+    96→        },
+    97→        pihk: {
+    98→          name: "PIHK",
+    99→          fullName: "Penyelenggara Perjalanan Ibadah Haji Khusus",
+   100→          role: "Penyedia skema haji khusus bagi jamaah dengan waktu tunggu panjang; kepatuhan penuh terhadap kuota resmi",
+   101→        },
+   102→        kbihu: {
+   103→          name: "KBIHU",
+   104→          fullName: "Konsorsium Biro Perjalanan Ibadah Haji",
+   105→          role: "Jaringan distribusi layanan haji khusus di tingkat daerah dan penguatan kanal pemasaran yang etis",
+   106→        },
+   107→        iphi: {
+   108→          name: "IPHI",
+   109→          fullName: "Ikatan Persaudaraan Haji Indonesia",
+   110→          role: "Jaringan komunitas alumni haji; edukasi jamaah, penguatan literasi ibadah, dan pengawasan sosial",
+   111→        },
+   112→        tw: {
+   113→          name: "Travel Wisata",
+   114→          fullName: "Penyelenggara Perjalanan Wisata Halal & Ziarah",
+   115→          role: "Perluasan pasar produk ziarah-halal dan integrasi produk ekonomi syariah ke dalam ekosistem",
+   116→        },
+   117→      },
+   118→      nilai: {
+   119→        eyebrow: "Nilai Utama MUHDIN",
+   120→        title: "Lima Nilai yang Dapat Diaudit",
+   121→        subtitle:
+   122→          "Setiap nilai diturunkan menjadi makna operasional yang dapat diamati, diukur, dan diaudit — nilai bukan slogan, melainkan standar kerja sehari-hari.",
+   123→        amanah: {
+   124→          name: "Amanah",
+   125→          meaning:
+   126→            "Menepati janji layanan, menjaga dana jamaah dengan tata kelola yang dapat diaudit, dan menempatkan kepentingan jamaah di atas kepentingan sesaat.",
+   127→        },
+   128→        profesional: {
+   129→          name: "Profesional",
+   130→          meaning:
+   131→            "Seluruh tenaga dan mitra bersertifikasi dengan kompetensi terukur, prosedur baku, dan penilaian mutu berkala.",
+   132→        },
+   133→        terintegrasi: {
+   134→          name: "Terintegrasi",
+   135→          meaning:
+   136→            "Satu data dan satu alur layanan dari registrasi hingga kepulangan, tersambung secara real time antar mitra.",
+   137→        },
+   138→        transparan: {
+   139→          name: "Transparan",
+   140→          meaning:
+   141→            "Harga, cakupan layanan, status kuota, dan rekam jejak penyelenggara terbuka bagi jamaah dan regulator.",
+   142→        },
+   143→        tepercaya: {
+   144→          name: "Tepercaya",
+   145→          meaning:
+   146→            "Legalitas dan rekam jejak mitra diverifikasi, sanksi ditegakkan secara konsisten, dan mutu diaudit secara berkala.",
+   147→        },
+   148→      },
+   149→      teknologi: {
+   150→        eyebrow: "Dukungan Teknologi Digital",
+   151→        title: "Enam Pilar Teknologi Terpadu",
+   152→        subtitle:
+   153→          "Seluruh pilar berjalan di atas satu arsitektur data yang menempatkan profil jamaah sebagai entitas tunggal dari registrasi hingga kepulangan — dengan enkripsi dan pembatasan akses berbasis peran.",
+   154→        priv1: "Persetujuan eksplisit",
+   155→        priv2: "Minimasi data",
+   156→        priv3: "Enkripsi end-to-end",
+   157→        priv4: "Audit keamanan independen",
+   158→        app: {
+   159→          name: "MUHDIN App",
+   160→          desc: "Antarmuka tunggal jamaah untuk booking, itinerary, tracking, dan layanan 24/7.",
+   161→        },
+   162→        gps: {
+   163→          name: "GPS & IoT Tracking",
+   164→          desc: "Pantau lokasi rombongan dan angkutan secara real time untuk keamanan dan efisiensi.",
+   165→        },
+   166→        ai: {
+   167→          name: "AI & Big Data",
+   168→          desc: "Prediksi permintaan, pengelolaan kapasitas, dinamika harga, dan deteksi anomali keamanan.",
+   169→        },
+   170→        nusuk: {
+   171→          name: "Integrasi Nusuk",
+   172→          desc: "Jantung sistem yang menyinkronkan data, jadwal, dan kuota resmi dengan pemerintah Saudi.",
+   173→        },
+   174→        dashboard: {
+   175→          name: "Dashboard Monitoring",
+   176→          desc: "Melayani tiga kelas pengguna — pengusaha, agen, dan regulator — dengan akses berjenjang.",
+   177→        },
+   178→        multiBahasa: {
+   179→          name: "Multi Bahasa",
+   180→          desc: "Dukungan Indonesia, Arab, dan Inggris memastikan layanan dipahami seluruh pihak.",
+   181→        },
+   182→      },
+   183→      roadmap: {
+   184→        eyebrow: "Peta Jalan 2026-2030",
+   185→        title: "Empat Fase Menuju Skala Penuh",
+   186→        subtitle:
+   187→          "Bertahap dan berbasis bukti — setiap fase memiliki deliverables yang dapat diverifikasi sebelum fase berikutnya dimulai.",
+   188→      },
+   189→      manfaat: {
+   190→        title: "Manfaat untuk Jamaah, PPIU, KBIHU & Stakeholder",
+   191→        b1: "Ibadah lebih tenang dan nyaman",
+   192→        b2: "Layanan terpadu satu pintu",
+   193→        b3: "Kepastian jadwal dan kuota",
+   194→        b4: "Efisiensi biaya dan waktu",
+   195→        b5: "Keamanan dengan tracking real time",
+   196→        b6: "Peningkatan kualitas layanan",
+   197→        b7: "Keberkahan usaha yang berkelanjutan",
+   198→      },
+   199→      testimoni: {
+   200→        eyebrow: "Testimoni",
+   201→        title: "Kepercayaan adalah Aset Kolektif",
+   202→        subtitle: "Suara jamaah dan mitra yang merasakan langsung layanan ekosistem MUHDIN.",
+   203→      },
+   204→      berita: {
+   205→        eyebrow: "Kabar Terbaru",
+   206→        title: "Berita & Pengumuman",
+   207→        semua: "Semua Berita",
+   208→      },
+   209→      cta: {
+   210→        title1: "Bersama Melayani Tamu Allah,",
+   211→        titleGold: "Sampai Rumah dengan Selamat",
+   212→        body: "PPIU, PIHK, KBIHU, IPHI, dan Travel Wisata Halal-Ziarah — satukan langkah dalam satu ekosistem yang amanah, profesional, dan terdigitalisasi.",
+   213→        btnDaftar: "Daftar Keanggotaan",
+   214→        btnKontak: "Hubungi Kami",
+   215→      },
+   216→      umum: {
+   217→        selengkapnya: "Selengkapnya",
+   218→        muatUlang: "Muat Ulang",
+   219→      },
+   220→    },
+   221→  },
+   222→  en: {
+   223→    home: {
+   224→      hero: {
+   225→        badge: "The Umbrella Association of Worship Travel Operators — Nusuk Operator Indonesia",
+   226→        title1: "Digital Transformation of",
+   227→        titleGold: "Umrah & Hajj",
+   228→        title2: "Indonesia 2030",
+   229→        motto: "Serving with Integrity, Professionalism, Standards, and Abundant Blessing",
+   230→        brandName: "SYURGA TRAVEL",
+   231→        brandTag: "SERVANT OF THE GUESTS OF ALLAH",
+   232→        motto1: "EASY",
+   233→        motto2: "AFFORDABLE",
+   234→        motto3: "TRUSTWORTHY",
+   235→        mottoAria: "Easy, Affordable, Trustworthy",
+   236→        subtitle:
+   237→          "Thirteen integrated service ecosystems guiding the Guests of Allah from Indonesia to the Holy Land — with assured quotas, transparent quality, and 24/7 escorting.",
+   238→        imgAlt: "The Kaaba at Masjid al-Haram during golden dusk",
+   239→        ctaEcosystems: "Explore the 13 Ecosystems",
+   240→        ctaVerify: "Verify an Operator",
+   241→      },
+   242→      stats: {
+   243→        jamaah: { value: "1,000,000+", label: "Target Pilgrims per Year by 2030" },
+   244→        mitra: { value: "1,000+", label: "Target Verified Partners" },
+   245→        sdm: { value: "10,000", label: "Certified Worship-Service Workforce" },
+   246→        command: { value: "24/7", label: "Command Center Escorting" },
+   247→      },
+   248→      nusukLive: {
+   249→        aria: "Nusuk integration status",
+   250→        label: "Nusuk Live",
+   251→        sub: "Nusuk platform integration status",
+   252→        izinAktif: "{n} active permits",
+   253→        sinkronTerakhir: "Last sync {time}",
+   254→        belumSinkron: "never synced",
+   255→        detik: "{n} seconds ago",
+   256→        menit: "{n} minutes ago",
+   257→        jam: "{n} hours ago",
+   258→        hari: "{n} days ago",
+   259→        btn: "Open Nusuk Hub",
+   260→        btnAria: "Open the Nusuk Hub page",
+   261→      },
+   262→      nusukBar: {
+   263→        title: "MUHDIN — Nusuk Operator Indonesia",
+   264→        sub: "Official Operator from Indonesia",
+   265→        p1: "Integrated with Saudi Nusuk",
+   266→        p2: "Verified Quotas & Schedules",
+   267→        p3: "Real-Time Booking System",
+   268→        p4: "Verified Pilgrim Data",
+   269→        p5: "Connected with Indonesia's Ministry of Religious Affairs",
+   270→        p6: "Compliant with Saudi Standards",
+   271→      },
+   272→      ekosistem: {
+   273→        eyebrow: "Service Architecture",
+   274→        title: "The 13 MUHDIN Ecosystems",
+   275→        subtitle:
+   276→          "A haven for entrepreneurs serving the Guests of Allah and a comfort for pilgrims at worship — one complete journey, from the first point of entry to the journey home.",
+   277→      },
+   278→      klaster: {
+   279→        akses: {
+   280→          name: "Access & Mobility",
+   281→          range: "Ecosystems 1-5",
+   282→          desc: "Ensuring pilgrims move legally, swiftly, and guided — from visa to worship guidance.",
+   283→        },
+   284→        ibadah: {
+   285→          name: "Worship Experience",
+   286→          range: "Ecosystems 6-10",
+   287→          desc: "The core quality of the worship experience — accommodation, transportation, ziarah, Raudah, and meals.",
+   288→        },
+   289→        mutu: {
+   290→          name: "Value-Added & Quality Assurance",
+   291→          range: "Ecosystems 11-13",
+   292→          desc: "Economic value and quality assurance — MSME retail, one-stop service, and a 24/7 command center.",
+   293→        },
+   294→      },
+   295→      alur: {
+   296→        eyebrow: "End-to-End Journey",
+   297→        title: "The 13-Step Pilgrim Journey",
+   298→        subtitle:
+   299→          "Zero-gap handover: no transfer of responsibility without digital records and confirmation. The entire group is monitored from a single dashboard.",
+   300→        cta: "View All 13 Steps",
+   301→      },
+   302→      mitra: {
+   303→        eyebrow: "5 Key Partners",
+   304→        title: "The Backbone of Indonesia's Worship Travel Industry",
+   305→        subtitle:
+   306→          "Every partner retains its identity and business function while adopting shared service standards, technology, and quality assurance from the ecosystem.",
+   307→        ppiu: {
+   308→          name: "PPIU",
+   309→          fullName: "Umrah Religious Travel Company",
+   310→          role: "The main service gateway for Umrah pilgrims; responsible for packages, itineraries, and the end-to-end pilgrim experience",
+   311→        },
+   312→        pihk: {
+   313→          name: "PIHK",
+   314→          fullName: "Special Hajj Travel Organizer",
+   315→          role: "Provider of special hajj schemes for pilgrims with long waiting periods; full compliance with official quotas",
+   316→        },
+   317→        kbihu: {
+   318→          name: "KBIHU",
+   319→          fullName: "Consortium of Hajj Travel Bureaus",
+   320→          role: "Regional distribution network for special hajj services and strengthening of ethical marketing channels",
+   321→        },
+   322→        iphi: {
+   323→          name: "IPHI",
+   324→          fullName: "Indonesian Hajj Brotherhood Association",
+   325→          role: "Community network of hajj alumni; pilgrim education, worship literacy, and social oversight",
+   326→        },
+   327→        tw: {
+   328→          name: "Travel & Tourism",
+   329→          fullName: "Halal & Ziarah Travel Organizer",
+   330→          role: "Market expansion of halal-ziarah products and integration of sharia-economy products into the ecosystem",
+   331→        },
+   332→      },
+   333→      nilai: {
+   334→        eyebrow: "MUHDIN Core Values",
+   335→        title: "Five Auditable Values",
+   336→        subtitle:
+   337→          "Each value is distilled into operational meaning that can be observed, measured, and audited — values are not slogans, but everyday working standards.",
+   338→        amanah: {
+   339→          name: "Integrity",
+   340→          meaning:
+   341→            "Keeping service promises, safeguarding pilgrim funds with auditable governance, and placing the pilgrims' interests above momentary interests.",
+   342→        },
+   343→        profesional: {
+   344→          name: "Professionalism",
+   345→          meaning:
+   346→            "All staff and partners are certified with measurable competence, standard procedures, and periodic quality assessments.",
+   347→        },
+   348→        terintegrasi: {
+   349→          name: "Integrated",
+   350→          meaning:
+   351→            "One data set and one service flow from registration to return, connected in real time across partners.",
+   352→        },
+   353→        transparan: {
+   354→          name: "Transparent",
+   355→          meaning:
+   356→            "Pricing, service scope, quota status, and operator track records are open to pilgrims and regulators.",
+   357→        },
+   358→        tepercaya: {
+   359→          name: "Trusted",
+   360→          meaning:
+   361→            "Partner legality and track records are verified, sanctions are enforced consistently, and quality is audited regularly.",
+   362→        },
+   363→      },
+   364→      teknologi: {
+   365→        eyebrow: "Digital Technology Support",
+   366→        title: "Six Integrated Technology Pillars",
+   367→        subtitle:
+   368→          "All pillars run on a single data architecture that treats the pilgrim profile as a single entity from registration to return — with encryption and role-based access control.",
+   369→        priv1: "Explicit consent",
+   370→        priv2: "Data minimization",
+   371→        priv3: "End-to-end encryption",
+   372→        priv4: "Independent security audits",
+   373→        app: {
+   374→          name: "MUHDIN App",
+   375→          desc: "A single pilgrim interface for booking, itinerary, tracking, and 24/7 service.",
+   376→        },
+   377→        gps: {
+   378→          name: "GPS & IoT Tracking",
+   379→          desc: "Monitor group and transport locations in real time for safety and efficiency.",
+   380→        },
+   381→        ai: {
+   382→          name: "AI & Big Data",
+   383→          desc: "Demand forecasting, capacity management, price dynamics, and security anomaly detection.",
+   384→        },
+   385→        nusuk: {
+   386→          name: "Nusuk Integration",
+   387→          desc: "The heart of the system, synchronizing data, schedules, and official quotas with the Saudi government.",
+   388→        },
+   389→        dashboard: {
+   390→          name: "Monitoring Dashboard",
+   391→          desc: "Serving three classes of users — entrepreneurs, agents, and regulators — with tiered access.",
+   392→        },
+   393→        multiBahasa: {
+   394→          name: "Multilingual",
+   395→          desc: "Indonesian, Arabic, and English support ensures the service is understood by all parties.",
+   396→        },
+   397→      },
+   398→      roadmap: {
+   399→        eyebrow: "Roadmap 2026-2030",
+   400→        title: "Four Phases Toward Full Scale",
+   401→        subtitle:
+   402→          "Gradual and evidence-based — each phase delivers verifiable outputs before the next phase begins.",
+   403→      },
+   404→      manfaat: {
+   405→        title: "Benefits for Pilgrims, PPIU, KBIHU & Stakeholders",
+   406→        b1: "Calmer, more comfortable worship",
+   407→        b2: "One-door integrated service",
+   408→        b3: "Assured schedules and quotas",
+   409→        b4: "Cost and time efficiency",
+   410→        b5: "Safety with real-time tracking",
+   411→        b6: "Improved service quality",
+   412→        b7: "Sustained blessing in business",
+   413→      },
+   414→      testimoni: {
+   415→        eyebrow: "Testimonials",
+   416→        title: "Trust Is a Collective Asset",
+   417→        subtitle: "Voices of pilgrims and partners who directly experience the MUHDIN ecosystem services.",
+   418→      },
+   419→      berita: {
+   420→        eyebrow: "Latest Updates",
+   421→        title: "News & Announcements",
+   422→        semua: "All News",
+   423→      },
+   424→      cta: {
+   425→        title1: "Serving the Guests of Allah Together,",
+   426→        titleGold: "Home Safe and Sound",
+   427→        body: "PPIU, PIHK, KBIHU, IPHI, and Halal-Ziarah Travel Operators — join steps in one ecosystem that is trustworthy, professional, and digitalized.",
+   428→        btnDaftar: "Become a Member",
+   429→        btnKontak: "Contact Us",
+   430→      },
+   431→      umum: {
+   432→        selengkapnya: "Learn more",
+   433→        muatUlang: "Reload",
+   434→      },
+   435→    },
+   436→  },
+   437→  ar: {
+   438→    home: {
+   439→      hero: {
+   440→        badge: "اتحاد جمعيات منظمي رحلات العبادة — مشغل نسك في إندونيسيا",
+   441→        title1: "التحول الرقمي",
+   442→        titleGold: "للعمرة والحج",
+   443→        title2: "في إندونيسيا 2030",
+   444→        motto: "نخدم بأمانة واحترافية وبمعايير موحدة وبركة",
+   445→        brandName: "SYURGA TRAVEL",
+   446→        brandTag: "خَادِمُ ضُيُوفِ الله",
+   447→        motto1: "سَهْل",
+   448→        motto2: "رَخِيص",
+   449→        motto3: "أَمِين",
+   450→        mottoAria: "سَهْل، رَخِيص، أَمِين",
+   451→        subtitle:
+   452→          "ثلاث عشرة منظومة خدمة متكاملة ترافق رحلة ضيوف الرحمن من إندونيسيا إلى الأرض المقدسة — بيقين الحصص وشفافية الجودة ومرافقة على مدار الساعة.",
+   453→        imgAlt: "الكعبة في المسجد الحرام وقت الغروب الذهبي",
+   454→        ctaEcosystems: "استكشف المنظومات الثلاث عشرة",
+   455→        ctaVerify: "تحقق من جهة التنظيم",
+   456→      },
+   457→      stats: {
+   458→        jamaah: { value: "1,000,000+", label: "الحجاج المستهدفون سنويا بحلول 2030" },
+   459→        mitra: { value: "1,000+", label: "الشركاء الموثقون المستهدفون" },
+   460→        sdm: { value: "10,000", label: "كوادر خدمة العبادة الحاصلون على شهادات" },
+   461→        command: { value: "24/7", label: "مركز قيادة للمرافقة" },
+   462→      },
+   463→      nusukLive: {
+   464→        aria: "حالة التكامل مع نسك",
+   465→        label: "نسك مباشر",
+   466→        sub: "حالة التكامل مع منصة نسك",
+   467→        izinAktif: "التصاريح النشطة: {n}",
+   468→        sinkronTerakhir: "آخر مزامنة {time}",
+   469→        belumSinkron: "لم تتم المزامنة بعد",
+   470→        detik: "قبل {n} ثانية",
+   471→        menit: "قبل {n} دقيقة",
+   472→        jam: "قبل {n} ساعة",
+   473→        hari: "قبل {n} يوم",
+   474→        btn: "افتح مركز نسك",
+   475→        btnAria: "افتح صفحة مركز نسك",
+   476→      },
+   477→      nusukBar: {
+   478→        title: "مهدين — مشغل نسك في إندونيسيا",
+   479→        sub: "المشغل الرسمي من إندونيسيا",
+   480→        p1: "متكامل مع نسك السعودية",
+   481→        p2: "حصص وجداول موثقة",
+   482→        p3: "نظام حجز في الوقت الفعلي",
+   483→        p4: "بيانات حجاج موثقة",
+   484→        p5: "مرتبط بوزارة الشؤون الدينية الإندونيسية",
+   485→        p6: "ملتزم بالمعايير السعودية",
+   486→      },
+   487→      ekosistem: {
+   488→        eyebrow: "هندسة الخدمات",
+   489→        title: "منظومات مهدين الثلاث عشرة",
+   490→        subtitle:
+   491→          "ملاذ لرواد الأعمال في خدمة ضيوف الرحمن وطمأنينة للحجاج في عبادتهم — رحلة واحدة متكاملة من أول نقطة دخول حتى العودة.",
+   492→      },
+   493→      klaster: {
+   494→        akses: {
+   495→          name: "الوصول والتنقل",
+   496→          range: "المنظومات 1-5",
+   497→          desc: "ضمان تحرك الحجاج بشكل قانوني وسريع وموجه — من التأشيرة إلى الإرشاد العبادي.",
+   498→        },
+   499→        ibadah: {
+   500→          name: "تجربة العبادة",
+   501→          range: "المنظومات 6-10",
+   502→          desc: "جوهر جودة تجربة العبادة — الإقامة والنقل والزيارة والروضة والوجبات.",
+   503→        },
+   504→        mutu: {
+   505→          name: "القيمة المضافة وضمان الجودة",
+   506→          range: "المنظومات 11-13",
+   507→          desc: "القيمة الاقتصادية وضمان الجودة — تجارة التجزئة للمشاريع الصغيرة والمتوسطة وخدمة النافذة الواحدة ومركز قيادة على مدار الساعة.",
+   508→        },
+   509→      },
+   510→      alur: {
+   511→        eyebrow: "رحلة متكاملة",
+   512→        title: "مسار رحلة الحجاج في 13 مرحلة",
+   513→        subtitle:
+   514→          "تسليم بلا فجوات: لا انتقال للمسؤولية دون سجلات وتأكيد رقمي. تراقب جميع المجموعات من لوحة واحدة.",
+   515→        cta: "اطلع على المراحل الثلاث عشرة كاملة",
+   516→      },
+   517→      mitra: {
+   518→        eyebrow: "خمسة شركاء رئيسيين",
+   519→        title: "العمود الفقري لصناعة تنظيم رحلات العبادة في إندونيسيا",
+   520→        subtitle:
+   521→          "يحافظ كل شريك على هويته ووظيفته التجارية، ويتبنى في الوقت نفسه معايير الخدمة المشتركة والتقنية الموحدة وضمان الجودة من المنظومة.",
+   522→        ppiu: {
+   523→          name: "PPIU",
+   524→          fullName: "شركة رحلات عمرة",
+   525→          role: "بوابة الخدمة الرئيسية لحجاج العمرة؛ المسؤولة عن الباقات وبرامج الرحلة وتجربة الحاج من البداية إلى النهاية",
+   526→        },
+   527→        pihk: {
+   528→          name: "PIHK",
+   529→          fullName: "منظم رحلات حج خاص",
+   530→          role: "مزود برامج الحج الخاص للحجاج ذوي فترات الانتظار الطويلة؛ التزام كامل بالحصص الرسمية",
+   531→        },
+   532→        kbihu: {
+   533→          name: "KBIHU",
+   534→          fullName: "اتحاد مكاتب رحلات الحج",
+   535→          role: "شبكة توزيع خدمات الحج الخاص على مستوى المناطق وتعزيز قنوات تسويق أخلاقية",
+   536→        },
+   537→        iphi: {
+   538→          name: "IPHI",
+   539→          fullName: "رابطة الأخوة الحجية الإندونيسية",
+   540→          role: "شبكة مجتمعية لخريجي الحج؛ تثقيف الحجاج وتعزيز الوعي العبادي والرقابة الاجتماعية",
+   541→        },
+   542→        tw: {
+   543→          name: "سفر وسياحة",
+   544→          fullName: "منظم رحلات السياحة الحلال والزيارة",
+   545→          role: "توسيع سوق منتجات الزيارة والسياحة الحلال ودمج منتجات الاقتصاد الإسلامي في المنظومة",
+   546→        },
+   547→      },
+   548→      nilai: {
+   549→        eyebrow: "قيم مهدين الأساسية",
+   550→        title: "خمس قيم قابلة للتدقيق",
+   551→        subtitle:
+   552→          "كل قيمة تترجم إلى معنى تشغيلي يمكن ملاحظته وقياسه وتدقيقه — القيم ليست شعارات بل معايير عمل يومية.",
+   553→        amanah: {
+   554→          name: "الأمانة",
+   555→          meaning: "الوفاء بوعود الخدمة، وحماية أموال الحجاج بحوكمة قابلة للتدقيق، ووضع مصلحة الحجاج فوق كل اعتبار عابر.",
+   556→        },
+   557→        profesional: {
+   558→          name: "الاحترافية",
+   559→          meaning: "جميع الكوادر والشركاء معتمدون بكفاءة قابلة للقياس وإجراءات موحدة وتقييم دوري للجودة.",
+   560→        },
+   561→        terintegrasi: {
+   562→          name: "التكامل",
+   563→          meaning: "بيانات واحدة ومسار خدمة واحد من التسجيل حتى العودة، مترابط في الوقت الفعلي بين الشركاء.",
+   564→        },
+   565→        transparan: {
+   566→          name: "الشفافية",
+   567→          meaning: "الأسعار ونطاق الخدمات وحالة الحصص وسجل الشركاء متاحة للحجاج والجهات الرقابية.",
+   568→        },
+   569→        tepercaya: {
+   570→          name: "الموثوقية",
+   571→          meaning: "يتم التحقق من تراخيص الشركاء وسجلاتهم، وتطبق العقوبات بثبات، وتدقق الجودة دوريا.",
+   572→        },
+   573→      },
+   574→      teknologi: {
+   575→        eyebrow: "الدعم التقني الرقمي",
+   576→        title: "ستة أعمدة تقنية متكاملة",
+   577→        subtitle:
+   578→          "تعمل جميع الأعمدة على معمارية بيانات واحدة تجعل ملف الحاج كيانا واحدا من التسجيل حتى العودة — مع التشفير وتقييد الوصول حسب الأدوار.",
+   579→        priv1: "موافقة صريحة",
+   580→        priv2: "تقليل البيانات",
+   581→        priv3: "تشفير من الطرف إلى الطرف",
+   582→        priv4: "تدقيق أمني مستقل",
+   583→        app: {
+   584→          name: "تطبيق مهدين",
+   585→          desc: "واجهة واحدة للحاج للحجز وبرنامج الرحلة والتتبع والخدمة على مدار الساعة.",
+   586→        },
+   587→        gps: {
+   588→          name: "تتبع GPS وإنترنت الأشياء",
+   589→          desc: "مراقبة مواقع المجموعات ووسائل النقل في الوقت الفعلي من أجل السلامة والكفاءة.",
+   590→        },
+   591→        ai: {
+   592→          name: "الذكاء الاصطناعي والبيانات الضخمة",
+   593→          desc: "التنبؤ بالطلب وإدارة السعات وديناميكيات الأسعار واكتشاف الحالات الشاذة أمنيا.",
+   594→        },
+   595→        nusuk: {
+   596→          name: "التكامل مع نسك",
+   597→          desc: "قلب النظام الذي يزامن البيانات والجداول والحصص الرسمية مع الحكومة السعودية.",
+   598→        },
+   599→        dashboard: {
+   600→          name: "لوحة المتابعة",
+   601→          desc: "خدمة ثلاث فئات من المستخدمين — رجال الأعمال والوكلاء والجهات الرقابية — بصلاحيات متدرجة.",
+   602→        },
+   603→        multiBahasa: {
+   604→          name: "تعدد اللغات",
+   605→          desc: "دعم الإندونيسية والعربية والإنجليزية يضمن فهم الخدمة من قبل جميع الأطراف.",
+   606→        },
+   607→      },
+   608→      roadmap: {
+   609→        eyebrow: "خارطة الطريق 2026-2030",
+   610→        title: "أربع مراحل نحو التشغيل الكامل",
+   611→        subtitle: "تدريجي وقائم على الأدلة — لكل مرحلة مخرجات قابلة للتحقق قبل بدء المرحلة التالية.",
+   612→      },
+   613→      manfaat: {
+   614→        title: "منافع للحجاج والشركاء وأصحاب المصلحة",
+   615→        b1: "عبادة أكثر هدوءا وارتياحا",
+   616→        b2: "خدمة متكاملة من نافذة واحدة",
+   617→        b3: "يقين بالجداول والحصص",
+   618→        b4: "كفاءة في التكلفة والوقت",
+   619→        b5: "أمان مع التتبع في الوقت الفعلي",
+   620→        b6: "تحسين جودة الخدمة",
+   621→        b7: "بركة في عمل مستدام",
+   622→      },
+   623→      testimoni: {
+   624→        eyebrow: "شهادات",
+   625→        title: "الثقة رصيد جماعي",
+   626→        subtitle: "أصوات الحجاج والشركاء الذين تذوقوا خدمات منظومة مهدين مباشرة.",
+   627→      },
+   628→      berita: {
+   629→        eyebrow: "آخر المستجدات",
+   630→        title: "الأخبار والإعلانات",
+   631→        semua: "كل الأخبار",
+   632→      },
+   633→      cta: {
+   634→        title1: "معا نخدم ضيوف الرحمن،",
+   635→        titleGold: "وعودة آمنة إلى الديار",
+   636→        body: "شركات العمرة ومنظمو الحج الخاص والاتحادات ورابطات الحج ومنظمو السفر الحلال والزيارة — نوحد الخطوات في منظومة واحدة أمينة واحترافية ورقمية.",
+   637→        btnDaftar: "طلب العضوية",
+   638→        btnKontak: "اتصل بنا",
+   639→      },
+   640→      umum: {
+   641→        selengkapnya: "المزيد",
+   642→        muatUlang: "إعادة التحميل",
+   643→      },
+   644→    },
+   645→  },
+   646→} as const;
+   647→

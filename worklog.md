@@ -618,3 +618,23 @@ Stage Summary:
 - Hydration error user RESOLVED (akar: stale server bundle Turbopack, bukan kode; penyembuhan via restart bersih + rm -rf .next).
 - Hero kini menyapa: H1 Transformasi Digitalisasi → SYURGA TRAVEL (putih mega) → PELAYAN TAMU ALLAH (emas shimmer) → MUDAH ✦ MURAH ✦ AMANAH teks berjalan → deskripsi 13 ekosistem → CTA → statistik hidup dgn CountUp.
 - Full animation kelas McKinsey LIVE: entrance choreography + blur-rise, Ken Burns, dual parallax, CountUp, stagger cascade 10 seksi, scroll progress emas, scroll hint — semuanya reduced-motion-safe, RTL-safe, mobile-safe, aksesibel (aria/sr-only), tanpa dependensi baru.
+
+---
+Task ID: 22
+Agent: Z.ai Code (main thread)
+Task: Pisahkan & siapkan PAKET UPLOAD SHARED HOSTING — user tinggal upload tanpa mikir file lain (permintaan: "tolong pisahkan mana yang harus aku upload di shared hosting jadi aku tinggal upload").
+
+Work Log:
+- KONDISI AWAL: dev server hidup kembali sehat (HEALTH 200, HOME 200) setelah restart bersih — konfirmasi fix hydration Task 21 masih solid (stale Turbopack bundle = akar masalah, bukan kode).
+- AUDIT KIT DEPLOY Task 13: package.json (`build` = next build && post-build.mjs; `hosting:pack`), scripts/post-build.mjs (salin .next/static + public → standalone), scripts/pack-shared-hosting.mjs (susun release/muhdin-shared-hosting: standalone+static+public+db+schema+server.js+.env+.htaccess+panduan+RELEASE-INFO, jaring engine Prisma debian+rhel, zip otomatis), PANDUAN-SHARED-HOSTING.md, server.js, .htaccess, .env.production.example — semua ada.
+- BUILD PRODUKSI FRESH: pkill next → rm -rf .next → bun run build (next build + post-build) sukses; semua rute (/,/admin,/tutorial,/nusuk,~40 endpoint API,robots,sitemap) ter-generate; post-build salin aset ke standalone.
+- PACK: bun run hosting:pack → release/muhdin-shared-hosting/ (174.3 MB) + release/muhdin-shared-hosting.zip (88.5 MB / 92.8 juta byte).
+- VERIFIKASI ISI PAKET: root = server.js (5835B, startup cPanel), .env (placeholder __APP__ diganti otomatis server.js — tak perlu diedit), .htaccess (HTTPS+security header), PANDUAN-SHARED-HOSTING.md, RELEASE-INFO.txt, db/custom.db (ter-seed, 745KB), prisma/schema.prisma, public/ (ikon PWA, manifest, sw.js, offline.html, hero-kaaba.jpg), .next/standalone (server+node_modules minimal) + .next/static. KRITIS: kedua engine Prisma ikut — libquery_engine-debian-openssl-3.0.x.so.node + libquery_engine-rhel-openssl-3.0.x.so.node (17.5MB masing2) → aman utk cPanel CloudLinux/RHEL & Debian.
+- PREVIEW RESTORE: pkill + rm .next + restart dev → HOME 200, HEALTH 200.
+- E2E AGENT BROWSER desktop: H1 = "Transformasi Digitalisasi Umroh & Haji Indonesia 2030", SYURGA TRAVEL ✓, PELAYAN TAMU ALLAH ✓, .animate-marquee ada ✓, footer PT Digital Bisnis Manajemen + JuraganWeb ✓, overflowX 0. Console: hanya info (HMR/DevTools) — 0 error, 0 hydration. Mobile 390px: overflow 0, hero tampil.
+
+Stage Summary:
+- DELIVERABLE: release/muhdin-shared-hosting.zip (88.5 MB) = SATU-SATUNYA file yang perlu di-upload ke cPanel (atau folder release/muhdin-shared-hosting/ bila upload folder). Semua yang lain di proyek (src/, node_modules asli, scripts, .git, dll.) TIDAK perlu di-upload.
+- Isi paket lengkap & self-contained: npm install TIDAK diperlukan di server; cukup Setup Node.js App → root = folder hasil ekstrak → startup file = server.js → Restart.
+- Panduan upload langkah-demi-langkah tetap di dalam paket (PANDUAN-SHARED-HOSTING.md, Bahasa Indonesia).
+- Preview localhost tetap sehat + terverifikasi E2E setelah build & pack.
