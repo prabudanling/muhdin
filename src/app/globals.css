@@ -301,6 +301,10 @@
     animation: marquee-x var(--marquee-duration, 24s) linear infinite;
     will-change: transform;
   }
+  /* Task 23 — arah berlawanan utk baris logo maskapai (kiri ↔ kanan berselang) */
+  .animate-marquee-reverse {
+    animation-direction: reverse;
+  }
   .marquee-hover-pause:hover .animate-marquee {
     animation-play-state: paused;
   }
@@ -332,6 +336,7 @@
   @media (prefers-reduced-motion: reduce) {
     .animate-ken-burns,
     .animate-marquee,
+    .animate-marquee-reverse,
     .animate-scroll-hint {
       animation: none;
     }

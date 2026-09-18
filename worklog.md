@@ -656,3 +656,28 @@ Stage Summary:
 - Konten portal kini SELARAS 100% dengan sumber resmi: Nusuk hub menampilkan data resmi terkini (40jt+ pengguna, 12,4jt visa Masar, 1.673.230 Haji 1446, 18,5jt musim 2024–2025, kuota Indonesia 221.000) + 6 pilar layanan nusuk.sa + tautan resmi + catatan DGA & kesehatan — dlm 3 bahasa (id/en/ar) & RTL-safe.
 - Berita hidup dengan 4 rilis resmi (Nusuk Masar, 40jt pengguna, statistik Haji GASTAT, kuota Kemenag) — kredibilitas naik, konten total.
 - Paket shared hosting ter-rebuild (89.3 MB) — siap upload ulang ke cPanel.
+---
+Task ID: 23
+Agent: Z.ai Code (main orchestrator)
+Task: Beranda — tampilkan semua logo maskapai dunia yang melayani penerbangan ke Arab Saudi (permintaan user: "di beranda kamu bisa tampilkan semua logo airlines yang ada di dunia yang berangkat ke saudi arabia seluruh pesawat")
+
+Work Log:
+- Menulis scripts/fetch-airline-logos.mjs: daftar 76 maskapai dunia yang terbang ke Saudi (JED/MED/RUH/DMM — reguler & charter musiman umrah/haji), pengunduh logo dari 2 CDN (Kiwi images.kiwi.com utama, AirHex fallback), validasi magic bytes PNG, generator otomatis src/lib/airlines.ts
+- Hasil unduhan: 76/76 logo BERHASIL (100% dari Kiwi CDN, latar transparan, total ~230KB) → public/airlines/{IATA}.png; gagal 0
+- Struktur data: AIRLINES_INDONESIA (4: GA, ID, JT, SJ), AIRLINES_GCC (19: SV, XY, F3, EK, EY, FZ, G9, QR, GF, KU, J9, WY, OV, RJ, ME, IY, IA, IF, RQ), AIRLINES_ASIA (26: MH, OD, D7, SQ, TG, PR, 5J, VN, BG, BS, PK, PA, ER, PF, AI, IX, 6E, SG, UL, RA, H9, HY, ZT, KC, T5, J2), AIRLINES_AFRICA_EUROPE (27: MS, SM, NP, UJ, AT, TU, AH, LN, 8U, SD, 3T, J4, ET, KQ, WB, TC, UR, P4, TK, PC, VF, BA, AF, LH, AZ, A3, W6); AIRLINES_COUNT=76
+- globals.css: tambah .animate-marquee-reverse (animation-direction: reverse) + masuk daftar prefers-reduced-motion reset
+- home-view.tsx: komponen baru AirlinesSection (disisipkan setelah NusukBar, sebelum Ekosistem) berisi:
+  * SectionHeading "Maskapai Dunia Terbang ke Tanah Suci"
+  * 4 statistik CountUp: 76+ Maskapai Global, 45+ Negara Asal, 4 Bandara Utama (JED·MED·RUH·DMM), 24/7 Operasi
+  * 4 kartu unggulan "Terbang Langsung dari Indonesia" (Garuda, Batik, Lion, Sriwijaya) — gradient forest + border gold + pola islamic + rute "Jakarta·Medan·Surabaya → Jeddah·Madinah"
+  * 3 baris marquee logo per kawasan (GCC 52s →, Asia 64s ← reverse, Afrika-Eropa 56s →) dengan pill kawasan gold, chip logo bg-white + nama maskapai + kode IATA, marquee-hover-pause, marquee-mask, copy kedua aria-hidden utk a11y, konten loop mulus (pe-3 sepadan gap-3)
+  * Catatan bawah: rute musiman dapat berubah + logo adalah merek dagang maskapai
+- locales/home.ts: blok home.airlines lengkap 3 bahasa (id/en/ar, 20 key per bahasa termasuk statAirlinesValue dsb)
+- Verifikasi: lint bersih; tsc 0 error di file baru/ubah (error pre-existing hanya di examples/, skills/, admin-dashboard); pkill+rm .next+restart dev server (Ready 657ms)
+- E2E Agent Browser: HOME 200; 148 img logo ter-render (144 marquee + 4 kartu); h2 "Maskapai Dunia Terbang ke Tanah Suci" ✓; EN "World Airlines Flying to the Holy Land" ✓; AR RTL penuh (dir=rtl, layout mirror, judul "شركات طيران العالم تتجه إلى الأرض المقدسة") ✓; dark mode premium (logo di tile putih tetap kontras) ✓; mobile 390px overflowX=0 ✓; marquee row1 bergerak kiri + row2 bergerak kanan (reverse) ✓; desktop overflow 0; console 0 error; footer sticky + Digiman ✓; dev.log bersih (hanya query normal, HTTP 200)
+
+Stage Summary:
+- Beranda kini memiliki section "Jaringan Penerbangan Global" dengan 76 logo maskapai asli dunia yang terbang ke Tanah Suci — terbesar di kelasnya untuk portal umrah/haji Indonesia
+- Artefak: scripts/fetch-airline-logos.mjs (rerunnable), public/airlines/*.png (76 file), src/lib/airlines.ts (generated), globals.css (+reverse), home-view.tsx (AirlinesSection), locales/home.ts (airlines 3 bahasa)
+- Total logo di halaman: 148 render (76 unik × loop + 4 unggulan), bobot total ~230KB, semua lazy-loaded
+- Keputusan: logo di-host lokal di public/ (bukan hotlink CDN) agar aman untuk shared hosting release; script mendukung re-run untuk menambah/refresh maskapai

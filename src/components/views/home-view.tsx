@@ -10,6 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { PARTNERS, CORE_VALUES, TECH_PILLARS, CLUSTERS, BRAND } from "@/lib/constants";
+import {
+  AIRLINES_INDONESIA,
+  AIRLINES_GCC,
+  AIRLINES_ASIA,
+  AIRLINES_AFRICA_EUROPE,
+  AIRLINES_COUNT,
+  AIRLINE_COUNTRIES,
+  airlineLogo,
+  type Airline,
+} from "@/lib/airlines";
 import { useT, formatDateL10n, formatNumberL10n, type Locale } from "@/lib/i18n";
 import type { Ecosystem, JourneyStep, Roadmap, Testimonial, Article, NusukPublicData } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -32,6 +42,14 @@ const PILLAR_KEYS = ["app", "gps", "ai", "nusuk", "dashboard", "multiBahasa"] as
 const PRIVACY_KEYS = ["priv1", "priv2", "priv3", "priv4"] as const;
 const BENEFIT_KEYS = ["b1", "b2", "b3", "b4", "b5", "b6", "b7"] as const;
 const NUSUK_BAR_KEYS = ["p1", "p2", "p3", "p4", "p5", "p6"] as const;
+
+/* Task 23 — statistik jaringan penerbangan global */
+const AIRLINE_STATS: { k: string; icon: string; num?: number; suffix?: string }[] = [
+  { k: "statAirlines", icon: "plane", num: AIRLINES_COUNT, suffix: "+" },
+  { k: "statCountries", icon: "globe", num: AIRLINE_COUNTRIES, suffix: "+" },
+  { k: "statAirports", icon: "map-pin", num: 4 },
+  { k: "statOps", icon: "clock" },
+];
 
 /* timeAgo versi i18n (label & satuan lewat kamus, angka via formatNumberL10n). */
 function timeAgoL10n(
@@ -763,6 +781,166 @@ function JoinCTA() {
   );
 }
 
+/* ================= AIRLINES GLOBAL — Task 23 ================= */
+function AirlineChip({ a }: { a: Airline }) {
+  return (
+    <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card py-2 ps-2 pe-3.5 shadow-sm">
+      <img
+        src={airlineLogo(a.code)}
+        alt={a.name}
+        width={36}
+        height={36}
+        loading="lazy"
+        className="h-9 w-9 shrink-0 rounded-lg bg-white object-contain p-0.5"
+      />
+      <div className="leading-tight">
+        <p className="whitespace-nowrap text-xs font-bold text-foreground">{a.name}</p>
+        <p className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold tracking-[0.12em] text-muted-foreground">
+          <Icon name="plane" className="h-2.5 w-2.5 text-gold-deep" />
+          {a.code} · SAUDI
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function AirlineRow({
+  airlines,
+  regionKey,
+  duration,
+  reverse,
+}: {
+  airlines: Airline[];
+  regionKey: string;
+  duration: number;
+  reverse?: boolean;
+}) {
+  const { t } = useT();
+  return (
+    <div dir="ltr" className="marquee-hover-pause marquee-mask relative overflow-hidden">
+      <div
+        className={cn("animate-marquee flex w-max items-stretch", reverse && "animate-marquee-reverse")}
+        style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
+      >
+        {[0, 1].map((copy) => (
+          <div
+            key={copy}
+            aria-hidden={copy === 1}
+            className="flex items-stretch gap-3 pe-3"
+          >
+            <span className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-gold to-gold-soft px-4 text-[11px] font-extrabold uppercase tracking-[0.14em] text-forest-deep shadow-sm">
+              <Icon name="plane-takeoff" className="h-3.5 w-3.5" />
+              {t(`home.airlines.${regionKey}`)}
+            </span>
+            {airlines.map((a) => (
+              <AirlineChip key={`${copy}-${a.code}`} a={a} />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AirlinesSection() {
+  const { t, locale } = useT();
+  return (
+    <section aria-label={t("home.airlines.aria")} className="py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("home.airlines.eyebrow")}
+          title={t("home.airlines.title")}
+          subtitle={t("home.airlines.subtitle")}
+        />
+
+        {/* Statistik jaringan — CountUp sinematik */}
+        <Reveal className="mt-10">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {AIRLINE_STATS.map((s) => (
+              <div
+                key={s.k}
+                className="flex items-center gap-3.5 rounded-2xl border bg-card p-4 shadow-sm"
+              >
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold-deep">
+                  <Icon name={s.icon} className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="whitespace-nowrap text-xl font-extrabold leading-none text-foreground sm:text-2xl">
+                    {s.num != null ? (
+                      <CountUp value={s.num} suffix={s.suffix ?? ""} locale={locale} />
+                    ) : (
+                      t(`home.airlines.${s.k}Value`)
+                    )}
+                  </div>
+                  <div className="mt-1.5 text-[11px] text-muted-foreground sm:text-xs">
+                    {t(`home.airlines.${s.k}`)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+
+        {/* Kartu unggulan — maskapai Indonesia */}
+        <Reveal className="mb-5 mt-12">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold-deep">
+              <Icon name="plane-takeoff" className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-extrabold leading-tight">{t("home.airlines.indonesiaTitle")}</h3>
+              <p className="text-xs text-muted-foreground">{t("home.airlines.indonesiaSub")}</p>
+            </div>
+          </div>
+        </Reveal>
+        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>
+          {AIRLINES_INDONESIA.map((a) => (
+            <StaggerItem key={a.code}>
+              <div className="group relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br from-forest-deep to-forest p-5 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                <div aria-hidden className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
+                <div className="relative flex items-center gap-3.5">
+                  <img
+                    src={airlineLogo(a.code)}
+                    alt={a.name}
+                    width={56}
+                    height={56}
+                    loading="lazy"
+                    className="h-14 w-14 shrink-0 rounded-xl bg-white object-contain p-1 shadow-md transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate font-extrabold leading-tight">{a.name}</p>
+                    <span className="mt-1.5 inline-flex items-center rounded-full border border-gold/30 bg-gold/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.14em] text-gold-soft">
+                      IATA {a.code}
+                    </span>
+                  </div>
+                </div>
+                <p className="relative mt-3.5 flex items-center gap-1.5 text-[11px] text-emerald-100/80">
+                  <Icon name="map-pin" className="h-3 w-3 shrink-0 text-gold" />
+                  {t("home.airlines.routes")}
+                </p>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+
+        {/* Marquee tiga kawasan — arah berselang-seling, hover jeda */}
+        <div className="mt-12 space-y-4">
+          <AirlineRow airlines={AIRLINES_GCC} regionKey="regionGcc" duration={52} />
+          <AirlineRow airlines={AIRLINES_ASIA} regionKey="regionAsia" duration={64} reverse />
+          <AirlineRow airlines={AIRLINES_AFRICA_EUROPE} regionKey="regionAfricaEurope" duration={56} />
+        </div>
+
+        <Reveal className="mt-8">
+          <p className="flex items-start justify-center gap-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+            <Icon name="info" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-deep" />
+            <span className="max-w-2xl">{t("home.airlines.note")}</span>
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 /* ================= MAIN ================= */
 export function HomeView() {
   const { t, locale } = useT();
@@ -808,6 +986,7 @@ export function HomeView() {
       <Hero />
       <NusukLiveStrip />
       <NusukBar />
+      <AirlinesSection />
       <EcosystemSection ecosystems={data.ecosystems} />
       <JourneySection steps={data.steps} />
       <PartnersSection />
