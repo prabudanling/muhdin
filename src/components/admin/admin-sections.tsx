@@ -47,6 +47,26 @@ const TUT_CAT_OPTS = ["Umum", "CMS", "Jamaah", "Mitra"].map((c) => ({ value: c, 
 const LEVEL_OPTS = ["Pemula", "Menengah", "Mahir"].map((c) => ({ value: c, label: c }));
 const FAQ_CAT_OPTS = ["Umum", "Keanggotaan", "Jamaah", "Teknologi"].map((c) => ({ value: c, label: c }));
 
+/**
+ * Task 18-d — tombol unduh laporan CSV (endpoint /api/export?type=…).
+ * Dipakai di header AdminMembers / AdminApplications / AdminMessages / AdminSubscribers.
+ */
+export function ExportCsvButton({ type, label = "Ekspor CSV" }: { type: string; label?: string }) {
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      className="h-9 shrink-0 text-primary border-primary/40 hover:bg-primary/10"
+      asChild
+    >
+      <a href={`/api/export?type=${type}`} download aria-label={`${label} (${type})`}>
+        <Icon name="download" className="h-4 w-4 mr-1.5" aria-hidden />
+        {label}
+      </a>
+    </Button>
+  );
+}
+
 /* ================= BERITA ================= */
 export function AdminArticles() {
   const config = {
@@ -232,7 +252,14 @@ export function AdminMembers() {
       ) },
     ] as ColumnDef<Member>[],
   };
-  return <CrudManager<Member> config={config} />;
+  return (
+    <div>
+      <div className="flex justify-end mb-2">
+        <ExportCsvButton type="members" />
+      </div>
+      <CrudManager<Member> config={config} />
+    </div>
+  );
 }
 
 /* ================= TUTORIAL ================= */
@@ -425,7 +452,7 @@ export function AdminMessages() {
           </h2>
           <p className="text-sm text-muted-foreground">Inbox pesan dari formulir kontak publik.</p>
         </div>
-        <div className="flex gap-2 sm:ml-auto">
+        <div className="flex flex-wrap gap-2 sm:ml-auto items-center">
           {filters.map((f) => (
             <button
               key={f.value}
@@ -437,6 +464,7 @@ export function AdminMessages() {
               {f.label}
             </button>
           ))}
+          <ExportCsvButton type="messages" />
         </div>
       </div>
 
@@ -675,15 +703,18 @@ export function AdminApplications() {
             </button>
           ))}
         </div>
-        <div className="relative sm:ml-auto sm:w-72">
-          <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari organisasi, izin, kontak…"
-            aria-label="Cari pendaftaran"
-            className="pl-9 h-9"
-          />
+        <div className="sm:ml-auto flex items-center gap-2">
+          <div className="relative sm:w-72 flex-1">
+            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cari organisasi, izin, kontak…"
+              aria-label="Cari pendaftaran"
+              className="pl-9 h-9"
+            />
+          </div>
+          <ExportCsvButton type="applications" />
         </div>
       </div>
 

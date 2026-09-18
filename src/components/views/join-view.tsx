@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { apiSend } from "@/lib/client-api";
+import { navigate } from "@/hooks/use-hash-route";
 import { Icon } from "@/components/site/icon";
 import { Reveal, SectionHeading } from "@/components/site/reveal";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,9 @@ export function JoinView() {
   const { toast } = useToast();
   const { t } = useT();
   const [loading, setLoading] = useState(false);
+  const [ticket, setTicket] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [copyFail, setCopyFail] = useState(false);
   const [form, setForm] = useState({
     orgName: "",
     type: "PPIU",
@@ -64,7 +68,13 @@ export function JoinView() {
   const submit = async () => {
     setLoading(true);
     try {
-      await apiSend("/api/applications", "POST", form);
+      const res = await apiSend<{ ticketCode?: string }>("/api/applications", "POST", form);
+      if (res?.ticketCode) {
+        // Task 18-c: respons kini memuat kode tiket — tampilkan kartu sukses.
+        setTicket(res.ticketCode);
+        setCopied(false);
+        setCopyFail(false);
+      }
       toast({
         title: t("join.toastSuccessTitle"),
         description: t("join.toastSuccessDesc"),
@@ -74,6 +84,18 @@ export function JoinView() {
       toast({ title: t("join.toastFailTitle"), description: (e as Error).message, variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const copyTicket = async () => {
+    if (!ticket) return;
+    try {
+      await navigator.clipboard.writeText(ticket);
+      setCopied(true);
+      setCopyFail(false);
+    } catch {
+      setCopied(false);
+      setCopyFail(true);
     }
   };
 
@@ -139,6 +161,59 @@ export function JoinView() {
 
             {/* Form */}
             <Reveal delay={0.1} className="lg:col-span-3">
+              {/* Kartu sukses + kode tiket — Task 18-c */}
+              {ticket && (
+                <div className="mb-6 rounded-3xl border border-primary/30 bg-card p-6 sm:p-8 shadow-md" role="status">
+                  <div className="flex items-start gap-3">
+                    <span className="shrink-0 h-11 w-11 rounded-xl bg-primary/10 grid place-items-center text-primary">
+                      <Icon name="check-circle-2" className="h-6 w-6" />
+                    </span>
+                    <div>
+                      <h3 className="font-extrabold text-lg text-primary">{t("join.ticketTitle")}</h3>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{t("join.ticketDesc")}</p>
+                    </div>
+                  </div>
+                  <div className="mt-5 rounded-2xl border bg-muted/40 p-5 text-center">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {t("join.ticketLabel")}
+                    </p>
+                    <p
+                      className="mt-2 font-mono text-3xl sm:text-4xl font-extrabold tracking-widest text-primary select-all break-all"
+                      dir="ltr"
+                    >
+                      {ticket}
+                    </p>
+                    <p className="mt-3 text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+                      <Icon name="info" className="h-3.5 w-3.5 shrink-0" />
+                      {t("join.ticketSave")}
+                    </p>
+                  </div>
+                  <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={copyTicket}
+                      aria-label={t("join.ticketCopyAria")}
+                      className="flex-1"
+                    >
+                      <Icon name={copied ? "check-circle-2" : "file-text"} className="h-4 w-4 me-1.5" />
+                      {copied ? t("join.ticketCopied") : t("join.ticketCopy")}
+                    </Button>
+                    <Button
+                      onClick={() => navigate("lacak")}
+                      aria-label={t("join.ticketTrackAria")}
+                      className="flex-1 bg-gradient-to-r from-primary to-forest text-white shadow-md hover:shadow-lg"
+                    >
+                      <Icon name="search" className="h-4 w-4 me-1.5" />
+                      {t("join.ticketTrack")}
+                    </Button>
+                  </div>
+                  {copyFail && (
+                    <p role="alert" className="mt-2 text-xs font-semibold text-destructive text-center">
+                      {t("join.ticketCopyFail")}
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="rounded-3xl border bg-card p-6 sm:p-8 shadow-sm">
                 <SectionHeading
                   align="left"

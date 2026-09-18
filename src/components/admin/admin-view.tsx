@@ -19,6 +19,13 @@ import {
 } from "@/components/admin/admin-sections";
 import { AdminUsers } from "@/components/admin/admin-users";
 import { AdminWhatsAppCard } from "@/components/admin/admin-whatsapp";
+import { AdminBell } from "@/components/admin/admin-bell";
+import { AdminGallery } from "@/components/admin/admin-gallery";
+import { AdminAgenda } from "@/components/admin/admin-agenda";
+import { AdminResources } from "@/components/admin/admin-resources";
+import { AdminComplaints } from "@/components/admin/admin-complaints";
+import { AdminSubscribers } from "@/components/admin/admin-subscribers";
+import { AdminAudit } from "@/components/admin/admin-audit";
 import { visibleSections, ROLE_LABELS } from "@/lib/roles";
 import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -34,11 +41,17 @@ const MENU = [
   { id: "applications", label: "Pendaftaran", icon: "user-plus" },
   { id: "tutorials", label: "Tutorial", icon: "graduation-cap" },
   { id: "messages", label: "Pesan Masuk", icon: "inbox" },
+  { id: "complaints", label: "Pengaduan", icon: "shield-alert" },
+  { id: "subscribers", label: "Pelanggan Berita", icon: "mail" },
   { id: "faqs", label: "FAQ", icon: "help-circle" },
   { id: "testimonials", label: "Testimoni", icon: "quote" },
   { id: "management", label: "Struktur Organisasi", icon: "users" },
   { id: "settings", label: "Pengaturan Situs", icon: "settings" },
   { id: "translator", label: "Penerjemah Cerdas", icon: "languages" },
+  { id: "gallery", label: "Galeri Kegiatan", icon: "instagram" },
+  { id: "agenda", label: "Agenda Kegiatan", icon: "calendar" },
+  { id: "resources", label: "Pusat Unduhan", icon: "download" },
+  { id: "audit", label: "Log Aktivitas", icon: "activity" },
   { id: "users", label: "Kelola Admin", icon: "user-cog" },
 ];
 
@@ -161,6 +174,7 @@ export function AdminView() {
               <h1 className="font-extrabold text-lg truncate">{current?.label || "Dashboard"}</h1>
             </div>
             <div className="ml-auto flex items-center gap-2">
+              <AdminBell onSection={setSection} />
               <ThemeSwitcher variant="compact" />
               <Button variant="ghost" size="sm" onClick={() => navigate("beranda")} className="hidden sm:inline-flex text-primary">
                 <Icon name="external-link" className="h-4 w-4 mr-1.5" />
@@ -181,6 +195,8 @@ export function AdminView() {
           {section === "applications" && <AdminApplications />}
           {section === "tutorials" && <AdminTutorials />}
           {section === "messages" && <AdminMessages />}
+          {section === "complaints" && <AdminComplaints />}
+          {section === "subscribers" && <AdminSubscribers />}
           {section === "faqs" && <AdminFaqs />}
           {section === "testimonials" && <AdminTestimonials />}
           {section === "management" && <AdminManagement />}
@@ -191,6 +207,10 @@ export function AdminView() {
             </>
           )}
           {section === "translator" && <AdminTranslator />}
+          {section === "gallery" && <AdminGallery />}
+          {section === "agenda" && <AdminAgenda />}
+          {section === "resources" && <AdminResources />}
+          {section === "audit" && <AdminAudit />}
           {section === "users" && <AdminUsers meId={user.id} />}
         </main>
 

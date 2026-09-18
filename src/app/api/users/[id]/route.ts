@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 import { hashPassword, requireSuperAdmin } from "@/lib/auth";
 import { ok, fail } from "@/lib/api-helpers";
 import { ROLES } from "@/lib/roles";
+import { logAudit } from "@/lib/audit"; // Task 18
 
 const SELECT = {
   id: true,
@@ -93,13 +94,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       await db.session.deleteMany({ where: { userId: id } }).catch(() => {});
     }
 
+    // Task 18 — jejak audit perubahan akun admin (tanpa data sensitif).
+    void logAudit(req, { action: "UPDATE", entity: "User", entityId: id, detail: `${updated.name} (${updated.role})` });
+
     return ok(updated);
   } catch {
     return fail("Gagal memperbarui akun admin.", 500);
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const me = await requireSuperAdmin();
   if (!me) return fail("Hanya Super Admin yang dapat mengelola akun admin.", 403);
   try {
@@ -116,6 +120,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
     // Sessions terhapus otomatis (onDelete: Cascade).
     await db.user.delete({ where: { id } });
+    // Task 18 — jejak audit penghapusan akun admin (tanpa data sensitif).
+    void logAudit(req, { action: "DELETE", entity: "User", entityId: id, detail: `${target.name} (${target.role})` });
     return ok({ deleted: true, id });
   } catch {
     return fail("Gagal menghapus akun admin.", 500);

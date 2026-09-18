@@ -16,11 +16,28 @@ const NAV_ITEMS = [
   { path: "nusuk" },
   { path: "ekosistem" },
   { path: "anggota" },
+  { path: "galeri" },
+  { path: "lacak" },
+  { path: "agenda" },
+  { path: "unduhan" },
+  { path: "lapor" },
   { path: "tutorial" },
   { path: "berita" },
   { path: "tentang" },
   { path: "kontak" },
 ] as const;
+
+/** Desktop dibatasi 8 item agar tidak sesak; sisanya tetap dijangkau via menu mobile & footer. */
+const DESKTOP_PATHS = new Set<string>([
+  "beranda",
+  "nusuk",
+  "ekosistem",
+  "anggota",
+  "galeri",
+  "lacak",
+  "berita",
+  "tentang",
+]);
 
 export function Navbar() {
   const route = useHashRoute();
@@ -55,7 +72,7 @@ export function Navbar() {
           </button>
 
           <nav className="hidden lg:flex items-center gap-1" aria-label={t("navbar.aria.nav")}>
-            {NAV_ITEMS.map((item) => (
+            {NAV_ITEMS.filter((item) => DESKTOP_PATHS.has(item.path)).map((item) => (
               <button
                 key={item.path}
                 onClick={() => go(item.path)}

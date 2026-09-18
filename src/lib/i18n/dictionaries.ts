@@ -16,6 +16,11 @@ import { newsDict } from "@/lib/i18n/locales/news";
 import { contactDict } from "@/lib/i18n/locales/contact";
 import { joinDict } from "@/lib/i18n/locales/join";
 import { nusukDict } from "@/lib/i18n/locales/nusuk";
+import { trackDict } from "@/lib/i18n/locales/track";
+import { galleryDict } from "@/lib/i18n/locales/gallery";
+import { agendaDict } from "@/lib/i18n/locales/agenda";
+import { downloadsDict } from "@/lib/i18n/locales/downloads";
+import { reportDict } from "@/lib/i18n/locales/report";
 
 const dicts = [
   commonDict,
@@ -32,6 +37,11 @@ const dicts = [
   contactDict,
   joinDict,
   nusukDict,
+  trackDict,
+  galleryDict,
+  agendaDict,
+  downloadsDict,
+  reportDict,
 ];
 
 export const dictionaries: Record<"id" | "en" | "ar", Record<string, unknown>> = {

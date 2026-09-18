@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 import { guardSuperAdmin, ok, fail } from "@/lib/api-helpers";
 import { ROLES } from "@/lib/roles";
+import { logAudit } from "@/lib/audit"; // Task 18
 
 export async function GET() {
   const denied = await guardSuperAdmin();
@@ -60,6 +61,8 @@ export async function POST(req: NextRequest) {
         createdAt: true,
       },
     });
+    // Task 18 — jejak audit pembuatan akun admin (tanpa data sensitif).
+    void logAudit(req, { action: "CREATE", entity: "User", entityId: user.id, detail: `${user.name} (${user.role})` });
     return ok(user, 201);
   } catch {
     return fail("Gagal menambahkan admin.", 500);

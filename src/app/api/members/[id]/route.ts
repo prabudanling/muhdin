@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardRole, ok, fail } from "@/lib/api-helpers";
+import { logAudit } from "@/lib/audit"; // Task 18
 
 export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   // Task 17 — VERIFIKATOR boleh memutakhirkan data/status anggota (verifikasi),
@@ -24,18 +25,22 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
     if (body.status !== undefined) data.status = String(body.status);
     if (body.memberSince !== undefined) data.memberSince = parseInt(body.memberSince, 10) || new Date().getFullYear();
     const member = await db.member.update({ where: { id }, data });
+    // Task 18 — jejak audit pemutakhiran anggota.
+    void logAudit(req, { action: "UPDATE", entity: "Member", entityId: id, detail: member.name });
     return ok(member);
   } catch {
     return fail("Gagal memperbarui anggota.", 500);
   }
 }
 
-export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
   if (denied) return denied;
   const { id } = await ctx.params;
   try {
     await db.member.delete({ where: { id } });
+    // Task 18 — jejak audit penghapusan anggota.
+    void logAudit(req, { action: "DELETE", entity: "Member", entityId: id });
     return ok({ success: true });
   } catch {
     return fail("Gagal menghapus anggota.", 500);

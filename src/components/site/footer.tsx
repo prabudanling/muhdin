@@ -1,9 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useHashRoute, navigate } from "@/hooks/use-hash-route";
+import { useToast } from "@/hooks/use-toast";
+import { apiSend } from "@/lib/client-api";
 import { MuhdinBrand } from "@/components/site/logo";
 import { Icon } from "@/components/site/icon";
 import { BRAND } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useT } from "@/lib/i18n";
 
 const NAV_LINKS: [path: string, key: string][] = [
@@ -18,7 +23,116 @@ const NAV_LINKS: [path: string, key: string][] = [
   ["gabung", "gabung"],
 ];
 
+/** Task 18-c — tautan cepat ke 5 halaman portal baru. */
+const QUICK_LINKS: [path: string, key: string][] = [
+  ["lacak", "lacak"],
+  ["galeri", "galeri"],
+  ["agenda", "agenda"],
+  ["unduhan", "unduhan"],
+  ["lapor", "lapor"],
+];
+
 const EKOSISTEM_KEYS = ["visa", "handling", "akomodasi", "raudah", "retail", "command"] as const;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type NewsMsg = { kind: "dup" | "error"; text: string };
+
+/** Form "Berlangganan Kabar" → POST /api/subscribers {email}. Sukses: toast; gagal: inline. */
+function NewsletterForm() {
+  const { t } = useT();
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<NewsMsg | null>(null);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMsg(null);
+    const value = email.trim();
+    if (!EMAIL_RE.test(value)) {
+      setMsg({ kind: "error", text: t("footer.newsErrInvalid") });
+      return;
+    }
+    setLoading(true);
+    try {
+      // Kontrak: 201 {ok:true} / duplikat 201 {ok:true,already:true} / 409 — semuanya ramah.
+      const res = await apiSend<{ ok?: boolean; already?: boolean }>("/api/subscribers", "POST", { email: value });
+      if (res?.already) {
+        setMsg({ kind: "dup", text: t("footer.newsDupMsg") });
+      } else {
+        toast({ title: t("footer.newsOkTitle"), description: t("footer.newsOkDesc") });
+        setEmail("");
+      }
+    } catch (err) {
+      const raw = ((err as Error).message || "").trim();
+      if (/sudah|terdaftar|already|exist|409/i.test(raw)) {
+        setMsg({ kind: "dup", text: t("footer.newsDupMsg") });
+      } else {
+        setMsg({ kind: "error", text: raw || t("footer.newsErrMsg") });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl bg-white/5 border border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center gap-4">
+      <div className="flex items-start gap-3 flex-1">
+        <span className="shrink-0 h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold">
+          <Icon name="bell" className="h-5 w-5" />
+        </span>
+        <div>
+          <h3 className="font-semibold text-white text-sm tracking-wide">{t("footer.newsTitle")}</h3>
+          <p className="mt-1 text-xs leading-relaxed text-emerald-100/70">{t("footer.newsDesc")}</p>
+        </div>
+      </div>
+      <div className="w-full lg:max-w-md">
+        <form onSubmit={submit} noValidate className="flex flex-col sm:flex-row gap-2">
+          <label htmlFor="newsletter-email" className="sr-only">
+            {t("footer.newsAria")}
+          </label>
+          <Input
+            id="newsletter-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t("footer.newsPlaceholder")}
+            aria-label={t("footer.newsAria")}
+            aria-invalid={msg?.kind === "error"}
+            autoComplete="email"
+            dir="ltr"
+            className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-emerald-100/40"
+          />
+          <Button
+            type="submit"
+            disabled={loading}
+            className="bg-gold text-forest-deep font-bold hover:bg-gold/90 shrink-0"
+          >
+            {loading ? (
+              <Icon name="loader-2" className="h-4 w-4 me-1.5 animate-spin" />
+            ) : (
+              <Icon name="send" className="h-4 w-4 me-1.5" />
+            )}
+            {t("footer.newsBtn")}
+          </Button>
+        </form>
+        {msg && (
+          <p
+            role="status"
+            className={
+              msg.kind === "dup"
+                ? "mt-2 text-xs font-semibold text-emerald-100/80"
+                : "mt-2 text-xs font-semibold text-gold"
+            }
+          >
+            {msg.text}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function Footer() {
   const route = useHashRoute();
@@ -31,7 +145,12 @@ export function Footer() {
     <footer className="mt-auto bg-forest-deep text-emerald-50/90">
       <div className="bg-islamic-pattern-gold">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
-          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+          {/* Newsletter — Task 18-c */}
+          <div className="mb-10">
+            <NewsletterForm />
+          </div>
+
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {/* Brand */}
             <div className="space-y-4">
               <div className="[&_div.text-\[10px\]]:text-emerald-100/70">
@@ -41,6 +160,23 @@ export function Footer() {
               <p className="font-arabic text-xl text-gold" dir="rtl">
                 {BRAND.arabic}
               </p>
+            </div>
+
+            {/* Tautan cepat — Task 18-c */}
+            <div>
+              <h3 className="font-semibold text-white mb-4 text-sm tracking-wide">{t("footer.colQuick")}</h3>
+              <ul className="space-y-2.5 text-sm">
+                {QUICK_LINKS.map(([path, key]) => (
+                  <li key={key}>
+                    <button
+                      onClick={() => go(path)}
+                      className="text-emerald-100/70 hover:text-gold transition-colors"
+                    >
+                      {t(`footer.quick.${key}`)}
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Navigasi */}

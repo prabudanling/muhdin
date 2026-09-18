@@ -124,10 +124,12 @@ export function waApplicationTemplate(a: {
   phone: string;
   city: string;
   licenseNo: string;
+  ticketCode: string; // Task 18 — kode tiket pelacakan publik
 }) {
   return [
     "📋 *Pendaftaran Anggota Baru — MUHDIN*",
     "",
+    `*Kode Tiket:* ${a.ticketCode}`,
     `*Organisasi:* ${a.orgName}`,
     `*Tipe:* ${a.type}`,
     `*Kontak:* ${a.contactName}`,
@@ -138,6 +140,25 @@ export function waApplicationTemplate(a: {
     "",
     "_Tinjau melalui CMS MUHDIN → Pendaftaran._",
   ].join("\n");
+}
+
+/** Task 18 — template pengaduan jamaah baru (halaman #/lapor). */
+export function waComplaintTemplate(c: {
+  name: string;
+  targetMember?: string | null;
+  category: string;
+}) {
+  return [
+    "⚠️ *Pengaduan Jamaah Baru — MUHDIN*",
+    "",
+    `*Pelapor:* ${c.name}`,
+    c.targetMember ? `*Penyelenggara Dilaporkan:* ${c.targetMember}` : null,
+    `*Kategori:* ${c.category}`,
+    "",
+    "_Tinjau melalui CMS MUHDIN → Pengaduan._",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 /* ================= NOTIFIER (gagal-aman, fire-and-forget) ================= */
@@ -163,6 +184,24 @@ export async function notifyMembershipApplication(a: Parameters<typeof waApplica
     const cfg = await getWhatsAppSetting();
     if (!cfg.enabled || !cfg.notifyApplication) return;
     const res = await sendWhatsAppMessage(waApplicationTemplate(a));
+    await db.whatsAppSetting
+      .update({
+        where: { id: cfg.id },
+        data: { lastTestAt: new Date(), lastTestStatus: `${res.sent ? "OK" : "GAGAL"} — ${res.detail.slice(0, 180)}` },
+      })
+      .catch(() => {});
+  } catch {
+    /* notifikasi tidak boleh mengganggu alur utama */
+  }
+}
+
+// Task 18 — notifikasi pengaduan jamaah (mengikuti saklar "pesan kontak",
+// karena pengaduan adalah laporan masuk dari publik).
+export async function notifyComplaint(c: Parameters<typeof waComplaintTemplate>[0]) {
+  try {
+    const cfg = await getWhatsAppSetting();
+    if (!cfg.enabled || !cfg.notifyContact) return;
+    const res = await sendWhatsAppMessage(waComplaintTemplate(c));
     await db.whatsAppSetting
       .update({
         where: { id: cfg.id },

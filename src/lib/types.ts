@@ -101,6 +101,7 @@ export interface MembershipApplication {
   licenseNo: string;
   message: string | null;
   status: string;
+  ticketCode?: string;
   reviewNote?: string | null;
   reviewedBy?: string | null;
   reviewedAt?: string | null;
@@ -143,6 +144,8 @@ export interface AdminStats {
   pendingMembers: number;
   unreadMessages: number;
   pendingApplications: number;
+  unreadComplaints?: number;
+  subscribers?: number;
   totalViews: number;
   testimonials: number;
   faqs: number;
@@ -182,6 +185,89 @@ export interface WhatsAppConfig {
   tokenMasked: string;
   lastTestAt: string | null;
   lastTestStatus: string;
+}
+
+// ==================== KELENGKAPAN PORTAL (Task 18) ====================
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  caption: string | null;
+  category: string;
+  imageUrl: string;
+  order: number;
+  published: boolean;
+  createdAt: string;
+}
+
+export interface EventItem {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  startsAt: string;
+  endsAt: string | null;
+  category: string;
+  published: boolean;
+  createdAt: string;
+}
+
+export interface ResourceItem {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  fileUrl: string;
+  fileType: string;
+  published: boolean;
+  downloads: number;
+  createdAt: string;
+}
+
+export interface SubscriberItem {
+  id: string;
+  email: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ComplaintItem {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  targetMember: string | null;
+  category: string;
+  content: string;
+  status: string; // UNREAD | PROCESSED | CLOSED
+  responseNote: string | null;
+  respondedBy: string | null;
+  respondedAt: string | null;
+  createdAt: string;
+}
+
+export interface AuditLogItem {
+  id: string;
+  userId: string | null;
+  userName: string;
+  role: string;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  detail: string | null;
+  createdAt: string;
+}
+
+/** Hasil pelacakan publik — data sensitif disamarkan. */
+export interface TrackResult {
+  found: boolean;
+  ticketCode: string;
+  orgName: string;
+  type: string;
+  status: string;
+  submittedAt: string;
+  reviewedAt: string | null;
+  reviewNote: string | null;
 }
 
 // ==================== NUSUK ====================

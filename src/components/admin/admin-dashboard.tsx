@@ -31,7 +31,7 @@ export function AdminDashboard({ onNavigate }: { onNavigate: (s: string) => void
     return (
       <div className="space-y-5">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
+          {Array.from({ length: 10 }).map((_, i) => (
             <Skeleton key={i} className="h-28 rounded-2xl" />
           ))}
         </div>
@@ -46,6 +46,8 @@ export function AdminDashboard({ onNavigate }: { onNavigate: (s: string) => void
     { label: "Total Dilihat", value: stats.totalViews, icon: "eye", section: "articles", tone: "text-gold-deep bg-gold/15" },
     { label: "Pesan Belum Dibaca", value: stats.unreadMessages, icon: "inbox", section: "messages", tone: "text-destructive bg-destructive/10", alert: stats.unreadMessages > 0 },
     { label: "Pendaftaran Menunggu", value: stats.pendingApplications, icon: "user-plus", section: "applications", tone: "text-destructive bg-destructive/10", alert: stats.pendingApplications > 0 },
+    { label: "Pengaduan Baru", value: stats.unreadComplaints ?? 0, icon: "shield-alert", section: "complaints", tone: "text-destructive bg-destructive/10", alert: (stats.unreadComplaints ?? 0) > 0 },
+    { label: "Pelanggan Newsletter", value: stats.subscribers ?? 0, icon: "mail", section: "subscribers", tone: "text-primary bg-primary/10" },
     { label: "FAQ", value: stats.faqs, icon: "help-circle", section: "faqs", tone: "text-primary bg-primary/10" },
     { label: "Testimoni", value: stats.testimonials, icon: "quote", section: "testimonials", tone: "text-gold-deep bg-gold/15" },
   ];

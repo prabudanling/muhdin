@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardRole, ok, fail } from "@/lib/api-helpers";
 import { localeFromRequest, applyEntityTranslations } from "@/lib/i18n-server";
+import { logAudit } from "@/lib/audit"; // Task 18
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,6 +34,12 @@ export async function PUT(req: NextRequest) {
         create: { key, value: String(value ?? "") },
       });
     }
+    // Task 18 — jejak audit perubahan pengaturan (hanya nama kunci, tanpa isi).
+    void logAudit(req, {
+      action: "UPDATE",
+      entity: "Settings",
+      detail: Object.keys(body).slice(0, 10).join(", ").slice(0, 180),
+    });
     const settings = await db.siteSetting.findMany();
     const map: Record<string, string> = {};
     settings.forEach((s) => (map[s.key] = s.value));

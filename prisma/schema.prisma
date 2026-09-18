@@ -87,7 +87,6 @@ model Roadmap {
 }
 
 // ==================== KEANGGOTAAN ====================
-
 model Member {
   id          String   @id @default(cuid())
   name        String
@@ -119,6 +118,7 @@ model MembershipApplication {
   licenseNo   String
   message     String?
   status      String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  ticketCode  String    @default("") @unique // kode pelacakan publik (Task 18)
   reviewNote  String? // catatan verifikator (wajib saat menolak)
   reviewedBy  String? // nama akun verifikator yang memproses
   reviewedAt  DateTime?
@@ -272,4 +272,88 @@ model WhatsAppSetting {
   lastTestStatus    String    @default("")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+}
+
+// ==================== KELENGKAPAN PORTAL (Task 18) ====================
+
+/// Galeri kegiatan/dokumentasi — tampil di halaman publik #/galeri.
+model Gallery {
+  id        String   @id @default(cuid())
+  title     String
+  caption   String?
+  category  String   @default("Kegiatan") // Kegiatan | Perjalanan | Manasik | Fasilitas
+  imageUrl  String
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Agenda kegiatan mendatang & lampau — #/agenda.
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  location    String
+  startsAt    DateTime
+  endsAt      DateTime?
+  category    String    @default("Kegiatan") // Kegiatan | Pelatihan | Rakernas | Safari
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+/// Pusat unduhan — formulir, panduan, dokumen resmi. #/unduhan
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String   @default("Formulir") // Formulir | Panduan | Kebijakan | Lainnya
+  fileUrl     String
+  fileType    String   @default("PDF")
+  published   Boolean  @default(true)
+  downloads   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Pelanggan berlangganan kabar/newsletter (footer publik).
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+/// Pengaduan/laporan jamaah terhadap penyelenggara anggota. #/lapor
+model Complaint {
+  id            String    @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  targetMember  String? // nama penyelenggara yang dilaporkan (opsional)
+  category      String    @default("Pelayanan") // Pelayanan | Pembayaran | Itinerary | Lainnya
+  content       String
+  status        String    @default("UNREAD") // UNREAD | PROCESSED | CLOSED
+  responseNote  String? // tindak lanjut admin
+  respondedBy   String?
+  respondedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+/// Log aktivitas admin (jejak audit) — hanya Super Admin yang melihat.
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userName  String   @default("sistem")
+  role      String   @default("")
+  action    String // LOGIN | APPROVE | REJECT | CREATE | UPDATE | DELETE | SYNC | EXPORT | ...
+  entity    String // Application | Member | Article | ...
+  entityId  String?
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity, action])
 }

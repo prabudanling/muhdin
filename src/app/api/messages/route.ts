@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
 import { notifyContactMessage } from "@/lib/whatsapp";
+import { rateLimit } from "@/lib/ratelimit";
 
 export async function GET(req: NextRequest) {
   const denied = await guardAdmin();
@@ -19,6 +20,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  // Task 18 — rem spam: maksimal 5 pesan/menit per IP.
+  if (!rateLimit(req, "messages")) {
+    return fail("Terlalu banyak percobaan. Coba lagi beberapa saat.", 429);
+  }
   try {
     const body = await req.json();
     const name = String(body.name || "").trim();

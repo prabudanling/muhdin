@@ -2,6 +2,30 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { guardAdmin, ok, fail } from "@/lib/api-helpers";
 import { notifyMembershipApplication } from "@/lib/whatsapp";
+import { rateLimit } from "@/lib/ratelimit";
+
+// Task 18 — alfabet kode tiket: A-Z tanpa I/O + angka 2-9 (hindari salah baca).
+const TICKET_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+/** Task 18 — kode tiket unik MHD-XXXXXX (loop cek unik di DB). */
+async function generateTicketCode(): Promise<string> {
+  for (let attempt = 0; attempt < 25; attempt++) {
+    let code = "MHD-";
+    for (let i = 0; i < 6; i++) {
+      code += TICKET_CHARS[Math.floor(Math.random() * TICKET_CHARS.length)];
+    }
+    const exists = await db.membershipApplication.findUnique({ where: { ticketCode: code } });
+    if (!exists) return code;
+  }
+  // Cadangan (praktis tak terpakai): turunkan dari timestamp, tetap charset-sah.
+  let n = Date.now();
+  let fallback = "";
+  for (let i = 0; i < 6; i++) {
+    fallback = TICKET_CHARS[n % TICKET_CHARS.length] + fallback;
+    n = Math.floor(n / TICKET_CHARS.length);
+  }
+  return `MHD-${fallback}`;
+}
 
 export async function GET() {
   const denied = await guardAdmin();
@@ -15,6 +39,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  // Task 18 — rem spam: maksimal 5 pendaftaran/menit per IP.
+  if (!rateLimit(req, "applications")) {
+    return fail("Terlalu banyak percobaan. Coba lagi beberapa saat.", 429);
+  }
   try {
     const body = await req.json();
     const required = ["orgName", "type", "contactName", "email", "phone", "city", "licenseNo"];
@@ -22,6 +50,7 @@ export async function POST(req: NextRequest) {
       if (!String(body[f] || "").trim()) return fail(`Kolom ${f} wajib diisi.`);
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(body.email))) return fail("Format email tidak valid.");
+    const ticketCode = await generateTicketCode();
     const app = await db.membershipApplication.create({
       data: {
         orgName: String(body.orgName).trim(),
@@ -33,9 +62,10 @@ export async function POST(req: NextRequest) {
         province: String(body.province || "").trim(),
         licenseNo: String(body.licenseNo).trim(),
         message: body.message ? String(body.message) : null,
+        ticketCode, // Task 18 — kode pelacakan publik
       },
     });
-    // Task 15-d — notifikasi WhatsApp (fire-and-forget, gagal-aman).
+    // Task 15-d/18 — notifikasi WhatsApp (fire-and-forget, gagal-aman).
     void notifyMembershipApplication({
       orgName: app.orgName,
       type: app.type,
@@ -44,6 +74,7 @@ export async function POST(req: NextRequest) {
       phone: app.phone,
       city: app.city,
       licenseNo: app.licenseNo,
+      ticketCode: app.ticketCode,
     });
     return ok(app, 201);
   } catch {

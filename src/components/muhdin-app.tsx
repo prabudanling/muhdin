@@ -14,6 +14,11 @@ import { AboutView } from "@/components/views/about-view";
 import { ContactView } from "@/components/views/contact-view";
 import { JoinView } from "@/components/views/join-view";
 import { NusukView } from "@/components/views/nusuk-view";
+import { TrackView } from "@/components/views/track-view";
+import { GalleryView } from "@/components/views/gallery-view";
+import { AgendaView } from "@/components/views/agenda-view";
+import { DownloadsView } from "@/components/views/downloads-view";
+import { ReportView } from "@/components/views/report-view";
 import { AdminView } from "@/components/admin/admin-view";
 import { LocaleProvider, useT } from "@/lib/i18n";
 import { RegisterSW } from "@/components/pwa/register-sw";
@@ -95,6 +100,21 @@ export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en
       break;
     case "nusuk":
       content = <NusukView />;
+      break;
+    case "lacak":
+      content = <TrackView />;
+      break;
+    case "galeri":
+      content = <GalleryView />;
+      break;
+    case "agenda":
+      content = <AgendaView />;
+      break;
+    case "unduhan":
+      content = <DownloadsView />;
+      break;
+    case "lapor":
+      content = <ReportView />;
       break;
     case "admin":
       content = <AdminView />;

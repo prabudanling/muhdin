@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { guardRole, ok, fail } from "@/lib/api-helpers";
+import { logAudit } from "@/lib/audit"; // Task 18
 
 /**
  * Task 17 — Verifikasi keanggotaan.
@@ -47,6 +48,8 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
           },
         });
       }
+      // Task 18 — jejak audit persetujuan.
+      void logAudit(req, { action: "APPROVE", entity: "Application", entityId: id, detail: `Setujui ${app.orgName}` });
       return ok(app);
     }
 
@@ -63,6 +66,8 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
           reviewedAt: new Date(),
         },
       });
+      // Task 18 — jejak audit penolakan.
+      void logAudit(req, { action: "REJECT", entity: "Application", entityId: id, detail: `Tolak ${app.orgName}` });
       return ok(app);
     }
 
