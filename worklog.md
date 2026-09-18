@@ -571,3 +571,29 @@ Stage Summary:
 - Fitur "Jaringan Kepengurusan Daerah (DPD & Branch Office)" LIVE end-to-end: data DPD Jawa Barat (PIC Tn. H. Muhammad Lutfi Azmi +6281316516524, Branch Office MUHDIN JABAR Tasikmalaya) tampil di 2 halaman publik (#/tentang & #/kontak) dengan tombol WhatsApp & Google Maps, dikelola dari CMS modul baru, i18n 3 bahasa (id/en/ar RTL) termasuk terjemahan konten DB otomatis.
 - Artefak: schema RegionalBranch, 2 route API + audit, seed-task19.mjs, branches-section.tsx, admin-branches.tsx, locales/branches.ts — pola CrudManager/guardRole/audit/applyEntityTranslations konsisten dengan Task 14-18.
 - Menambah DPD/cabang baru berikutnya cukup dari CMS (Tambah) — tidak perlu ubah kode.
+
+---
+Task ID: 20 (The Crown Footer — kredit Digiman × JuraganWeb)
+Agent: Z.ai Code (main thread)
+Task: "developer by PT Digital Bisnis Manajemen ( digiman ) Support System JuraganWeb tapi buat footer termewah terbaik dan tercantik yang pernah ada di dunia ini" — redesign footer portal jadi "The Crown Footer".
+
+Work Log:
+- I18N: locales/footer.ts += 13 key × id/en/ar (colTech, develLabel, develName, develShort, supportLabel, supportName, crafted, trustPwa, trustLang, trustSecure, trustNusuk) — parity 3 locale; nama PT/JuraganWeb tetap Latin di semua bahasa (proper noun).
+- FOOTER REWRITE (src/components/site/footer.tsx) — 4 lapis kemewahan, tanpa dependensi/JS baru (CSS murni, memakai utilitas existing .text-gold-gradient [shimmer 6s], .gold-divider, .animate-float-soft, bg-islamic-pattern-gold):
+  1. AURORAE — hairline emas gold-divider di puncak footer + 2 glow ambient blur (gold start-atas, primary end-bawah), pointer-events-none + aria-hidden.
+  2. KOLOM — heading baru ColHead (belahan berlian emas dgn glow shadow + garis gradien ke emas); link baru FootLink (garis emas merambat masuk group-hover:w-3 + me-2, underline sweep w-full, text-start + max-w-full aman RTL & mobile); ikon sosial di-upgrade (rounded-xl border, hover: -translate-y-0.5 + gold ring + shadow); kolom brand += tagline shimmer "✦ Bersama Melayani Tamu Allah"; nav diberi <nav aria-label>.
+  3. PANEL MITRA TEKNOLOGI (bintang Task 20) — heading simetris diapit 2 gold-divider; kartu rounded-3xl border-gold/25 bg-white/[0.04] + shadow 70px + 2 glow blur (satu animate-float-soft); isi: Credit "DIKEMBANGKAN OLEH → PT Digital Bisnis Manajemen [badge Digiman]" (ikon building-2 cincin emas) + divider vertikal gradien (hidden mobile) + Credit "DIDUKUNG SISTEM → JuraganWeb" (ikon server) + watermark "MUHDIN ✦ 2026" shimmer (lg only); baris bawah panel: "Dibangun dengan ketelitian oleh Digiman — didukung sistem JuraganWeb" dgn ikon heart-handshake.
+  4. BAR KEPERCAYAAN + BAWAH — 4 chip fitur nyata (PWA offline, 3 Bahasa, Terkunci & Ter-Audit, Terhubung Nusuk) grid 2/4 truncate; bar bawah copyright + tagline dipertahankan.
+- Dipertahankan: NewsletterForm (logika POST /api/subscribers tidak diubah), penyembunyian di rute admin, mt-auto (sticky footer), kontrak t() + BRAND.name (bukan shortName — koreksi diri sebelum runtime).
+- Tidak menyentuh: API, schema, komponen lain, halaman lain.
+
+VERIFIKASI:
+- lint 0 error; tsc 0 error baru.
+- AGENT BROWSER E2E desktop 1440px: footer penuh terlihat — heading berlian emas, arabic kaligrafi + tagline shimmer, panel MITRA TEKNOLOGI dgn PT Digital Bisnis Manajemen [Digiman] + JuraganWeb + baris crafted, 4 badge kepercayaan, bar bawah.
+- Mobile 390px: scrollWidth 390 = clientWidth 390 (0 overflow); panel stack vertikal, badge 2 kolom truncate rapi.
+- Arab RTL (dir=rtl): seluruh footer termirror — heading, panel, badge; label terjemah "شركاء التكنولوجيا / المطوَّر بواسطة / نظام الدعم" tampil benar.
+- 0 page error, 0 console error; dev.log bersih; locale dikembalikan ke id setelah uji.
+
+Stage Summary:
+- Footer "The Crown Footer" LIVE di seluruh halaman portal: kredit developer PT Digital Bisnis Manajemen (Digiman) + Support System JuraganWeb tampil menonjol dgn gaya panel emas megah, plus bar kepercayaan fitur (PWA/3 bahasa/audit/Nusuk).
+- Semua elemen murni CSS (0 JS baru, 0 deps baru), token Spectrum 8, RTL-safe, mobile-safe, aksesibel (aria-hidden utk dekorasi, nav aria-label, kontras WCAG dipertahankan).

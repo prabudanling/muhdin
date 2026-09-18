@@ -1,5 +1,21 @@
 "use client";
 
+/**
+ * Task 20 — "The Crown Footer" — footer paling megah dalam sejarah MUHDIN.
+ *
+ * Lapisan kemewahan (semua token Spectrum 8 + utilitas globals.css):
+ *  1. Aurorae — hairline emas gold-divider di puncak + glow ambient blur.
+ *  2. Kolom dengan heading berlian emas & link sweep-emas saat hover.
+ *  3. Panel Mitra Teknologi: Developer PT Digital Bisnis Manajemen (Digiman)
+ *     + Support System JuraganWeb (Task 20 — permintaan klien).
+ *  4. Bar kepercayaan: PWA, 3 Bahasa, Ter-Audit, Terhubung Nusuk.
+ *  5. Bawah: copyright + tagline shimmer emas.
+ *
+ * RTL aman penuh (start/end/me/ms) — newsletter & navigasi berfungsi seperti
+ * sebelumnya; footer tetap tersembunyi di rute admin & menempel di dasar
+ * viewport (mt-auto).
+ */
+
 import { useState } from "react";
 import { useHashRoute, navigate } from "@/hooks/use-hash-route";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +49,16 @@ const QUICK_LINKS: [path: string, key: string][] = [
 ];
 
 const EKOSISTEM_KEYS = ["visa", "handling", "akomodasi", "raudah", "retail", "command"] as const;
+
+const SOCIALS = ["instagram", "facebook", "twitter", "youtube"] as const;
+
+/** Bar kepercayaan — fitur nyata hasil Task 14–18. */
+const TRUST_BADGES: [icon: string, key: string][] = [
+  ["badge-check", "trustPwa"],
+  ["languages", "trustLang"],
+  ["shield-check", "trustSecure"],
+  ["satellite", "trustNusuk"],
+];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -77,9 +103,9 @@ function NewsletterForm() {
   };
 
   return (
-    <div className="rounded-2xl bg-white/5 border border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center gap-4">
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 sm:p-6 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.6)] flex flex-col lg:flex-row lg:items-center gap-4">
       <div className="flex items-start gap-3 flex-1">
-        <span className="shrink-0 h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold">
+        <span className="shrink-0 h-10 w-10 rounded-xl grid place-items-center bg-gold/15 text-gold ring-1 ring-gold/30">
           <Icon name="bell" className="h-5 w-5" />
         </span>
         <div>
@@ -134,6 +160,76 @@ function NewsletterForm() {
   );
 }
 
+/* ---------- Elemen mewah Task 20 ---------- */
+
+/** Heading kolom: belahan berlian emas + garis rambut gradien. */
+function ColHead({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="mb-5 flex items-center gap-2.5 text-[13px] font-bold uppercase tracking-[0.18em] text-white">
+      <span
+        aria-hidden
+        className="h-1.5 w-1.5 shrink-0 rotate-45 bg-gold shadow-[0_0_10px_rgba(212,175,55,0.8)]"
+      />
+      <span>{children}</span>
+      <span aria-hidden className="h-px w-6 bg-gradient-to-r from-gold/60 to-transparent" />
+    </h3>
+  );
+}
+
+/** Link footer: garis emas merambat masuk + underline sweep saat hover. */
+function FootLink({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className="group inline-flex max-w-full items-center text-start text-sm text-emerald-100/70 outline-none transition-colors hover:text-gold focus-visible:text-gold"
+    >
+      <span
+        aria-hidden
+        className="h-px w-0 shrink-0 bg-gold/80 transition-all duration-300 group-hover:w-3 group-hover:me-2"
+      />
+      <span className="relative break-words">
+        {children}
+        <span
+          aria-hidden
+          className="absolute -bottom-0.5 start-0 h-px w-0 bg-gold/50 transition-all duration-300 group-hover:w-full"
+        />
+      </span>
+    </button>
+  );
+}
+
+/** Item kredit mitra teknologi — ikon cincin emas + nama + tag. */
+function Credit({
+  icon,
+  label,
+  name,
+  tag,
+}: {
+  icon: string;
+  label: string;
+  name: string;
+  tag?: string;
+}) {
+  return (
+    <div className="flex items-center gap-4 min-w-0">
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-gold/40 bg-gold/10 text-gold shadow-[0_8px_24px_-8px_rgba(212,175,55,0.45)]">
+        <Icon name={icon} className="h-6 w-6" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-gold/90">{label}</p>
+        <p className="mt-0.5 text-base font-extrabold leading-tight text-white break-words sm:text-lg">
+          {name}
+          {tag && (
+            <span className="ms-2 inline-block translate-y-[-1px] rounded-md border border-gold/30 bg-gold/10 px-2 py-0.5 align-middle text-[10px] font-bold text-gold">
+              {tag}
+            </span>
+          )}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function Footer() {
   const route = useHashRoute();
   const { t } = useT();
@@ -142,11 +238,22 @@ export function Footer() {
   const go = (path: string) => navigate(path);
 
   return (
-    <footer className="mt-auto bg-forest-deep text-emerald-50/90">
-      <div className="bg-islamic-pattern-gold">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
+    <footer className="relative mt-auto overflow-hidden bg-forest-deep text-emerald-50/90">
+      {/* 1 — Aurorae: hairline emas + glow ambient */}
+      <div className="gold-divider relative z-10" aria-hidden />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -start-[10%] h-72 w-72 rounded-full bg-gold/10 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -end-[8%] h-80 w-80 rounded-full bg-primary/20 blur-3xl"
+      />
+
+      <div className="bg-islamic-pattern-gold relative">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-14">
           {/* Newsletter — Task 18-c */}
-          <div className="mb-10">
+          <div className="mb-12">
             <NewsletterForm />
           </div>
 
@@ -157,65 +264,65 @@ export function Footer() {
                 <MuhdinBrand light />
               </div>
               <p className="text-sm leading-relaxed text-emerald-100/70">{t("footer.desc")}</p>
-              <p className="font-arabic text-xl text-gold" dir="rtl">
+              <p className="font-arabic text-2xl text-gold" dir="rtl">
                 {BRAND.arabic}
               </p>
+              <p className="text-gold-gradient inline-block text-sm font-extrabold tracking-wide">
+                ✦ {t("footer.tagline")}
+              </p>
+              <div className="flex gap-2 pt-1">
+                {SOCIALS.map((s) => (
+                  <a
+                    key={s}
+                    href="#/kontak"
+                    aria-label={s.charAt(0).toUpperCase() + s.slice(1)}
+                    className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-emerald-100/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-gold/15 hover:text-gold hover:shadow-[0_8px_20px_-6px_rgba(212,175,55,0.4)]"
+                  >
+                    <Icon name={s} className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
             </div>
 
             {/* Tautan cepat — Task 18-c */}
-            <div>
-              <h3 className="font-semibold text-white mb-4 text-sm tracking-wide">{t("footer.colQuick")}</h3>
+            <nav aria-label={t("footer.colQuick")}>
+              <ColHead>{t("footer.colQuick")}</ColHead>
               <ul className="space-y-2.5 text-sm">
                 {QUICK_LINKS.map(([path, key]) => (
                   <li key={key}>
-                    <button
-                      onClick={() => go(path)}
-                      className="text-emerald-100/70 hover:text-gold transition-colors"
-                    >
-                      {t(`footer.quick.${key}`)}
-                    </button>
+                    <FootLink onClick={() => go(path)}>{t(`footer.quick.${key}`)}</FootLink>
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
 
             {/* Navigasi */}
-            <div>
-              <h3 className="font-semibold text-white mb-4 text-sm tracking-wide">{t("footer.colNav")}</h3>
+            <nav aria-label={t("footer.colNav")}>
+              <ColHead>{t("footer.colNav")}</ColHead>
               <ul className="space-y-2.5 text-sm">
                 {NAV_LINKS.map(([path, key], i) => (
                   <li key={`${path}-${i}`}>
-                    <button
-                      onClick={() => go(path)}
-                      className="text-emerald-100/70 hover:text-gold transition-colors"
-                    >
-                      {t(`footer.nav.${key}`)}
-                    </button>
+                    <FootLink onClick={() => go(path)}>{t(`footer.nav.${key}`)}</FootLink>
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
 
             {/* Ekosistem */}
-            <div>
-              <h3 className="font-semibold text-white mb-4 text-sm tracking-wide">{t("footer.colEcosystem")}</h3>
+            <nav aria-label={t("footer.colEcosystem")}>
+              <ColHead>{t("footer.colEcosystem")}</ColHead>
               <ul className="space-y-2.5 text-sm">
                 {EKOSISTEM_KEYS.map((k) => (
                   <li key={k}>
-                    <button
-                      onClick={() => go("ekosistem")}
-                      className="text-emerald-100/70 hover:text-gold transition-colors"
-                    >
-                      {t(`footer.eco.${k}`)}
-                    </button>
+                    <FootLink onClick={() => go("ekosistem")}>{t(`footer.eco.${k}`)}</FootLink>
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
 
             {/* Kontak */}
             <div>
-              <h3 className="font-semibold text-white mb-4 text-sm tracking-wide">{t("footer.colContact")}</h3>
+              <ColHead>{t("footer.colContact")}</ColHead>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start gap-2.5">
                   <Icon name="mail" className="h-4 w-4 mt-0.5 text-gold shrink-0" />
@@ -234,27 +341,83 @@ export function Footer() {
                   <span className="text-emerald-100/70" dir="ltr">www.muhdin.web.id</span>
                 </li>
               </ul>
-              <div className="flex gap-2 mt-4">
-                {["instagram", "facebook", "twitter", "youtube"].map((s) => (
-                  <a
-                    key={s}
-                    href="#/kontak"
-                    aria-label={s}
-                    className="h-9 w-9 grid place-items-center rounded-lg bg-white/5 hover:bg-gold/20 hover:text-gold transition-colors"
-                  >
-                    <Icon name={s} className="h-4 w-4" />
-                  </a>
-                ))}
-              </div>
             </div>
+          </div>
+
+          {/* 2 — Panel Mitra Teknologi (Task 20): Digiman × JuraganWeb */}
+          <div className="mt-14">
+            <div className="mb-5 flex items-center gap-4" aria-hidden>
+              <span className="gold-divider flex-1" />
+              <p className="shrink-0 text-[11px] font-bold uppercase tracking-[0.3em] text-gold">
+                {t("footer.colTech")}
+              </p>
+              <span className="gold-divider flex-1" />
+            </div>
+            <div
+              className="relative overflow-hidden rounded-3xl border border-gold/25 bg-white/[0.04] p-6 shadow-[0_24px_70px_-28px_rgba(0,0,0,0.65)] sm:p-8"
+              aria-label={t("footer.colTech")}
+            >
+              <div
+                aria-hidden
+                className="animate-float-soft pointer-events-none absolute -top-24 -end-20 h-56 w-56 rounded-full bg-gold/10 blur-3xl"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -bottom-28 -start-16 h-56 w-56 rounded-full bg-primary/15 blur-3xl"
+              />
+              <div className="relative flex flex-col items-start gap-6 lg:flex-row lg:items-center">
+                <Credit
+                  icon="building-2"
+                  label={t("footer.develLabel")}
+                  name={t("footer.develName")}
+                  tag={t("footer.develShort")}
+                />
+                <div
+                  aria-hidden
+                  className="hidden lg:block h-12 w-px bg-gradient-to-b from-transparent via-gold/50 to-transparent"
+                />
+                <Credit
+                  icon="server"
+                  label={t("footer.supportLabel")}
+                  name={t("footer.supportName")}
+                />
+                <p className="hidden lg:ms-auto lg:block text-sm italic text-emerald-100/60">
+                  <span className="text-gold-gradient font-extrabold not-italic">
+                    {BRAND.name}
+                  </span>{" "}
+                  ✦ 2026
+                </p>
+              </div>
+              {/* Baris kredit penuh (mobile & desktop) */}
+              <p className="relative mt-6 flex items-center justify-center gap-2 border-t border-white/10 pt-4 text-center text-xs text-emerald-100/60">
+                <Icon name="heart-handshake" className="h-4 w-4 shrink-0 text-gold" />
+                {t("footer.crafted")}
+              </p>
+            </div>
+          </div>
+
+          {/* 3 — Bar kepercayaan */}
+          <div className="mt-8 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+            {TRUST_BADGES.map(([icon, key]) => (
+              <div
+                key={key}
+                className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[11px] font-semibold text-emerald-100/80 transition-colors hover:border-gold/30 hover:text-white sm:text-xs"
+              >
+                <Icon name={icon} className="h-4 w-4 shrink-0 text-gold" />
+                <span className="truncate">{t(`footer.${key}`)}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10">
+      {/* 4 — Bar bawah */}
+      <div className="relative border-t border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-emerald-100/60">
-            <p>{t("footer.copyright", { year: new Date().getFullYear(), brand: BRAND.fullName })}</p>
+          <div className="flex flex-col items-center justify-between gap-3 text-xs text-emerald-100/60 sm:flex-row">
+            <p className="text-center sm:text-start">
+              {t("footer.copyright", { year: new Date().getFullYear(), brand: BRAND.fullName })}
+            </p>
             <p className="flex items-center gap-1.5">
               <Icon name="sparkles" className="h-3.5 w-3.5 text-gold" />
               {t("footer.tagline")} — {t("footer.connecting")}
