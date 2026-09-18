@@ -132,7 +132,7 @@ function DirectoryTab() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="py-20 text-center">
-          <Icon name="search" className="h-10 w-10 mx-auto text-muted-foreground/40" />
+          <Icon aria-hidden name="search" className="h-10 w-10 mx-auto text-muted-foreground/60" />
           <p className="mt-3 text-muted-foreground">{t("members.empty")}</p>
         </div>
       ) : (
@@ -179,7 +179,7 @@ function DirectoryTab() {
                         name="star"
                         className={cn(
                           "h-3.5 w-3.5",
-                          s < Math.round(m.rating) ? "fill-gold text-gold" : "text-muted-foreground/30"
+                          s < Math.round(m.rating) ? "fill-gold-deep text-gold-deep" : "text-muted-foreground/30"
                         )}
                       />
                     ))}

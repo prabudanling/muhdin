@@ -57,7 +57,8 @@ export function MuhdinBrand({
       <MuhdinLogo className="h-9 w-9 shrink-0" />
       <div className="leading-none">
         <div className={`font-extrabold tracking-wide text-lg ${light ? "text-white" : "text-foreground"}`}>
-          MUH<span className="text-gold-gradient">DIN</span>
+          MUH
+          <span className={light ? "text-gold-gradient" : "text-gold-deep dark:text-gold"}>DIN</span>
         </div>
         {!compact && (
           <div className={`text-[10px] font-medium mt-0.5 ${light ? "text-emerald-100/80" : "text-muted-foreground"}`}>

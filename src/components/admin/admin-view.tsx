@@ -255,7 +255,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             ))}
           </div>
         </div>
-        <p className="relative text-xs text-emerald-100/50">© {new Date().getFullYear()} MUHDIN — Bersama Melayani Tamu Allah</p>
+        <p className="relative text-xs text-emerald-100/70">© {new Date().getFullYear()} MUHDIN — Bersama Melayani Tamu Allah</p>
       </div>
 
       {/* Form side */}

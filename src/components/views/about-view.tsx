@@ -60,7 +60,7 @@ export function AboutView() {
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 grid lg:grid-cols-2 gap-8">
           <Reveal>
-            <div className="h-full rounded-3xl border bg-gradient-to-br from-primary to-forest p-8 text-white shadow-lg relative overflow-hidden">
+            <div className="h-full rounded-3xl border bg-gradient-to-br from-forest to-forest-deep p-8 text-white shadow-lg relative overflow-hidden">
               <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
               <div className="relative">
                 <Icon name="target" className="h-8 w-8 text-gold" />
@@ -122,7 +122,7 @@ export function AboutView() {
             {PARTNERS.map((p, i) => (
               <Reveal key={p.code} delay={i * 0.05}>
                 <div className="rounded-xl border bg-card p-4 flex items-start gap-3">
-                  <div className="h-9 w-9 shrink-0 rounded-lg bg-gradient-to-br from-forest to-primary grid place-items-center text-gold">
+                  <div className="h-9 w-9 shrink-0 rounded-lg bg-gradient-to-br from-forest to-primary grid place-items-center text-gold-soft">
                     <Icon name={p.icon} className="h-4.5 w-4.5" />
                   </div>
                   <div>

@@ -16,9 +16,9 @@ import type { Tutorial } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const LEVEL_COLORS: Record<string, string> = {
-  Pemula: "bg-primary/10 text-primary border-primary/30",
-  Menengah: "bg-gold/15 text-gold-deep border-gold/40",
-  Mahir: "bg-forest/15 text-forest border-forest/40",
+  Pemula: "bg-primary/10 text-primary border-primary/30 dark:text-primary dark:bg-primary/15",
+  Menengah: "bg-gold/15 text-gold-deep border-gold/40 dark:text-gold dark:bg-gold/15",
+  Mahir: "bg-forest/15 text-forest border-forest/40 dark:text-emerald-100 dark:bg-forest/25 dark:border-forest/50",
 };
 
 export function TutorialView({ slug }: { slug?: string }) {

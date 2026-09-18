@@ -144,7 +144,7 @@ function NewsList() {
                             alt={a.title}
                             className="h-full w-full object-cover bg-gradient-to-br from-forest to-primary transition-transform duration-500 group-hover:scale-105"
                           />
-                          <Badge className="absolute top-3 start-3 bg-forest-deep/85 text-gold-soft backdrop-blur-sm border-none">
+                          <Badge className="absolute top-3 start-3 bg-forest-deep text-gold-soft border-none">
                             {categoryLabel(a.category)}
                           </Badge>
                         </div>

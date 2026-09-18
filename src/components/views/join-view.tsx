@@ -103,7 +103,7 @@ export function JoinView() {
             {PROCESS_STEPS.map((s, i) => (
               <Reveal key={s.titleKey} delay={i * 0.07}>
                 <div className="relative h-full rounded-2xl border bg-card p-5 shadow-sm overflow-hidden">
-                  <span className="absolute -right-2 -top-3 text-6xl font-extrabold text-primary/5 select-none">{i + 1}</span>
+                  <span aria-hidden className="absolute -right-2 -top-3 text-6xl font-extrabold text-primary/5 select-none">{i + 1}</span>
                   <div className="h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold-deep">
                     <Icon name={s.icon} className="h-5 w-5" />
                   </div>
@@ -132,7 +132,7 @@ export function JoinView() {
                       </li>
                     ))}
                   </ul>
-                  <p className="mt-8 text-xs text-emerald-100/60 leading-relaxed">{t("join.duesNote")}</p>
+                  <p className="mt-8 text-xs text-emerald-100/90 leading-relaxed">{t("join.duesNote")}</p>
                 </div>
               </div>
             </Reveal>

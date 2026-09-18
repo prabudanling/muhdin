@@ -79,7 +79,7 @@ export function AdminArticles() {
       ) },
       { key: "category", label: "Kategori", hideOnMobile: true, render: (a: Article) => <Badge variant="secondary" className="text-[10px]">{a.category}</Badge> },
       { key: "status", label: "Status", render: (a: Article) => <AdminBadge status={a.status} /> },
-      { key: "featured", label: "Utama", hideOnMobile: true, render: (a: Article) => a.featured ? <Icon name="star" className="h-4 w-4 fill-gold text-gold" /> : <span className="text-muted-foreground">—</span> },
+      { key: "featured", label: "Utama", hideOnMobile: true, render: (a: Article) => a.featured ? <Icon name="star" className="h-4 w-4 fill-gold-deep text-gold-deep" /> : <span className="text-muted-foreground">—</span> },
       { key: "views", label: "Dilihat", hideOnMobile: true, render: (a: Article) => <span className="text-muted-foreground">{a.views}×</span> },
     ] as ColumnDef<Article>[],
   };
@@ -227,7 +227,7 @@ export function AdminMembers() {
       { key: "status", label: "Status", render: (m: Member) => <AdminBadge status={m.status} /> },
       { key: "rating", label: "Rating", hideOnMobile: true, render: (m: Member) => (
         <span className="flex items-center gap-1 text-sm">
-          <Icon name="star" className="h-3.5 w-3.5 fill-gold text-gold" /> {m.rating.toFixed(1)}
+          <Icon name="star" className="h-3.5 w-3.5 fill-gold-deep text-gold-deep" /> {m.rating.toFixed(1)}
         </span>
       ) },
     ] as ColumnDef<Member>[],
@@ -327,7 +327,7 @@ export function AdminTestimonials() {
       ) },
       { key: "rating", label: "Rating", hideOnMobile: true, render: (t: Testimonial) => (
         <span className="flex items-center gap-1 text-sm">
-          <Icon name="star" className="h-3.5 w-3.5 fill-gold text-gold" /> {t.rating}
+          <Icon name="star" className="h-3.5 w-3.5 fill-gold-deep text-gold-deep" /> {t.rating}
         </span>
       ) },
       { key: "published", label: "Publik", render: (t: Testimonial) => (
@@ -421,7 +421,7 @@ export function AdminMessages() {
         <div>
           <h2 className="text-xl font-extrabold flex items-center gap-2">
             Pesan Masuk
-            {unreadCount > 0 && <Badge className="bg-destructive text-white">{unreadCount} baru</Badge>}
+            {unreadCount > 0 && <Badge className="danger-solid">{unreadCount} baru</Badge>}
           </h2>
           <p className="text-sm text-muted-foreground">Inbox pesan dari formulir kontak publik.</p>
         </div>
@@ -521,7 +521,7 @@ export function AdminMessages() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={doDelete}>
+            <AlertDialogAction className="danger-solid" onClick={doDelete}>
               Ya, Hapus
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -687,7 +687,7 @@ export function AdminApplications() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={doDelete}>
+            <AlertDialogAction className="danger-solid" onClick={doDelete}>
               Ya, Hapus
             </AlertDialogAction>
           </AlertDialogFooter>

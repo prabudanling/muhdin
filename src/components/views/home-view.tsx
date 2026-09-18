@@ -65,7 +65,7 @@ function Hero() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-24 sm:py-32 lg:py-36">
         <div className="max-w-3xl">
           <Reveal>
-            <Badge className="mb-5 bg-gold/20 text-gold border border-gold/40 hover:bg-gold/30 px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-semibold tracking-wide max-w-full">
+            <Badge className="mb-5 bg-gold/20 text-gold-soft border border-gold/40 hover:bg-gold/30 hover:text-gold-soft px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-semibold tracking-wide max-w-full">
               <Icon name="sparkles" className="h-3.5 w-3.5 mr-1.5 shrink-0" />
               <span className="truncate">{t("home.hero.badge")}</span>
             </Badge>
@@ -87,7 +87,7 @@ function Hero() {
               <Button
                 size="lg"
                 onClick={() => navigate("ekosistem")}
-                className="bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold shadow-xl hover:brightness-110 h-12 px-7 text-base"
+                className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold shadow-xl hover:brightness-105 h-12 px-7 text-base"
               >
                 {t("home.hero.ctaEcosystems")}
                 <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
@@ -111,7 +111,7 @@ function Hero() {
             {HERO_STAT_KEYS.map((k, i) => (
               <div
                 key={k}
-                className="glass rounded-2xl border border-white/15 p-4 sm:p-5 flex items-center gap-3.5"
+                className="rounded-2xl border border-white/15 bg-forest-deep/40 backdrop-blur-md p-4 sm:p-5 flex items-center gap-3.5"
               >
                 <div className="h-11 w-11 shrink-0 rounded-xl bg-gold/20 grid place-items-center text-gold">
                   <Icon name={HERO_STAT_ICONS[i]} className="h-5.5 w-5.5" />
@@ -212,7 +212,7 @@ function NusukBar() {
             </div>
             <div className="leading-tight">
               <p className="font-bold text-sm">{t("home.nusukBar.title")}</p>
-              <p className="text-[11px] text-emerald-100/75">{t("home.nusukBar.sub")}</p>
+              <p className="text-[11px] text-emerald-50/90">{t("home.nusukBar.sub")}</p>
             </div>
           </div>
           <div className="hidden lg:block h-10 w-px bg-white/20" />
@@ -222,7 +222,7 @@ function NusukBar() {
                 key={k}
                 className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium"
               >
-                <Icon name="check-circle-2" className="h-3.5 w-3.5 text-gold" />
+                <Icon name="check-circle-2" className="h-3.5 w-3.5 text-gold-soft" />
                 {t(`home.nusukBar.${k}`)}
               </span>
             ))}
@@ -355,7 +355,7 @@ function PartnersSection() {
             return (
               <Reveal key={p.code} delay={i * 0.07}>
                 <div className="group h-full rounded-2xl border bg-card p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-gold/50">
-                  <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold shadow-md group-hover:scale-110 transition-transform">
+                  <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold-soft shadow-md group-hover:scale-110 transition-transform">
                     <Icon name={p.icon} className="h-7 w-7" />
                   </div>
                   <h3 className="mt-4 font-extrabold text-primary tracking-wide">{t(`home.mitra.${k}.name`)}</h3>
@@ -469,7 +469,7 @@ function RoadmapSection({ roadmap }: { roadmap: Roadmap[] }) {
           {roadmap.map((r, i) => (
             <Reveal key={r.id} delay={i * 0.08}>
               <div className="relative h-full rounded-2xl border bg-card p-6 shadow-sm overflow-hidden">
-                <span className="absolute -right-3 -top-4 text-7xl font-extrabold text-primary/5 select-none">
+                <span aria-hidden className="absolute -right-3 -top-4 text-7xl font-extrabold text-primary/5 select-none">
                   {i + 1}
                 </span>
                 <Badge className="bg-gold/15 text-gold-deep border-gold/30 hover:bg-gold/25">{r.period}</Badge>
@@ -500,7 +500,7 @@ function BenefitsSection() {
           {BENEFIT_KEYS.map((k, i) => (
             <Reveal key={k} delay={i * 0.04}>
               <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-white/5 px-4 py-2 text-sm font-medium backdrop-blur-sm">
-                <Icon name="check-circle-2" className="h-4 w-4 text-gold" />
+                <Icon name="check-circle-2" className="h-4 w-4 text-gold-soft" />
                 {t(`home.manfaat.${k}`)}
               </span>
             </Reveal>
@@ -541,7 +541,7 @@ function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
                   </div>
                   <div className="flex gap-0.5">
                     {Array.from({ length: item.rating }).map((_, s) => (
-                      <Icon key={s} name="star" className="h-3.5 w-3.5 fill-gold text-gold" />
+                      <Icon key={s} name="star" className="h-3.5 w-3.5 fill-gold-deep text-gold-deep" />
                     ))}
                   </div>
                 </div>
@@ -587,7 +587,7 @@ function LatestNews({ articles }: { articles: Article[] }) {
                     alt={a.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <Badge className="absolute top-3 start-3 bg-forest-deep/85 text-gold-soft backdrop-blur-sm border-none">
+                  <Badge className="absolute top-3 start-3 bg-forest-deep text-gold-soft border-none">
                     {a.category}
                   </Badge>
                 </div>
@@ -617,7 +617,7 @@ function JoinCTA() {
     <section className="py-20">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-forest via-primary to-forest-deep p-10 sm:p-14 text-center shadow-2xl">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-forest-deep via-forest-deep to-forest p-10 sm:p-14 text-center shadow-2xl">
             <div className="absolute inset-0 bg-islamic-pattern-gold opacity-50" />
             <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-gold/20 blur-3xl animate-float-soft" />
             <div className="relative">
@@ -633,7 +633,7 @@ function JoinCTA() {
                 <Button
                   size="lg"
                   onClick={() => navigate("gabung")}
-                  className="bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold h-12 px-8 hover:brightness-110"
+                  className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold h-12 px-8 hover:brightness-105"
                 >
                   <Icon name="handshake" className="h-5 w-5 me-2" />
                   {t("home.cta.btnDaftar")}

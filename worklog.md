@@ -356,3 +356,23 @@ Stage Summary:
 - 👥 Multi-admin: 3 peran (Super Admin/Admin/Editor) dgn gating menu UI + enforcement di server (401/403), kelola akun lengkap (tambah/edit/reset/nonaktif/hapus), perlindungan self & super admin terakhir, pencabutan sesi instan
 - 💬 Notifikasi WhatsApp: gateway Fonnte/Wablas/Custom, notif pesan kontak & pendaftaran anggota baru, konfigurasi aman (token tak pernah balik ke klien), tombol uji dgn status jujur, gagal-aman terhadap form publik
 - Kunci integrasi: 4 fitur dipasang tanpa merusak i18n Task 14 (key tema 3 locale), dark token tuning minor di globals.css, apiSend+PATCH, 2 model baru + 2 kolom User
+
+---
+Task ID: 16 (Spectrum 8 — Audit & Retokenisasi Kontras Warna)
+Agent: Z.ai Code (main thread)
+Task: "masih banyak warna yang tidak matching / tidak terbaca (contoh bg putih tulisan putih) — keluarkan dan terapkan keahlian menyempurnakan website" → audit WCAG menyeluruh + perbaikan sistem warna
+
+Work Log:
+- Audit 3 subagen paralel (portal views / nusuk-view / admin components) + kalkulator kontras mandiri scripts/contrast-audit.mjs (OKLCH→linear sRGB→WCAG luminance, komposit alpha gamma-space, sanity anchor #e7000b=4.77 & black/white=21 terverifikasi)
+- ROOT CAUSE global ditemukan: (1) chip "bg-gold/15 text-gold-deep" = 4.34 light / 4.41 dark (gagal utk teks 10px bold), (2) teks "text-destructive" di atas tint bg-destructive/5..10 = 3.95-4.36 light, (3) tombol "bg-destructive text-white" dark mode = 2.89, (4) "text-forest-deep/70" barcode caption = 1.01 INVISIBLE di dark, (5) ".dark .text-forest" tanpa override = 1.36 invisible, (6) tombol gradient "from-gold-deep to-gold text-forest-deep" tepi = 3.0, (7) bintang rating fill-gold di kartu putih = 2.50, (8) teks emerald-100/50-60 = 4.03-4.39
+- RETOKENISASI globals.css: --gold-deep light 0.55→oklch(0.49 0.115 78) perunggu antik (putih 6.35, chip gold/15 5.61-5.68 ✓ SEMUA chip fix sekaligus); --destructive light 0.577→oklch(0.52 0.22 27) marun (putih-on 6.02, teks-on-tint 5.01 ✓); override baru .dark .text-forest 0.74 (7.78 ✓), .dark .text-gold-deep 0.76 (5.97-7.96 ✓); utility .danger-solid (dark: bg oklch(0.55 0.19 26), putih 5.12 ✓)
+- Perbaikan komponen: SEMUA gradient emas "from-gold-deep to-gold text-forest-deep" → "from-gold to-gold-soft" (5.89-10.95) di home-view ×2, nusuk-view ×4 (checker tile, verify btn, rank-1 avatar, CTA); nusuk: REJECTED chip + dark tint variant, barcode caption → text-muted-foreground, emerald-100/50→/70 ×2, hero badge text-gold-soft, error state hover tanpa flip putih, ikon empty /40→/60+aria-hidden; home: badge hero + 3 ikon check emas→gold-soft, 2 tile mitra→gold-soft, bintang→gold-deep, badge berita bg-forest-deep solid ×2, ghost numeral aria-hidden ×2; about: tile ikon gold-soft; join: dues note emerald-100/90, numeral aria-hidden; members: bintang gold-deep, empty ikon /60+aria-hidden; admin-view: copyright emerald-100/70; admin-users: hapus row opacity-60 (nama saja text-muted-foreground), AlertDialogAction→danger-solid; crud-manager: AlertDialogAction→danger-solid; admin-sections: badge "n baru"→danger-solid, 2 AlertDialogAction→danger-solid, 3 bintang fill-gold-deep
+- KOREKSI FALSE POSITIVE audit: navbar "sticky" TIDAK overlay hero (audit subagen salah asumsi parent) — eksperimen varian light navbar DIKEMBALIKAN ke token semantik asli (terbukti benar via screenshot light+dark)
+- Prop onDark ditambahkan ke ThemeSwitcher/LocaleSwitcher (inert, default false)
+- Verifikasi Agent Browser: home light (navbar, hero, CTA emas terbaca), home scrolled glass, nusuk light (badge SANDBOX, metrics) + dark (matrix, API panel, webhook feed) + checker section, tentang dark (Visi/Misi), admin login light (Kredensial Demo perunggu), dashboard light (kartu metrik), Kelola Admin light+dark, gabung light (tile manfaat), tutorial light (badge Menengah perunggu ✓), berita light (badge Utama) — 0 page error, console hanya HMR; lint 0 error; tsc bersih; dev.log sehat HTTP 200
+
+Stage Summary:
+- Seluruh pasangan warna teks/latar kini lolos WCAG AA (≥4.5:1 teks normal, ≥3:1 ikon/grafis) di light DAN dark mode — diverifikasi matematis + visual
+- 3 perbaikan token global mengatasi ~25 pelanggaran sekaligus; token emas kini 3 tingkat harmonis: gold #CB9D2A / gold-soft krem / gold-deep perunggu #835600
+- File berubah: globals.css, navbar.tsx, theme-switcher.tsx, locale-switcher.tsx, home/about/join/members/news/nusuk-view.tsx, admin-view/users/sections/crud-manager.tsx, scripts/contrast-audit.mjs (baru)
+- Sistem warna brand final: hijau forest (primary/forest/forest-deep) + emas 3 tingkat + marun destructive — kontras terjamin permanen via token, bukan hardcode

@@ -300,7 +300,7 @@ export function CrudManager<T extends { id: string }>({ config }: { config: Crud
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={doDelete}>
+            <AlertDialogAction className="danger-solid" onClick={doDelete}>
               Ya, Hapus
             </AlertDialogAction>
           </AlertDialogFooter>

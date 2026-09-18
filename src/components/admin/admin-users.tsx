@@ -192,14 +192,14 @@ export function AdminUsers({ meId }: { meId: string }) {
               {users.map((u) => {
                 const self = u.id === meId;
                 return (
-                  <tr key={u.id} className={cn("border-b last:border-0", !u.isActive && "opacity-60")}>
+                  <tr key={u.id} className="border-b last:border-0">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-forest grid place-items-center text-white font-bold text-sm shrink-0">
                           {u.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold truncate flex items-center gap-1.5">
+                          <p className={cn("font-bold truncate flex items-center gap-1.5", !u.isActive && "text-muted-foreground")}>
                             {u.name}
                             {self && (
                               <span className="text-[10px] font-bold text-primary bg-primary/10 rounded px-1.5 py-0.5">
@@ -378,7 +378,7 @@ export function AdminUsers({ meId }: { meId: string }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={doDelete} className="bg-destructive text-white hover:bg-destructive/90">
+            <AlertDialogAction onClick={doDelete} className="danger-solid">
               Ya, Hapus
             </AlertDialogAction>
           </AlertDialogFooter>

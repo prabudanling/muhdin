@@ -53,12 +53,13 @@ const STATUS_KEYS: Record<string, string> = {
   REJECTED: "nusuk.statusREJECTED",
 };
 
-/** Kelas warna status izin — label teks via kamus. */
+/** Kelas warna status izin — label teks via kamus.
+ *  REJECTED: dark mode memakai tint (destructive 0.704 terlalu terang utk teks putih) */
 const PERMIT_STATUS_CLS: Record<string, string> = {
   ACTIVE: "bg-primary text-white border-transparent shadow-md",
   PENDING: "bg-gold/15 text-gold-deep border-gold/50",
   EXPIRED: "bg-muted text-muted-foreground border-border",
-  REJECTED: "bg-destructive text-white border-transparent shadow-md",
+  REJECTED: "bg-destructive text-white border-transparent shadow-md dark:bg-destructive/15 dark:text-destructive dark:border-destructive/40 dark:shadow-none",
 };
 
 const LOG_TYPE_KEYS: Record<string, string> = {
@@ -265,13 +266,13 @@ function Hero({ data }: { data: NusukPublicData | null }) {
 
   return (
     <section className="relative bg-forest-deep text-white overflow-hidden" aria-labelledby="nusuk-hero-title">
-      <div className="absolute inset-0 bg-gradient-to-br from-forest via-forest-deep to-forest-deep" />
+      <div className="absolute inset-0 bg-gradient-to-br from-forest-deep via-forest-deep to-forest" />
       <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
       <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-gold/10 blur-3xl animate-float-soft" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20">
         <Reveal>
-          <Badge className="bg-gold/20 text-gold border border-gold/40 hover:bg-gold/30 px-3.5 py-1.5 text-[10px] sm:text-xs font-bold tracking-[0.18em]">
+          <Badge className="bg-gold/20 text-gold-soft border border-gold/40 hover:bg-gold/30 hover:text-gold-soft px-3.5 py-1.5 text-[10px] sm:text-xs font-bold tracking-[0.18em]">
             <Icon name="satellite" className="h-3.5 w-3.5 me-1.5 shrink-0" />
             NUSUK CONNECT
           </Badge>
@@ -476,7 +477,7 @@ function PermitChecker() {
         <div className="rounded-3xl border bg-card shadow-sm overflow-hidden">
           <div className="border-b bg-gradient-to-r from-primary/5 via-transparent to-gold/5 p-5 sm:p-6">
             <div className="flex items-center gap-3.5">
-              <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-gold-deep to-gold grid place-items-center text-forest-deep shadow-md">
+              <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-gold to-gold-soft grid place-items-center text-forest-deep shadow-md">
                 <Icon name="scan" className="h-6 w-6" strokeWidth={2.2} />
               </div>
               <div>
@@ -506,7 +507,7 @@ function PermitChecker() {
                 onClick={verify}
                 disabled={loading}
                 aria-label={t("nusuk.ariaVerifyNow")}
-                className="h-11 px-6 bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold hover:brightness-110 shrink-0"
+                className="h-11 px-6 bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold hover:brightness-105 shrink-0"
               >
                 {loading ? (
                   <Icon name="loader-2" className="h-4 w-4 me-2 animate-spin" />
@@ -573,7 +574,7 @@ function PermitChecker() {
                           "repeating-linear-gradient(90deg, transparent 0 2px, #d4af37 2px 3px, transparent 3px 6px, #d4af37 6px 9px, transparent 9px 10px, #d4af37 10px 11px, transparent 11px 15px)",
                       }}
                     />
-                    <p className="mt-1.5 text-center font-mono text-[10px] tracking-[0.2em] text-forest-deep/70" dir="ltr">
+                    <p className="mt-1.5 text-center font-mono text-[10px] tracking-[0.2em] text-muted-foreground" dir="ltr">
                       {result.permit.permitNo}
                     </p>
                   </div>
@@ -730,10 +731,10 @@ function EndpointRow({
         <p className="font-mono text-xs sm:text-[13px] font-semibold text-white break-all" dir="ltr">
           {path}
         </p>
-        <p className="mt-0.5 text-[11px] sm:text-xs text-emerald-100/60 leading-relaxed">{t(descKey)}</p>
+        <p className="mt-0.5 text-[11px] sm:text-xs text-emerald-100/70 leading-relaxed">{t(descKey)}</p>
       </div>
       <div className="flex items-center gap-2 shrink-0 sm:justify-end">
-        <span className="rounded-md bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-100/50">
+        <span className="rounded-md bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-100/70">
           {t(authKey)}
         </span>
         <CopyButton text={copy} label={path} />
@@ -817,7 +818,7 @@ function SyncFeedSection({ logs }: { logs: NusukSyncLog[] }) {
         <div className="mt-10 max-w-3xl mx-auto">
           {logs.length === 0 ? (
             <div className="rounded-2xl border bg-card p-10 text-center">
-              <Icon name="radar" className="h-10 w-10 mx-auto text-muted-foreground/40" />
+              <Icon aria-hidden name="radar" className="h-10 w-10 mx-auto text-muted-foreground/60" />
               <p className="mt-3 text-sm text-muted-foreground">{t("nusuk.feedEmpty")}</p>
             </div>
           ) : (
@@ -894,7 +895,7 @@ function TopMembersSection({ members }: { members: NusukPublicData["topMembers"]
                   className={cn(
                     "h-9 w-9 shrink-0 rounded-full grid place-items-center font-extrabold text-sm shadow-sm",
                     i === 0
-                      ? "bg-gradient-to-br from-gold-deep to-gold text-forest-deep"
+                      ? "bg-gradient-to-br from-gold to-gold-soft text-forest-deep"
                       : "bg-forest-deep text-gold-soft"
                   )}
                   aria-label={t("nusuk.ariaRank", { n: i + 1 })}
@@ -950,7 +951,7 @@ function CtaSection() {
     <section className="py-14 sm:py-20" aria-labelledby="nusuk-cta-title">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-forest via-primary to-forest-deep p-10 sm:p-14 text-center shadow-2xl">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-forest-deep via-forest-deep to-forest p-10 sm:p-14 text-center shadow-2xl">
             <div className="absolute inset-0 bg-islamic-pattern-gold opacity-50" />
             <div className="absolute -top-16 -left-16 h-48 w-48 rounded-full bg-gold/20 blur-3xl animate-float-soft" />
             <div className="relative">
@@ -966,7 +967,7 @@ function CtaSection() {
                   size="lg"
                   onClick={() => navigate("gabung")}
                   aria-label={t("nusuk.ariaJoin")}
-                  className="bg-gradient-to-r from-gold-deep to-gold text-forest-deep font-bold h-12 px-8 hover:brightness-110"
+                  className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold h-12 px-8 hover:brightness-105"
                 >
                   <Icon name="handshake" className="h-5 w-5 me-2" />
                   {t("nusuk.ctaJoin")}
@@ -1024,12 +1025,12 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
         <div role="alert" className="rounded-2xl border border-destructive/30 bg-destructive/10 p-8 text-center">
           <Icon name="alert-triangle" className="h-10 w-10 mx-auto text-destructive" />
           <h2 className="mt-3 text-lg font-extrabold text-destructive">{t("nusuk.errorTitle")}</h2>
-          <p className="mt-1.5 text-sm text-destructive/90">{message}</p>
+          <p className="mt-1.5 text-sm text-destructive">{message}</p>
           <Button
             variant="outline"
             onClick={onRetry}
             aria-label={t("nusuk.ariaRetry")}
-            className="mt-5 border-destructive/40 text-destructive hover:bg-destructive hover:text-white"
+            className="mt-5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20"
           >
             <Icon name="refresh" className="h-4 w-4 me-2" />
             {t("nusuk.retry")}

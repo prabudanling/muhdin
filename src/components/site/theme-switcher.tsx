@@ -30,7 +30,14 @@ const THEME_OPTIONS = [
   { value: "system", icon: "monitor", key: "common.themeSystem" },
 ] as const;
 
-export function ThemeSwitcher({ variant = "desktop" }: { variant?: "desktop" | "mobile" | "compact" }) {
+export function ThemeSwitcher({
+  variant = "desktop",
+  onDark = false,
+}: {
+  variant?: "desktop" | "mobile" | "compact";
+  /** true = trigger di atas latar gelap (navbar transparan) → teks terang */
+  onDark?: boolean;
+}) {
   const { t } = useT();
   const { theme, setTheme, resolvedTheme } = useTheme();
   // Deteksi hydration tanpa setState di effect (react-hooks/set-state-in-effect):
@@ -108,7 +115,10 @@ export function ThemeSwitcher({ variant = "desktop" }: { variant?: "desktop" | "
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 text-foreground/70 hover:text-primary"
+          className={cn(
+            "h-9 w-9",
+            onDark ? "text-white/80 hover:text-white hover:bg-white/10" : "text-foreground/70 hover:text-primary"
+          )}
           aria-label={t("common.ariaTheme")}
         >
           <Icon name={resolvedIcon} className="h-[1.05rem] w-[1.05rem]" />

@@ -13,7 +13,14 @@ import {
 import { cn } from "@/lib/utils";
 
 /** Pemilih bahasa (Indonesia / English / العربية) — dipakai di Navbar & Footer. */
-export function LocaleSwitcher({ variant = "desktop" }: { variant?: "desktop" | "mobile" }) {
+export function LocaleSwitcher({
+  variant = "desktop",
+  onDark = false,
+}: {
+  variant?: "desktop" | "mobile";
+  /** true = trigger di atas latar gelap (navbar transparan) → teks terang */
+  onDark?: boolean;
+}) {
   const { locale, setLocale, t } = useT();
   const active = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];
 
@@ -46,7 +53,10 @@ export function LocaleSwitcher({ variant = "desktop" }: { variant?: "desktop" | 
         <Button
           variant="ghost"
           size="sm"
-          className="gap-1.5 text-foreground/70 hover:text-primary"
+          className={cn(
+            "gap-1.5",
+            onDark ? "text-white/80 hover:text-white hover:bg-white/10" : "text-foreground/70 hover:text-primary"
+          )}
           aria-label={t("common.ariaLanguage")}
         >
           <Icon name="globe" className="h-4 w-4" />

@@ -1,0 +1,652 @@
+     1→"use client";
+     2→
+     3→import { useCallback, useEffect, useRef, useState } from "react";
+     4→import { apiGet, apiSend, formatDate, formatDateTime, maskKey, timeAgo } from "@/lib/client-api";
+     5→import { Icon } from "@/components/site/icon";
+     6→import { Button } from "@/components/ui/button";
+     7→import { Input } from "@/components/ui/input";
+     8→import { Label } from "@/components/ui/label";
+     9→import { Textarea } from "@/components/ui/textarea";
+    10→import { Badge } from "@/components/ui/badge";
+    11→import { Skeleton } from "@/components/ui/skeleton";
+    12→import { Switch } from "@/components/ui/switch";
+    13→import {
+    14→  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+    15→} from "@/components/ui/dialog";
+    16→import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+    17→import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+    18→import { useToast } from "@/hooks/use-toast";
+    19→import { CrudManager, AdminBadge } from "@/components/admin/crud-manager";
+    20→import type {
+    21→  ColumnDef, FieldDef,
+    22→} from "@/components/admin/crud-manager";
+    23→import type {
+    24→  Article, Ecosystem, JourneyStep, Roadmap, Member, Tutorial, Faq, Testimonial,
+    25→  ManagementMember, ContactMessage, MembershipApplication, SiteSettings,
+    26→  NusukConnection, NusukPermit, NusukPublicData, NusukSyncLog, NusukSyncResult,
+    27→} from "@/lib/types";
+    28→
+    29→// ====== SHARED OPTIONS ======
+    30→const CLUSTER_OPTS = ["Akses & Mobilitas", "Pengalaman Ibadah", "Nilai Tambah & Jaminan Mutu"].map((c) => ({ value: c, label: c }));
+    31→const TYPE_OPTS = [
+    32→  { value: "PPIU", label: "PPIU" },
+    33→  { value: "PIHK", label: "PIHK" },
+    34→  { value: "KBIHU", label: "KBIHU" },
+    35→  { value: "IPHI", label: "IPHI" },
+    36→  { value: "TRAVEL_WISATA", label: "Travel Wisata" },
+    37→];
+    38→const ICON_OPTS = [
+    39→  "passport", "plane-takeoff", "users", "plane-landing", "book-open", "building-2",
+    40→  "bus", "map", "landmark", "utensils", "shopping-bag", "clipboard-list", "shield-check",
+    41→  "moon-star", "award", "heart-handshake", "graduation-cap", "wallet", "smartphone",
+    42→  "map-pin", "brain-circuit", "git-merge", "layout-dashboard", "languages",
+    43→].map((i) => ({ value: i, label: i }));
+    44→
+    45→const CATEGORY_OPTS = ["Berita", "Pengumuman", "Artikel", "Press Release"].map((c) => ({ value: c, label: c }));
+    46→const TUT_CAT_OPTS = ["Umum", "CMS", "Jamaah", "Mitra"].map((c) => ({ value: c, label: c }));
+    47→const LEVEL_OPTS = ["Pemula", "Menengah", "Mahir"].map((c) => ({ value: c, label: c }));
+    48→const FAQ_CAT_OPTS = ["Umum", "Keanggotaan", "Jamaah", "Teknologi"].map((c) => ({ value: c, label: c }));
+    49→
+    50→/* ================= BERITA ================= */
+    51→export function AdminArticles() {
+    52→  const config = {
+    53→    title: "Berita & Artikel",
+    54→    description: "Kelola konten berita, pengumuman, artikel, dan press release portal MUHDIN.",
+    55→    endpoint: "/api/articles",
+    56→    itemName: "Artikel",
+    57→    searchKeys: ["title", "category", "author"],
+    58→    extraQuery: "?status=all",
+    59→    defaultItem: () => ({
+    60→      title: "", category: "Berita", author: "Tim MUHDIN", excerpt: "",
+    61→      content: "", cover: "/images/hero-kaaba.jpg", status: "PUBLISHED", featured: false,
+    62→    }),
+    63→    fields: [
+    64→      { key: "title", label: "Judul", type: "text", required: true, full: true } as FieldDef,
+    65→      { key: "category", label: "Kategori", type: "select", options: CATEGORY_OPTS, required: true },
+    66→      { key: "author", label: "Penulis", type: "text" },
+    67→      { key: "cover", label: "URL Gambar Sampul", type: "text", full: true, hint: "Contoh: /images/hero-kaaba.jpg" },
+    68→      { key: "excerpt", label: "Ringkasan (Excerpt)", type: "textarea", placeholder: "1-2 kalimat yang muncul di kartu berita…" },
+    69→      { key: "status", label: "Status", type: "select", options: [{ value: "PUBLISHED", label: "Terbit" }, { value: "DRAFT", label: "Draft" }], required: true },
+    70→      { key: "featured", label: "Jadikan Utama", type: "switch", hint: "Artikel utama tampil besar di halaman berita", full: true },
+    71→      { key: "content", label: "Konten (Markdown)", type: "markdown", placeholder: "## Sub-judul\n\nTulis konten di sini…" },
+    72→    ] as FieldDef[],
+    73→    columns: [
+    74→      { key: "title", label: "Judul", render: (a: Article) => (
+    75→        <div className="max-w-xs">
+    76→          <p className="font-semibold truncate">{a.title}</p>
+    77→          <p className="text-xs text-muted-foreground">{a.author}</p>
+    78→        </div>
+    79→      ) },
+    80→      { key: "category", label: "Kategori", hideOnMobile: true, render: (a: Article) => <Badge variant="secondary" className="text-[10px]">{a.category}</Badge> },
+    81→      { key: "status", label: "Status", render: (a: Article) => <AdminBadge status={a.status} /> },
+    82→      { key: "featured", label: "Utama", hideOnMobile: true, render: (a: Article) => a.featured ? <Icon name="star" className="h-4 w-4 fill-gold text-gold" /> : <span className="text-muted-foreground">—</span> },
+    83→      { key: "views", label: "Dilihat", hideOnMobile: true, render: (a: Article) => <span className="text-muted-foreground">{a.views}×</span> },
+    84→    ] as ColumnDef<Article>[],
+    85→  };
+    86→  return <CrudManager<Article> config={config} />;
+    87→}
+    88→
+    89→/* ================= EKOSISTEM ================= */
+    90→export function AdminEcosystems() {
+    91→  const config = {
+    92→    title: "13 Ekosistem MUHDIN",
+    93→    description: "Kelola arsitektur 13 ekosistem layanan — ruang lingkup, standar, dan ikon.",
+    94→    endpoint: "/api/ecosystems",
+    95→    itemName: "Ekosistem",
+    96→    searchKeys: ["name", "cluster", "scope"],
+    97→    defaultItem: () => ({ number: 1, name: "", cluster: "Akses & Mobilitas", icon: "hexagon", scope: "", standard: "", description: "" }),
+    98→    fields: [
+    99→      { key: "number", label: "Nomor Urut (1-13)", type: "number", required: true },
+   100→      { key: "name", label: "Nama Ekosistem", type: "text", required: true },
+   101→      { key: "cluster", label: "Klaster", type: "select", options: CLUSTER_OPTS, required: true },
+   102→      { key: "icon", label: "Ikon", type: "select", options: ICON_OPTS },
+   103→      { key: "scope", label: "Ruang Lingkup", type: "textarea" },
+   104→      { key: "standard", label: "Standar MUHDIN", type: "textarea" },
+   105→      { key: "description", label: "Deskripsi Lengkap", type: "textarea", placeholder: "Penjelasan 2-3 kalimat tentang ekosistem ini…" },
+   106→    ] as FieldDef[],
+   107→    columns: [
+   108→      { key: "number", label: "No", render: (e: Ecosystem) => <span className="font-extrabold text-primary">{String(e.number).padStart(2, "0")}</span> },
+   109→      { key: "name", label: "Nama", render: (e: Ecosystem) => (
+   110→        <div className="flex items-center gap-2.5">
+   111→          <div className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center text-primary shrink-0">
+   112→            <Icon name={e.icon} className="h-4 w-4" />
+   113→          </div>
+   114→          <div>
+   115→            <p className="font-semibold">{e.name}</p>
+   116→            <p className="text-xs text-muted-foreground line-clamp-1">{e.scope}</p>
+   117→          </div>
+   118→        </div>
+   119→      ) },
+   120→      { key: "cluster", label: "Klaster", hideOnMobile: true, render: (e: Ecosystem) => <Badge variant="secondary" className="text-[10px]">{e.cluster}</Badge> },
+   121→    ] as ColumnDef<Ecosystem>[],
+   122→  };
+   123→  return <CrudManager<Ecosystem> config={config} />;
+   124→}
+   125→
+   126→/* ================= ALUR ================= */
+   127→export function AdminJourney() {
+   128→  const config = {
+   129→    title: "Alur Perjalanan Jamaah (13 Tahap)",
+   130→    description: "Kelola tahapan end-to-end journey beserta aktor dan output digitalnya.",
+   131→    endpoint: "/api/journey",
+   132→    itemName: "Tahap",
+   133→    searchKeys: ["title", "actor", "activity"],
+   134→    defaultItem: () => ({ step: 1, title: "", activity: "", actor: "", output: "", icon: "circle" }),
+   135→    fields: [
+   136→      { key: "step", label: "Nomor Tahap", type: "number", required: true },
+   137→      { key: "title", label: "Judul Tahap", type: "text", required: true },
+   138→      { key: "icon", label: "Ikon", type: "select", options: ICON_OPTS },
+   139→      { key: "actor", label: "Aktor Utama", type: "text" },
+   140→      { key: "activity", label: "Aktivitas Utama", type: "textarea" },
+   141→      { key: "output", label: "Output Digital", type: "textarea" },
+   142→    ] as FieldDef[],
+   143→    columns: [
+   144→      { key: "step", label: "Tahap", render: (s: JourneyStep) => <span className="grid h-8 w-8 place-items-center rounded-full bg-primary text-white font-extrabold text-xs">{s.step}</span> },
+   145→      { key: "title", label: "Judul", render: (s: JourneyStep) => (
+   146→        <div>
+   147→          <p className="font-semibold">{s.title}</p>
+   148→          <p className="text-xs text-muted-foreground line-clamp-1">{s.activity}</p>
+   149→        </div>
+   150→      ) },
+   151→      { key: "actor", label: "Aktor", hideOnMobile: true, render: (s: JourneyStep) => <span className="text-muted-foreground text-xs">{s.actor}</span> },
+   152→    ] as ColumnDef<JourneyStep>[],
+   153→  };
+   154→  return <CrudManager<JourneyStep> config={config} />;
+   155→}
+   156→
+   157→/* ================= ROADMAP ================= */
+   158→export function AdminRoadmap() {
+   159→  const config = {
+   160→    title: "Roadmap 2026-2030",
+   161→    description: "Kelola peta jalan implementasi empat fase transformasi digital.",
+   162→    endpoint: "/api/roadmap",
+   163→    itemName: "Fase",
+   164→    searchKeys: ["phase", "period", "focus"],
+   165→    defaultItem: () => ({ phase: "", period: "", focus: "", deliverables: "", order: 99 }),
+   166→    fields: [
+   167→      { key: "phase", label: "Nama Fase", type: "text", required: true, placeholder: "Contoh: Fase 1: Fondasi" },
+   168→      { key: "period", label: "Periode", type: "text", required: true, placeholder: "Contoh: 2026" },
+   169→      { key: "order", label: "Urutan", type: "number" },
+   170→      { key: "focus", label: "Fokus Utama", type: "text", full: true },
+   171→      { key: "deliverables", label: "Deliverables Kunci", type: "textarea" },
+   172→    ] as FieldDef[],
+   173→    columns: [
+   174→      { key: "phase", label: "Fase", render: (r: Roadmap) => (
+   175→        <div>
+   176→          <p className="font-semibold">{r.phase}</p>
+   177→          <p className="text-xs text-muted-foreground">{r.period}</p>
+   178→        </div>
+   179→      ) },
+   180→      { key: "focus", label: "Fokus", hideOnMobile: true, render: (r: Roadmap) => <span className="text-xs text-muted-foreground line-clamp-2 max-w-sm">{r.focus}</span> },
+   181→      { key: "order", label: "Urutan", hideOnMobile: true },
+   182→    ] as ColumnDef<Roadmap>[],
+   183→  };
+   184→  return <CrudManager<Roadmap> config={config} />;
+   185→}
+   186→
+   187→/* ================= ANGGOTA ================= */
+   188→export function AdminMembers() {
+   189→  const config = {
+   190→    title: "Direktori Anggota",
+   191→    description: "Kelola data anggota terverifikasi yang tampil di direktori publik.",
+   192→    endpoint: "/api/members",
+   193→    itemName: "Anggota",
+   194→    searchKeys: ["name", "city", "licenseNo", "province"],
+   195→    extraQuery: "?status=all",
+   196→    defaultItem: () => ({
+   197→      name: "", type: "PPIU", city: "", province: "", licenseNo: "", phone: "",
+   198→      email: "", website: "", description: "", rating: 4.5, status: "TERVERIFIKASI",
+   199→      memberSince: new Date().getFullYear(),
+   200→    }),
+   201→    fields: [
+   202→      { key: "name", label: "Nama Organisasi", type: "text", required: true },
+   203→      { key: "type", label: "Jenis Mitra", type: "select", options: TYPE_OPTS, required: true },
+   204→      { key: "licenseNo", label: "Nomor Izin", type: "text", required: true },
+   205→      { key: "city", label: "Kota", type: "text", required: true },
+   206→      { key: "province", label: "Provinsi", type: "text" },
+   207→      { key: "phone", label: "Telepon", type: "text" },
+   208→      { key: "email", label: "Email", type: "text" },
+   209→      { key: "website", label: "Website", type: "text" },
+   210→      { key: "memberSince", label: "Anggota Sejak (Tahun)", type: "number" },
+   211→      { key: "rating", label: "Rating (1-5)", type: "number" },
+   212→      { key: "status", label: "Status", type: "select", options: [
+   213→        { value: "TERVERIFIKASI", label: "Terverifikasi" },
+   214→        { value: "PENDING", label: "Menunggu" },
+   215→        { value: "SUSPENDED", label: "Ditangguhkan" },
+   216→      ], required: true },
+   217→      { key: "description", label: "Deskripsi Singkat", type: "textarea" },
+   218→    ] as FieldDef[],
+   219→    columns: [
+   220→      { key: "name", label: "Organisasi", render: (m: Member) => (
+   221→        <div>
+   222→          <p className="font-semibold">{m.name}</p>
+   223→          <p className="text-xs text-muted-foreground">{m.type} · {m.city}, {m.province}</p>
+   224→        </div>
+   225→      ) },
+   226→      { key: "licenseNo", label: "Nomor Izin", hideOnMobile: true, render: (m: Member) => <span className="font-mono text-xs">{m.licenseNo}</span> },
+   227→      { key: "status", label: "Status", render: (m: Member) => <AdminBadge status={m.status} /> },
+   228→      { key: "rating", label: "Rating", hideOnMobile: true, render: (m: Member) => (
+   229→        <span className="flex items-center gap-1 text-sm">
+   230→          <Icon name="star" className="h-3.5 w-3.5 fill-gold text-gold" /> {m.rating.toFixed(1)}
+   231→        </span>
+   232→      ) },
+   233→    ] as ColumnDef<Member>[],
+   234→  };
+   235→  return <CrudManager<Member> config={config} />;
+   236→}
+   237→
+   238→/* ================= TUTORIAL ================= */
+   239→export function AdminTutorials() {
+   240→  const config = {
+   241→    title: "Pusat Tutorial",
+   242→    description: "Kelola panduan penggunaan portal & CMS untuk jamaah, mitra, dan admin.",
+   243→    endpoint: "/api/tutorials",
+   244→    itemName: "Tutorial",
+   245→    searchKeys: ["title", "category", "level"],
+   246→    extraQuery: "?all=1",
+   247→    defaultItem: () => ({
+   248→      title: "", category: "Umum", level: "Pemula", duration: 10,
+   249→      order: 99, published: true, summary: "", content: "",
+   250→    }),
+   251→    fields: [
+   252→      { key: "title", label: "Judul Tutorial", type: "text", required: true, full: true },
+   253→      { key: "category", label: "Kategori", type: "select", options: TUT_CAT_OPTS, required: true },
+   254→      { key: "level", label: "Level", type: "select", options: LEVEL_OPTS, required: true },
+   255→      { key: "duration", label: "Durasi (menit)", type: "number" },
+   256→      { key: "order", label: "Urutan Tampil", type: "number" },
+   257→      { key: "published", label: "Publikasikan", type: "switch", full: true, hint: "Tutorial yang tidak dipublikasikan hanya terlihat di CMS" },
+   258→      { key: "summary", label: "Ringkasan", type: "textarea" },
+   259→      { key: "content", label: "Konten (Markdown)", type: "markdown", placeholder: "## Langkah 1\n\n1. Lakukan…\n2. Klik…" },
+   260→    ] as FieldDef[],
+   261→    columns: [
+   262→      { key: "title", label: "Judul", render: (t: Tutorial) => (
+   263→        <div className="max-w-sm">
+   264→          <p className="font-semibold">{t.title}</p>
+   265→          <p className="text-xs text-muted-foreground line-clamp-1">{t.summary}</p>
+   266→        </div>
+   267→      ) },
+   268→      { key: "category", label: "Kategori", hideOnMobile: true, render: (t: Tutorial) => <Badge variant="secondary" className="text-[10px]">{t.category} · {t.level}</Badge> },
+   269→      { key: "published", label: "Status", render: (t: Tutorial) => (
+   270→        <Badge variant="outline" className={`text-[10px] font-bold ${t.published ? "bg-primary/10 text-primary border-primary/30" : "bg-muted text-muted-foreground"}`}>
+   271→          {t.published ? "Terbit" : "Draft"}
+   272→        </Badge>
+   273→      ) },
+   274→      { key: "views", label: "Dilihat", hideOnMobile: true, render: (t: Tutorial) => <span className="text-muted-foreground">{t.views}×</span> },
+   275→    ] as ColumnDef<Tutorial>[],
+   276→  };
+   277→  return <CrudManager<Tutorial> config={config} />;
+   278→}
+   279→
+   280→/* ================= FAQ ================= */
+   281→export function AdminFaqs() {
+   282→  const config = {
+   283→    title: "Tanya Jawab (FAQ)",
+   284→    description: "Kelola pertanyaan yang sering diajukan pada halaman kontak.",
+   285→    endpoint: "/api/faqs",
+   286→    itemName: "FAQ",
+   287→    searchKeys: ["question", "category"],
+   288→    defaultItem: () => ({ question: "", answer: "", category: "Umum", order: 99 }),
+   289→    fields: [
+   290→      { key: "question", label: "Pertanyaan", type: "text", required: true, full: true },
+   291→      { key: "category", label: "Kategori", type: "select", options: FAQ_CAT_OPTS, required: true },
+   292→      { key: "order", label: "Urutan", type: "number" },
+   293→      { key: "answer", label: "Jawaban", type: "textarea", required: true },
+   294→    ] as FieldDef[],
+   295→    columns: [
+   296→      { key: "question", label: "Pertanyaan", render: (f: Faq) => <p className="font-semibold max-w-md truncate">{f.question}</p> },
+   297→      { key: "category", label: "Kategori", hideOnMobile: true, render: (f: Faq) => <Badge variant="secondary" className="text-[10px]">{f.category}</Badge> },
+   298→      { key: "order", label: "Urutan", hideOnMobile: true },
+   299→    ] as ColumnDef<Faq>[],
+   300→  };
+   301→  return <CrudManager<Faq> config={config} />;
+   302→}
+   303→
+   304→/* ================= TESTIMONI ================= */
+   305→export function AdminTestimonials() {
+   306→  const config = {
+   307→    title: "Testimoni",
+   308→    description: "Moderasi testimoni — testimoni publik baru tampil setelah diaktifkan.",
+   309→    endpoint: "/api/testimonials",
+   310→    itemName: "Testimoni",
+   311→    searchKeys: ["name", "role", "content"],
+   312→    extraQuery: "?all=1",
+   313→    defaultItem: () => ({ name: "", role: "Jamaah", rating: 5, published: true, content: "" }),
+   314→    fields: [
+   315→      { key: "name", label: "Nama", type: "text", required: true },
+   316→      { key: "role", label: "Peran", type: "text", required: true, placeholder: "Jamaah / Pemilik PPIU / Tour Leader…" },
+   317→      { key: "rating", label: "Rating (1-5)", type: "number" },
+   318→      { key: "published", label: "Tampilkan Publik", type: "switch", full: true },
+   319→      { key: "content", label: "Isi Testimoni", type: "textarea", required: true },
+   320→    ] as FieldDef[],
+   321→    columns: [
+   322→      { key: "name", label: "Nama", render: (t: Testimonial) => (
+   323→        <div className="max-w-sm">
+   324→          <p className="font-semibold">{t.name}</p>
+   325→          <p className="text-xs text-muted-foreground">{t.role}</p>
+   326→        </div>
+   327→      ) },
+   328→      { key: "rating", label: "Rating", hideOnMobile: true, render: (t: Testimonial) => (
+   329→        <span className="flex items-center gap-1 text-sm">
+   330→          <Icon name="star" className="h-3.5 w-3.5 fill-gold text-gold" /> {t.rating}
+   331→        </span>
+   332→      ) },
+   333→      { key: "published", label: "Publik", render: (t: Testimonial) => (
+   334→        <Badge variant="outline" className={`text-[10px] font-bold ${t.published ? "bg-primary/10 text-primary border-primary/30" : "bg-muted text-muted-foreground"}`}>
+   335→          {t.published ? "Tampil" : "Menunggu Moderasi"}
+   336→        </Badge>
+   337→      ) },
+   338→    ] as ColumnDef<Testimonial>[],
+   339→  };
+   340→  return <CrudManager<Testimonial> config={config} />;
+   341→}
+   342→
+   343→/* ================= STRUKTUR ================= */
+   344→export function AdminManagement() {
+   345→  const config = {
+   346→    title: "Struktur Organisasi",
+   347→    description: "Kelola pengurus yang tampil pada halaman Tentang.",
+   348→    endpoint: "/api/management",
+   349→    itemName: "Pengurus",
+   350→    searchKeys: ["name", "position"],
+   351→    defaultItem: () => ({ name: "", position: "", bio: "", order: 99 }),
+   352→    fields: [
+   353→      { key: "name", label: "Nama Lengkap", type: "text", required: true },
+   354→      { key: "position", label: "Jabatan", type: "text", required: true },
+   355→      { key: "order", label: "Urutan", type: "number" },
+   356→      { key: "bio", label: "Bio Singkat", type: "textarea" },
+   357→    ] as FieldDef[],
+   358→    columns: [
+   359→      { key: "name", label: "Nama", render: (m: ManagementMember) => <p className="font-semibold">{m.name}</p> },
+   360→      { key: "position", label: "Jabatan", render: (m: ManagementMember) => <span className="text-xs text-muted-foreground">{m.position}</span> },
+   361→      { key: "order", label: "Urutan", hideOnMobile: true },
+   362→    ] as ColumnDef<ManagementMember>[],
+   363→  };
+   364→  return <CrudManager<ManagementMember> config={config} />;
+   365→}
+   366→
+   367→/* ================= PESAN (custom) ================= */
+   368→export function AdminMessages() {
+   369→  const { toast } = useToast();
+   370→  const [messages, setMessages] = useState<ContactMessage[] | null>(null);
+   371→  const [filter, setFilter] = useState("all");
+   372→  const [reading, setReading] = useState<ContactMessage | null>(null);
+   373→  const [deleting, setDeleting] = useState<ContactMessage | null>(null);
+   374→
+   375→  const load = useCallback(() => {
+   376→    apiGet<ContactMessage[]>("/api/messages").then(setMessages).catch(() => setMessages([]));
+   377→  }, []);
+   378→
+   379→  useEffect(() => {
+   380→    load();
+   381→  }, [load]);
+   382→
+   383→  const updateStatus = async (id: string, status: string) => {
+   384→    try {
+   385→      await apiSend(`/api/messages/${id}`, "PUT", { status });
+   386→      toast({ title: status === "REPLIED" ? "Ditandai sudah dibalas ✓" : "Ditandai sudah dibaca ✓" });
+   387→      if (reading) setReading({ ...reading, status });
+   388→      load();
+   389→    } catch (e) {
+   390→      toast({ title: "Gagal", description: (e as Error).message, variant: "destructive" });
+   391→    }
+   392→  };
+   393→
+   394→  const doDelete = async () => {
+   395→    if (!deleting) return;
+   396→    try {
+   397→      await apiSend(`/api/messages/${deleting.id}`, "DELETE");
+   398→      toast({ title: "Pesan dihapus ✓" });
+   399→      setReading(null);
+   400→      load();
+   401→    } catch (e) {
+   402→      toast({ title: "Gagal menghapus", description: (e as Error).message, variant: "destructive" });
+   403→    } finally {
+   404→      setDeleting(null);
+   405→    }
+   406→  };
+   407→
+   408→  const filters = [
+   409→    { value: "all", label: "Semua" },
+   410→    { value: "UNREAD", label: "Belum Dibaca" },
+   411→    { value: "READ", label: "Dibaca" },
+   412→    { value: "REPLIED", label: "Dibalas" },
+   413→  ];
+   414→
+   415→  const filtered = (messages || []).filter((m) => filter === "all" || m.status === filter);
+   416→  const unreadCount = (messages || []).filter((m) => m.status === "UNREAD").length;
+   417→
+   418→  return (
+   419→    <div>
+   420→      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
+   421→        <div>
+   422→          <h2 className="text-xl font-extrabold flex items-center gap-2">
+   423→            Pesan Masuk
+   424→            {unreadCount > 0 && <Badge className="bg-destructive text-white">{unreadCount} baru</Badge>}
+   425→          </h2>
+   426→          <p className="text-sm text-muted-foreground">Inbox pesan dari formulir kontak publik.</p>
+   427→        </div>
+   428→        <div className="flex gap-2 sm:ml-auto">
+   429→          {filters.map((f) => (
+   430→            <button
+   431→              key={f.value}
+   432→              onClick={() => setFilter(f.value)}
+   433→              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
+   434→                filter === f.value ? "bg-primary text-white" : "bg-muted text-foreground/70 hover:text-primary"
+   435→              }`}
+   436→            >
+   437→              {f.label}
+   438→            </button>
+   439→          ))}
+   440→        </div>
+   441→      </div>
+   442→
+   443→      {!messages ? (
+   444→        <div className="space-y-3">
+   445→          {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
+   446→        </div>
+   447→      ) : filtered.length === 0 ? (
+   448→        <div className="rounded-2xl border bg-card py-16 text-center shadow-sm">
+   449→          <Icon name="inbox" className="h-10 w-10 mx-auto text-muted-foreground/30" />
+   450→          <p className="mt-3 text-sm text-muted-foreground">Tidak ada pesan pada filter ini.</p>
+   451→        </div>
+   452→      ) : (
+   453→        <div className="space-y-2.5">
+   454→          {filtered.map((m) => (
+   455→            <button
+   456→              key={m.id}
+   457→              onClick={() => setReading(m)}
+   458→              className={`w-full text-left rounded-2xl border bg-card p-4 shadow-sm transition-all hover:shadow-md hover:border-primary/40 ${
+   459→                m.status === "UNREAD" ? "border-l-4 border-l-gold" : ""
+   460→              }`}
+   461→            >
+   462→              <div className="flex items-center justify-between gap-3">
+   463→                <div className="min-w-0">
+   464→                  <p className={`text-sm truncate ${m.status === "UNREAD" ? "font-extrabold" : "font-semibold"}`}>
+   465→                    {m.status === "UNREAD" && <span className="inline-block h-2 w-2 rounded-full bg-gold mr-2 align-middle" />}
+   466→                    {m.subject}
+   467→                  </p>
+   468→                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+   469→                    {m.name} · {m.email} · {formatDateTime(m.createdAt)}
+   470→                  </p>
+   471→                </div>
+   472→                <AdminBadge status={m.status} />
+   473→              </div>
+   474→            </button>
+   475→          ))}
+   476→        </div>
+   477→      )}
+   478→
+   479→      {/* Read dialog */}
+   480→      <Dialog open={!!reading} onOpenChange={(o) => !o && setReading(null)}>
+   481→        <DialogContent className="max-w-xl">
+   482→          {reading && (
+   483→            <>
+   484→              <DialogHeader>
+   485→                <DialogTitle className="text-left">{reading.subject}</DialogTitle>
+   486→                <DialogDescription className="text-left">
+   487→                  {reading.name} &lt;{reading.email}&gt;{reading.phone ? ` · ${reading.phone}` : ""} · {formatDateTime(reading.createdAt)}
+   488→                </DialogDescription>
+   489→              </DialogHeader>
+   490→              <div className="rounded-xl bg-muted/50 p-4 text-sm leading-relaxed whitespace-pre-wrap">
+   491→                {reading.message}
+   492→              </div>
+   493→              <div className="flex flex-wrap justify-end gap-2 mt-2">
+   494→                <Button variant="outline" size="sm" onClick={() => window.location.href = `mailto:${reading.email}?subject=Re: ${encodeURIComponent(reading.subject)}`}>
+   495→                  <Icon name="mail" className="h-4 w-4 mr-1.5" /> Balas via Email
+   496→                </Button>
+   497→                {reading.status !== "READ" && reading.status !== "REPLIED" && (
+   498→                  <Button variant="outline" size="sm" onClick={() => updateStatus(reading.id, "READ")}>
+   499→                    <Icon name="check-circle-2" className="h-4 w-4 mr-1.5" /> Tandai Dibaca
+   500→                  </Button>
+   501→                )}
+   502→                {reading.status !== "REPLIED" && (
+   503→                  <Button size="sm" className="bg-gradient-to-r from-primary to-forest text-white" onClick={() => updateStatus(reading.id, "REPLIED")}>
+   504→                    <Icon name="send" className="h-4 w-4 mr-1.5" /> Sudah Dibalas
+   505→                  </Button>
+   506→                )}
+   507→                <Button variant="destructive" size="sm" onClick={() => setDeleting(reading)}>
+   508→                  <Icon name="trash" className="h-4 w-4 mr-1.5" /> Hapus
+   509→                </Button>
+   510→              </div>
+   511→            </>
+   512→          )}
+   513→        </DialogContent>
+   514→      </Dialog>
+   515→
+   516→      <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
+   517→        <AlertDialogContent>
+   518→          <AlertDialogHeader>
+   519→            <AlertDialogTitle>Hapus pesan ini?</AlertDialogTitle>
+   520→            <AlertDialogDescription>Pesan akan dihapus permanen dari inbox.</AlertDialogDescription>
+   521→          </AlertDialogHeader>
+   522→          <AlertDialogFooter>
+   523→            <AlertDialogCancel>Batal</AlertDialogCancel>
+   524→            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={doDelete}>
+   525→              Ya, Hapus
+   526→            </AlertDialogAction>
+   527→          </AlertDialogFooter>
+   528→        </AlertDialogContent>
+   529→      </AlertDialog>
+   530→    </div>
+   531→  );
+   532→}
+   533→
+   534→/* ================= PENDAFTARAN (custom) ================= */
+   535→export function AdminApplications() {
+   536→  const { toast } = useToast();
+   537→  const [apps, setApps] = useState<MembershipApplication[] | null>(null);
+   538→  const [filter, setFilter] = useState("all");
+   539→  const [processing, setProcessing] = useState<string | null>(null);
+   540→  const [deleting, setDeleting] = useState<MembershipApplication | null>(null);
+   541→
+   542→  const load = useCallback(() => {
+   543→    apiGet<MembershipApplication[]>("/api/applications").then(setApps).catch(() => setApps([]));
+   544→  }, []);
+   545→
+   546→  useEffect(() => {
+   547→    load();
+   548→  }, [load]);
+   549→
+   550→  const act = async (id: string, action: "approve" | "reject") => {
+   551→    setProcessing(id + action);
+   552→    try {
+   553→      await apiSend(`/api/applications/${id}`, "PUT", { action });
+   554→      toast({
+   555→        title: action === "approve" ? "Pendaftaran disetujui ✓" : "Pendaftaran ditolak",
+   556→        description: action === "approve" ? "Organisasi otomatis ditambahkan ke direktori anggota." : undefined,
+   557→      });
+   558→      load();
+   559→    } catch (e) {
+   560→      toast({ title: "Gagal memproses", description: (e as Error).message, variant: "destructive" });
+   561→    } finally {
+   562→      setProcessing(null);
+   563→    }
+   564→  };
+   565→
+   566→  const doDelete = async () => {
+   567→    if (!deleting) return;
+   568→    try {
+   569→      await apiSend(`/api/applications/${deleting.id}`, "DELETE");
+   570→      toast({ title: "Pendaftaran dihapus ✓" });
+   571→      load();
+   572→    } catch (e) {
+   573→      toast({ title: "Gagal menghapus", description: (e as Error).message, variant: "destructive" });
+   574→    } finally {
+   575→      setDeleting(null);
+   576→    }
+   577→  };
+   578→
+   579→  const filters = [
+   580→    { value: "all", label: "Semua" },
+   581→    { value: "PENDING", label: "Menunggu" },
+   582→    { value: "APPROVED", label: "Disetujui" },
+   583→    { value: "REJECTED", label: "Ditolak" },
+   584→  ];
+   585→
+   586→  const filtered = (apps || []).filter((a) => filter === "all" || a.status === filter);
+   587→
+   588→  return (
+   589→    <div>
+   590→      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
+   591→        <div>
+   592→          <h2 className="text-xl font-extrabold">Pendaftaran Keanggotaan</h2>
+   593→          <p className="text-sm text-muted-foreground">
+   594→            Verifikasi pendaftaran — menyetujui akan otomatis menambahkan organisasi ke direktori anggota.
+   595→          </p>
+   596→        </div>
+   597→        <div className="flex gap-2 sm:ml-auto">
+   598→          {filters.map((f) => (
+   599→            <button
+   600→              key={f.value}
+   601→              onClick={() => setFilter(f.value)}
+   602→              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
+   603→                filter === f.value ? "bg-primary text-white" : "bg-muted text-foreground/70 hover:text-primary"
+   604→              }`}
+   605→            >
+   606→              {f.label}
+   607→            </button>
+   608→          ))}
+   609→        </div>
+   610→      </div>
+   611→
+   612→      {!apps ? (
+   613→        <div className="space-y-3">
+   614→          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
+   615→        </div>
+   616→      ) : filtered.length === 0 ? (
+   617→        <div className="rounded-2xl border bg-card py-16 text-center shadow-sm">
+   618→          <Icon name="user-plus" className="h-10 w-10 mx-auto text-muted-foreground/30" />
+   619→          <p className="mt-3 text-sm text-muted-foreground">Tidak ada pendaftaran pada filter ini.</p>
+   620→        </div>
+   621→      ) : (
+   622→        <div className="grid gap-4 lg:grid-cols-2">
+   623→          {filtered.map((a) => (
+   624→            <div key={a.id} className="rounded-2xl border bg-card p-5 shadow-sm">
+   625→              <div className="flex items-start justify-between gap-3">
+   626→                <div className="flex items-start gap-3 min-w-0">
+   627→                  <div className="h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br from-primary to-forest grid place-items-center text-gold-soft font-extrabold">
+   628→                    {a.orgName.charAt(0)}
+   629→                  </div>
+   630→                  <div className="min-w-0">
+   631→                    <p className="font-bold truncate">{a.orgName}</p>
+   632→                    <p className="text-xs text-muted-foreground">{a.type} · Izin {a.licenseNo}</p>
+   633→                  </div>
+   634→                </div>
+   635→                <AdminBadge status={a.status} />
+   636→              </div>
+   637→
+   638→              <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+   639→                <p><span className="text-muted-foreground">Kontak:</span> <b>{a.contactName}</b></p>
+   640→                <p><span className="text-muted-foreground">Telp:</span> {a.phone}</p>
+   641→                <p className="col-span-2 truncate"><span className="text-muted-foreground">Email:</span> {a.email}</p>
+   642→                <p className="col-span-2"><span className="text-muted-foreground">Lokasi:</span> {a.city}{a.province ? `, ${a.province}` : ""}</p>
+   643→                {a.message && <p className="col-span-2 text-muted-foreground italic line-clamp-2">“{a.message}”</p>}
+   644→                <p className="col-span-2 text-[11px] text-muted-foreground">Diterima: {formatDateTime(a.createdAt)}</p>
+   645→              </div>
+   646→
+   647→              {a.status === "PENDING" ? (
+   648→                <div className="mt-4 flex gap-2 border-t pt-4">
+   649→                  <Button
+   650→                    size="sm"
+
+[showing lines 1-650 of 2400; use offset=651 with limit to continue reading]
