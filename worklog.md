@@ -376,3 +376,24 @@ Stage Summary:
 - 3 perbaikan token global mengatasi ~25 pelanggaran sekaligus; token emas kini 3 tingkat harmonis: gold #CB9D2A / gold-soft krem / gold-deep perunggu #835600
 - File berubah: globals.css, navbar.tsx, theme-switcher.tsx, locale-switcher.tsx, home/about/join/members/news/nusuk-view.tsx, admin-view/users/sections/crud-manager.tsx, scripts/contrast-audit.mjs (baru)
 - Sistem warna brand final: hijau forest (primary/forest/forest-deep) + emas 3 tingkat + marun destructive — kontras terjamin permanen via token, bukan hardcode
+
+---
+Task ID: 17 (Portal Verifikator & Manajemen Keanggotaan)
+Agent: Z.ai Code (main thread)
+Task: "bagaimana portal admin untuk pengurus anggota dan verifikator sudah kah dibuat semuanya" → jawaban jujur: modul Pendaftaran & Direktori Anggota sudah ada, tetapi peran khusus VERIFIKATOR belum ada → dibangun lengkap
+
+Work Log:
+- SCHEMA: MembershipApplication + 3 kolom (reviewNote, reviewedBy, reviewedAt) — db push ok; restart dev server diperlukan (Prisma Client lama tidak mengenal kolom baru → 500 palsu saat PUT, sama seperti pola Task 15)
+- ROLES: type Role += "VERIFIKATOR", ROLES, ROLE_LABELS ("Verifikator"); SECTION_ROLES — dashboard & members & applications kini menyertakan VERIFIKATOR (verifikator fokus 3 modul itu saja; tidak bisa nusuk/pesan/settings/users dll)
+- API /api/applications/[id]: PUT guardRole += VERIFIKATOR; approve/reject kini menyimpan reviewNote (reject WAJIB ≥5 karakter → 400 tanpa alasan), reviewedBy (nama akun), reviewedAt; DELETE tetap ADMIN+ (verifikator tidak boleh hapus); POST /api/members & DELETE tetap ADMIN+; PUT /api/members/[id] += VERIFIKATOR (verifikasi/status anggota)
+- UI AdminApplications ditulis ulang → "Portal Verifikasi Keanggotaan": 3 kartu statistik antrean (Menunggu/Disetujui/Ditolak, klik = filter), filter chips + pencarian (org/izin/kontak/kota), tombol "Verifikasi Pendaftaran" membuka dialog detail lengkap (semua field + pesan pencalar) dgn Textarea Catatan Verifikator (opsional saat setujui, wajib saat tolak — validasi inline + server), tombol Tolak / "Setujui & Tambahkan"; kartu yang sudah diproses menampilkan blok jejak "Catatan Verifikator + Diperiksa oleh {nama} · waktu"; DialogFooter ditambah ke import
+- UI admin-users: ROLE_OPTS += Verifikator ("Fokus verifikasi pendaftaran & anggota"), ROLE_BADGE VERIFIKATOR (emerald, aman light+dark); login page: kotak Kredensial Demo kini memuat 2 baris (Super Admin + Verifikator)
+- DATA: akun demo verifikator@muhdin.web.id / verifikator2026 (VERIFIKATOR, aktif); 1 pendaftaran PENDING tambahan (KBIHU Hajar Aswad Wisata) agar antrean terasa nyata
+- BUGFIX mobile: kartu pendaftaran meluber 47px di 390px (grid tanpa grid-cols-1 eksplisit → track implisit auto mengikuti max-content) → grid grid-cols-1 lg:grid-cols-2 + min-w-0 pada kartu; scrollW 437→390 ✓
+- VERIFIKASI: lint 0 error; tsc bersih; curl suite 12/12 (login 200, list 200, reject tanpa alasan 400, reject dgn alasan → REJECTED+reviewedBy+note, approve → APPROVED + member otomatis TERVERIFIKASI, verifikator: GET users 403 / DELETE app 403 / POST member 403 / PUT member 200 / stats 200, editor PUT app 403, anonim 401); Agent Browser E2E: login verifikator → menu ter-gating 3 item + badge Verifikator, portal dgn statistik 0/3/1, dialog verifikasi (tolak tanpa alasan → error inline, setujui dgn catatan → sukses), jejak verifikator tampil, Direktori Anggota dark+mobile (anggota baru masuk), Kelola Admin (Super Admin): badge Verifikator di tabel + opsi Verifikator di dialog tambah; 0 page error, 0 console error, dev.log bersih, health 200
+
+Stage Summary:
+- Portal Verifikasi Keanggotaan lengkap: antrean + statistik + pencarian + dialog review (alasan tolak wajib) + jejak pemeriksa (siapa & kapan) — bukti audit verifikasi tersimpan permanen
+- Peran ke-4 "VERIFIKATOR" menyatu dgn sistem multi-admin Task 15: gating menu UI + enforcement server (401/403), bisa di-tambah/diubah dari Kelola Admin
+- Verifikator = fokus kerja: Dashboard (lihat), Pendaftaran (setujui/tolak), Direktori Anggota (ubah status) — tanpa hak hapus & tanpa modul lain
+- Akun demo: verifikator@muhdin.web.id / verifikator2026 (tampil di halaman login CMS)

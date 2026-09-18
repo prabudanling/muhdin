@@ -32,11 +32,13 @@ import { cn } from "@/lib/utils";
 const ROLE_BADGE: Record<string, string> = {
   SUPER_ADMIN: "bg-primary/10 text-primary border-primary/30",
   ADMIN: "bg-gold/15 text-gold-deep border-gold/40",
+  VERIFIKATOR: "bg-emerald-100 text-emerald-900 border-emerald-300/60 dark:bg-emerald-900/30 dark:text-emerald-100 dark:border-emerald-700",
   EDITOR: "bg-muted text-muted-foreground border-transparent",
 };
 
 const ROLE_OPTS = [
   { value: "ADMIN", label: "Admin", desc: "Akses seluruh modul operasional" },
+  { value: "VERIFIKATOR", label: "Verifikator", desc: "Fokus verifikasi pendaftaran & anggota" },
   { value: "EDITOR", label: "Editor", desc: "Fokus pengelolaan konten" },
 ];
 

@@ -3,7 +3,9 @@ import { db } from "@/lib/db";
 import { guardRole, ok, fail } from "@/lib/api-helpers";
 
 export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
+  // Task 17 — VERIFIKATOR boleh memutakhirkan data/status anggota (verifikasi),
+  // namun tetap tidak dapat menambah (POST) atau menghapus (DELETE).
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN", "VERIFIKATOR"]);
   if (denied) return denied;
   const { id } = await ctx.params;
   try {

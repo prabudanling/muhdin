@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -531,13 +531,19 @@ export function AdminMessages() {
   );
 }
 
-/* ================= PENDAFTARAN (custom) ================= */
+/* ================= PENDAFTARAN (custom) — Task 17 Portal Verifikator ================= */
 export function AdminApplications() {
   const { toast } = useToast();
   const [apps, setApps] = useState<MembershipApplication[] | null>(null);
   const [filter, setFilter] = useState("all");
+  const [query, setQuery] = useState("");
   const [processing, setProcessing] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<MembershipApplication | null>(null);
+
+  // Dialog verifikasi — detail lengkap + catatan verifikator.
+  const [reviewing, setReviewing] = useState<MembershipApplication | null>(null);
+  const [note, setNote] = useState("");
+  const [noteError, setNoteError] = useState("");
 
   const load = useCallback(() => {
     apiGet<MembershipApplication[]>("/api/applications").then(setApps).catch(() => setApps([]));
@@ -547,20 +553,41 @@ export function AdminApplications() {
     load();
   }, [load]);
 
-  const act = async (id: string, action: "approve" | "reject") => {
+  const act = async (id: string, action: "approve" | "reject", reviewNote = "") => {
     setProcessing(id + action);
     try {
-      await apiSend(`/api/applications/${id}`, "PUT", { action });
+      await apiSend(`/api/applications/${id}`, "PUT", { action, reviewNote });
       toast({
         title: action === "approve" ? "Pendaftaran disetujui ✓" : "Pendaftaran ditolak",
-        description: action === "approve" ? "Organisasi otomatis ditambahkan ke direktori anggota." : undefined,
+        description:
+          action === "approve"
+            ? "Organisasi otomatis ditambahkan ke direktori anggota publik."
+            : "Alasan tersimpan pada catatan verifikator.",
       });
+      setReviewing(null);
+      setNote("");
+      setNoteError("");
       load();
     } catch (e) {
       toast({ title: "Gagal memproses", description: (e as Error).message, variant: "destructive" });
     } finally {
       setProcessing(null);
     }
+  };
+
+  const openReview = (a: MembershipApplication) => {
+    setReviewing(a);
+    setNote("");
+    setNoteError("");
+  };
+
+  const submitReview = (action: "approve" | "reject") => {
+    if (!reviewing) return;
+    if (action === "reject" && note.trim().length < 5) {
+      setNoteError("Alasan penolakan wajib diisi (minimal 5 karakter) agar pencalar mendapat kejelasan.");
+      return;
+    }
+    act(reviewing.id, action, note.trim());
   };
 
   const doDelete = async () => {
@@ -576,6 +603,17 @@ export function AdminApplications() {
     }
   };
 
+  const list = apps || [];
+  const pendingCount = list.filter((a) => a.status === "PENDING").length;
+  const approvedCount = list.filter((a) => a.status === "APPROVED").length;
+  const rejectedCount = list.filter((a) => a.status === "REJECTED").length;
+
+  const statCards = [
+    { label: "Menunggu", value: pendingCount, status: "PENDING", icon: "inbox", tone: "text-destructive" },
+    { label: "Disetujui", value: approvedCount, status: "APPROVED", icon: "check-circle-2", tone: "text-primary" },
+    { label: "Ditolak", value: rejectedCount, status: "REJECTED", icon: "ban", tone: "text-muted-foreground" },
+  ];
+
   const filters = [
     { value: "all", label: "Semua" },
     { value: "PENDING", label: "Menunggu" },
@@ -583,18 +621,48 @@ export function AdminApplications() {
     { value: "REJECTED", label: "Ditolak" },
   ];
 
-  const filtered = (apps || []).filter((a) => filter === "all" || a.status === filter);
+  const q = query.trim().toLowerCase();
+  const filtered = list.filter(
+    (a) =>
+      (filter === "all" || a.status === filter) &&
+      (!q ||
+        a.orgName.toLowerCase().includes(q) ||
+        a.licenseNo.toLowerCase().includes(q) ||
+        a.contactName.toLowerCase().includes(q) ||
+        a.city.toLowerCase().includes(q))
+  );
 
   return (
     <div>
+      <div className="mb-5">
+        <h2 className="text-xl font-extrabold">Portal Verifikasi Keanggotaan</h2>
+        <p className="text-sm text-muted-foreground">
+          Periksa pendaftaran penyelenggara — menyetujui akan otomatis menambahkan organisasi ke direktori anggota publik.
+        </p>
+      </div>
+
+      {/* Statistik antrean — klik untuk memfilter */}
+      <div className="grid grid-cols-3 gap-3 mb-4" role="group" aria-label="Statistik antrean verifikasi">
+        {statCards.map((s) => (
+          <button
+            key={s.status}
+            onClick={() => setFilter(filter === s.status ? "all" : s.status)}
+            aria-pressed={filter === s.status}
+            className={`rounded-2xl border bg-card p-4 text-left shadow-sm transition-all hover:shadow-md ${
+              filter === s.status ? "border-primary/60 ring-1 ring-primary/30" : ""
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className={`text-2xl font-extrabold tabular-nums ${s.tone}`}>{s.value}</span>
+              <Icon name={s.icon} className={`h-4.5 w-4.5 shrink-0 ${s.tone} opacity-60`} aria-hidden />
+            </div>
+            <p className="mt-1 text-xs font-semibold text-muted-foreground">{s.label}</p>
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
-        <div>
-          <h2 className="text-xl font-extrabold">Pendaftaran Keanggotaan</h2>
-          <p className="text-sm text-muted-foreground">
-            Verifikasi pendaftaran — menyetujui akan otomatis menambahkan organisasi ke direktori anggota.
-          </p>
-        </div>
-        <div className="flex gap-2 sm:ml-auto">
+        <div className="flex flex-wrap gap-2">
           {filters.map((f) => (
             <button
               key={f.value}
@@ -607,6 +675,16 @@ export function AdminApplications() {
             </button>
           ))}
         </div>
+        <div className="relative sm:ml-auto sm:w-72">
+          <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Cari organisasi, izin, kontak…"
+            aria-label="Cari pendaftaran"
+            className="pl-9 h-9"
+          />
+        </div>
       </div>
 
       {!apps ? (
@@ -615,13 +693,13 @@ export function AdminApplications() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border bg-card py-16 text-center shadow-sm">
-          <Icon name="user-plus" className="h-10 w-10 mx-auto text-muted-foreground/30" />
+          <Icon name="user-plus" className="h-10 w-10 mx-auto text-muted-foreground/30" aria-hidden />
           <p className="mt-3 text-sm text-muted-foreground">Tidak ada pendaftaran pada filter ini.</p>
         </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {filtered.map((a) => (
-            <div key={a.id} className="rounded-2xl border bg-card p-5 shadow-sm">
+            <div key={a.id} className="min-w-0 rounded-2xl border bg-card p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br from-primary to-forest grid place-items-center text-gold-soft font-extrabold">
@@ -644,25 +722,29 @@ export function AdminApplications() {
                 <p className="col-span-2 text-[11px] text-muted-foreground">Diterima: {formatDateTime(a.createdAt)}</p>
               </div>
 
+              {/* Jejak verifikasi (Task 17) */}
+              {a.status !== "PENDING" && (a.reviewNote || a.reviewedBy) && (
+                <div className="mt-3 rounded-xl border bg-muted/50 p-3">
+                  <p className="text-xs font-bold flex items-center gap-1.5">
+                    <Icon name="clipboard-list" className="h-3.5 w-3.5 text-primary" aria-hidden />
+                    Catatan Verifikator
+                  </p>
+                  {a.reviewNote && <p className="mt-1 text-xs text-muted-foreground italic">“{a.reviewNote}”</p>}
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    Diperiksa oleh <b>{a.reviewedBy || "—"}</b>{a.reviewedAt ? ` · ${formatDateTime(a.reviewedAt)}` : ""}
+                  </p>
+                </div>
+              )}
+
               {a.status === "PENDING" ? (
-                <div className="mt-4 flex gap-2 border-t pt-4">
+                <div className="mt-4 border-t pt-4">
                   <Button
                     size="sm"
-                    className="flex-1 bg-gradient-to-r from-primary to-forest text-white"
-                    disabled={processing === a.id + "approve"}
-                    onClick={() => act(a.id, "approve")}
+                    className="w-full bg-gradient-to-r from-primary to-forest text-white"
+                    onClick={() => openReview(a)}
                   >
-                    {processing === a.id + "approve" ? <Icon name="loader-2" className="h-4 w-4 mr-1.5 animate-spin" /> : <Icon name="check-circle-2" className="h-4 w-4 mr-1.5" />}
-                    Setujui
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 text-destructive border-destructive/40 hover:bg-destructive/10"
-                    disabled={processing === a.id + "reject"}
-                    onClick={() => act(a.id, "reject")}
-                  >
-                    <Icon name="ban" className="h-4 w-4 mr-1.5" /> Tolak
+                    <Icon name="shield-check" className="h-4 w-4 mr-1.5" />
+                    Verifikasi Pendaftaran
                   </Button>
                 </div>
               ) : (
@@ -676,6 +758,94 @@ export function AdminApplications() {
           ))}
         </div>
       )}
+
+      {/* Dialog verifikasi — Task 17 */}
+      <Dialog open={!!reviewing} onOpenChange={(o) => !o && setReviewing(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="shield-check" className="h-5 w-5 text-primary" />
+              Verifikasi Pendaftaran
+            </DialogTitle>
+            <DialogDescription>
+              Periksa kelengkapan data <b>{reviewing?.orgName}</b> sebelum mengambil keputusan.
+            </DialogDescription>
+          </DialogHeader>
+
+          {reviewing && (
+            <>
+              <div className="rounded-xl border bg-muted/40 p-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                <p className="col-span-2"><span className="text-muted-foreground">Organisasi:</span> <b>{reviewing.orgName}</b></p>
+                <p><span className="text-muted-foreground">Tipe:</span> {reviewing.type}</p>
+                <p><span className="text-muted-foreground">No. Izin:</span> <span className="font-mono">{reviewing.licenseNo}</span></p>
+                <p><span className="text-muted-foreground">Kontak:</span> {reviewing.contactName}</p>
+                <p><span className="text-muted-foreground">Telp:</span> {reviewing.phone}</p>
+                <p className="col-span-2"><span className="text-muted-foreground">Email:</span> {reviewing.email}</p>
+                <p className="col-span-2"><span className="text-muted-foreground">Lokasi:</span> {reviewing.city}{reviewing.province ? `, ${reviewing.province}` : ""}</p>
+                {reviewing.message && (
+                  <p className="col-span-2 text-muted-foreground italic">Pesan: “{reviewing.message}”</p>
+                )}
+                <p className="col-span-2 text-[11px] text-muted-foreground">Diterima: {formatDateTime(reviewing.createdAt)}</p>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-xl bg-gold/10 border border-gold/25 p-3 text-xs">
+                <Icon name="info" className="h-4 w-4 shrink-0 text-gold-deep mt-0.5" aria-hidden />
+                <p className="text-foreground/80">
+                  Menyetujui akan otomatis menambahkan organisasi ini ke <b>direktori anggota publik</b> dengan status Terverifikasi.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="review-note">Catatan Verifikator</Label>
+                <Textarea
+                  id="review-note"
+                  value={note}
+                  onChange={(e) => {
+                    setNote(e.target.value);
+                    if (noteError) setNoteError("");
+                  }}
+                  placeholder="Opsional saat menyetujui — wajib saat menolak (menjelaskan alasan kepada pencalar)."
+                  rows={3}
+                />
+                {noteError && (
+                  <p className="text-xs text-destructive flex items-center gap-1.5">
+                    <Icon name="alert-triangle" className="h-3.5 w-3.5" aria-hidden />
+                    {noteError}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              className="text-destructive border-destructive/40 hover:bg-destructive/10"
+              disabled={processing === (reviewing?.id || "") + "reject"}
+              onClick={() => submitReview("reject")}
+            >
+              {processing === (reviewing?.id || "") + "reject" ? (
+                <Icon name="loader-2" className="h-4 w-4 mr-1.5 animate-spin" />
+              ) : (
+                <Icon name="ban" className="h-4 w-4 mr-1.5" />
+              )}
+              Tolak
+            </Button>
+            <Button
+              className="bg-gradient-to-r from-primary to-forest text-white"
+              disabled={processing === (reviewing?.id || "") + "approve"}
+              onClick={() => submitReview("approve")}
+            >
+              {processing === (reviewing?.id || "") + "approve" ? (
+                <Icon name="loader-2" className="h-4 w-4 mr-1.5 animate-spin" />
+              ) : (
+                <Icon name="check-circle-2" className="h-4 w-4 mr-1.5" />
+              )}
+              Setujui & Tambahkan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <AlertDialogContent>

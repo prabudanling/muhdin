@@ -1,16 +1,34 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 import { guardRole, ok, fail } from "@/lib/api-helpers";
 
+/**
+ * Task 17 — Verifikasi keanggotaan.
+ * PUT  : Super Admin / Admin / VERIFIKATOR — setujui (auto-tambah anggota)
+ *        atau tolak (wajib menyertakan alasan). Jejak pemeriksa disimpan.
+ * DELETE: Super Admin / Admin saja (verifikator tidak dapat menghapus).
+ */
 export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const denied = await guardRole(["SUPER_ADMIN", "ADMIN"]);
+  const denied = await guardRole(["SUPER_ADMIN", "ADMIN", "VERIFIKATOR"]);
   if (denied) return denied;
+  const me = await requireAdmin();
   const { id } = await ctx.params;
   try {
     const body = await req.json();
     const action = String(body.action || "");
+    const note = body.reviewNote ? String(body.reviewNote).trim() : "";
+
     if (action === "approve") {
-      const app = await db.membershipApplication.update({ where: { id }, data: { status: "APPROVED" } });
+      const app = await db.membershipApplication.update({
+        where: { id },
+        data: {
+          status: "APPROVED",
+          reviewNote: note || null,
+          reviewedBy: me?.name || null,
+          reviewedAt: new Date(),
+        },
+      });
       // Buat anggota otomatis dari pendaftaran yang disetujui
       const existing = await db.member.findFirst({ where: { licenseNo: app.licenseNo } });
       if (!existing) {
@@ -31,10 +49,23 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
       }
       return ok(app);
     }
+
     if (action === "reject") {
-      const app = await db.membershipApplication.update({ where: { id }, data: { status: "REJECTED" } });
+      if (note.length < 5) {
+        return fail("Alasan penolakan wajib diisi (minimal 5 karakter) agar pencalar mendapat kejelasan.");
+      }
+      const app = await db.membershipApplication.update({
+        where: { id },
+        data: {
+          status: "REJECTED",
+          reviewNote: note,
+          reviewedBy: me?.name || null,
+          reviewedAt: new Date(),
+        },
+      });
       return ok(app);
     }
+
     return fail("Aksi tidak dikenal.");
   } catch {
     return fail("Gagal memproses pendaftaran.", 500);

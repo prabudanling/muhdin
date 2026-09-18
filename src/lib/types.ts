@@ -101,6 +101,9 @@ export interface MembershipApplication {
   licenseNo: string;
   message: string | null;
   status: string;
+  reviewNote?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
   createdAt: string;
 }
 

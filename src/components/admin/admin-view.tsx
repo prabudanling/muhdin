@@ -324,7 +324,10 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
               Kredensial Demo
             </p>
             <p className="mt-1.5 font-mono">
-              Email: <b>admin@muhdin.web.id</b> · Password: <b>muhdin2026</b>
+              Super Admin: <b>admin@muhdin.web.id</b> · <b>muhdin2026</b>
+            </p>
+            <p className="mt-1 font-mono">
+              Verifikator: <b>verifikator@muhdin.web.id</b> · <b>verifikator2026</b>
             </p>
             <p className="mt-1 text-[11px] text-muted-foreground">
               Segera ganti password setelah implementasi produksi.
