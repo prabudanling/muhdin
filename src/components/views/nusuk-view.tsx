@@ -5,7 +5,7 @@ import { apiGet } from "@/lib/client-api";
 import { navigate } from "@/hooks/use-hash-route";
 import { toast } from "@/hooks/use-toast";
 import { Icon } from "@/components/site/icon";
-import { Reveal, SectionHeading } from "@/components/site/reveal";
+import { Reveal, SectionHeading, Stagger, StaggerItem, CountUp } from "@/components/site/reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -418,6 +418,201 @@ function MetricsSection({
             </p>
           </div>
         </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= DATA & LAYANAN RESMI (Task 23 — riset nusuk.sa & haj.gov.sa) ================= */
+
+/** Statistik resmi terkini (rilis Kementerian Hajj & Umrah KSA · GASTAT · SPA). */
+const OFFICIAL_STATS: { icon: string; value: number; suffix?: string; labelKey: string }[] = [
+  { icon: "smartphone", value: 40_000_000, suffix: "+", labelKey: "nusuk.offStatUsers" },
+  { icon: "globe", value: 12_400_000, labelKey: "nusuk.offStatVisas" },
+  { icon: "moon-star", value: 1_673_230, labelKey: "nusuk.offStatHajj" },
+  { icon: "users", value: 18_500_000, labelKey: "nusuk.offStatSeason" },
+];
+
+/** Enam pilar layanan resmi di nusuk.sa (visa/ Masar, izin umrah, Rawdah, paket, mashaer, edukasi). */
+const OFFICIAL_SERVICES: { icon: string; titleKey: string; descKey: string }[] = [
+  { icon: "passport", titleKey: "nusuk.svc1Title", descKey: "nusuk.svc1Desc" },
+  { icon: "clipboard-list", titleKey: "nusuk.svc2Title", descKey: "nusuk.svc2Desc" },
+  { icon: "moon-star", titleKey: "nusuk.svc3Title", descKey: "nusuk.svc3Desc" },
+  { icon: "building-2", titleKey: "nusuk.svc4Title", descKey: "nusuk.svc4Desc" },
+  { icon: "bus", titleKey: "nusuk.svc5Title", descKey: "nusuk.svc5Desc" },
+  { icon: "book-open", titleKey: "nusuk.svc6Title", descKey: "nusuk.svc6Desc" },
+];
+
+function OfficialSection() {
+  const { t, locale } = useT();
+  return (
+    <section
+      className="py-14 sm:py-20 bg-gradient-to-b from-muted/40 to-transparent"
+      aria-labelledby="nusuk-official-title"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("nusuk.offEyebrow")}
+          title={t("nusuk.offTitle")}
+          subtitle={t("nusuk.offSubtitle")}
+        />
+
+        {/* 4 statistik resmi — kartu forest + CountUp sinematik */}
+        <Stagger className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" stagger={0.08}>
+          {OFFICIAL_STATS.map((s) => (
+            <StaggerItem key={s.labelKey}>
+              <div className="h-full relative overflow-hidden rounded-2xl bg-forest-deep p-4 sm:p-5 text-white shadow-lg">
+                <div className="absolute inset-0 bg-islamic-pattern-gold opacity-25" aria-hidden />
+                <div className="relative">
+                  <div className="h-9 w-9 rounded-lg bg-gold/20 border border-gold/40 grid place-items-center text-gold">
+                    <Icon name={s.icon} className="h-4.5 w-4.5" />
+                  </div>
+                  <div className="mt-3 text-lg sm:text-2xl font-extrabold text-gold-gradient tracking-tight leading-none whitespace-nowrap">
+                    <CountUp value={s.value} suffix={s.suffix ?? ""} locale={locale} />
+                  </div>
+                  <div className="mt-1.5 text-[11px] sm:text-xs text-emerald-100/80 font-medium">
+                    {t(s.labelKey)}
+                  </div>
+                </div>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+        <Reveal delay={0.1}>
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
+            <Icon name="shield-check" className="h-3.5 w-3.5 text-primary shrink-0" />
+            {t("nusuk.offStatNote")}
+          </p>
+        </Reveal>
+
+        {/* 6 pilar layanan resmi Nusuk */}
+        <Reveal className="mt-12">
+          <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+            {t("nusuk.svcTitle")}
+          </h3>
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-3xl leading-relaxed">
+            {t("nusuk.svcSubtitle")}
+          </p>
+        </Reveal>
+        <Stagger className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" stagger={0.06}>
+          {OFFICIAL_SERVICES.map((s) => (
+            <StaggerItem key={s.titleKey}>
+              <div className="h-full rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+                <div className="flex items-start gap-3.5">
+                  <div className="h-11 w-11 shrink-0 rounded-xl bg-primary/10 grid place-items-center text-primary">
+                    <Icon name={s.icon} className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-extrabold leading-snug text-foreground">{t(s.titleKey)}</h4>
+                    <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{t(s.descKey)}</p>
+                  </div>
+                </div>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+
+        {/* Kuota Haji Indonesia 1447 H — panel megah */}
+        <Reveal className="mt-10">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-forest-deep via-forest-deep to-forest p-7 sm:p-10 shadow-2xl">
+            <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" aria-hidden />
+            <div
+              aria-hidden
+              className="absolute -top-16 -end-14 h-44 w-44 rounded-full bg-gold/15 blur-3xl animate-float-soft"
+            />
+            <div className="relative flex flex-col lg:flex-row lg:items-center gap-6">
+              <div className="shrink-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">{t("nusuk.quotaTitle")}</p>
+                <p className="mt-2 text-4xl sm:text-5xl font-black text-gold-gradient leading-none whitespace-nowrap">
+                  {formatNumberL10n(221_000, locale)}
+                </p>
+                <p className="mt-1 text-sm text-emerald-100/80">{t("nusuk.quotaTotalLabel")}</p>
+              </div>
+              <div aria-hidden className="hidden lg:block h-16 w-px bg-gradient-to-b from-transparent via-gold/50 to-transparent" />
+              <div className="min-w-0">
+                <div className="flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3.5 py-1.5 text-xs font-bold text-gold-soft">
+                    <Icon name="users" className="h-3.5 w-3.5" />
+                    {t("nusuk.quotaReguler")}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-bold text-white">
+                    <Icon name="badge-check" className="h-3.5 w-3.5 text-gold" />
+                    {t("nusuk.quotaKhusus")}
+                  </span>
+                </div>
+                <p className="mt-3 text-xs sm:text-sm text-emerald-100/70 leading-relaxed">{t("nusuk.quotaNote")}</p>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Sumber resmi — tautan keluar + catatan DGA & kesehatan */}
+        <Reveal className="mt-10">
+          <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            <Icon name="external-link" className="h-5 w-5 text-primary" />
+            {t("nusuk.linksTitle")}
+          </h3>
+        </Reveal>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3" aria-label={t("nusuk.ariaOfficialLinks")}>
+          <Reveal delay={0.05}>
+            <a
+              href="https://www.nusuk.sa/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex h-full items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-gold/50 hover:bg-gold/5"
+            >
+              <div className="h-12 w-12 shrink-0 rounded-xl bg-forest-deep grid place-items-center text-gold shadow-[0_8px_20px_-8px_rgba(11,92,63,0.6)]">
+                <Icon name="globe" className="h-6 w-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-extrabold text-sm sm:text-base text-foreground" dir="ltr">
+                  www.nusuk.sa
+                </p>
+                <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">{t("nusuk.linkNusukDesc")}</p>
+              </div>
+              <Icon
+                name="external-link"
+                className="h-4.5 w-4.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"
+              />
+            </a>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <a
+              href="https://haj.gov.sa/en"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex h-full items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-gold/50 hover:bg-gold/5"
+            >
+              <div className="h-12 w-12 shrink-0 rounded-xl bg-forest-deep grid place-items-center text-gold shadow-[0_8px_20px_-8px_rgba(11,92,63,0.6)]">
+                <Icon name="landmark" className="h-6 w-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-extrabold text-sm sm:text-base text-foreground" dir="ltr">
+                  haj.gov.sa
+                </p>
+                <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">{t("nusuk.linkHajjDesc")}</p>
+              </div>
+              <Icon
+                name="external-link"
+                className="h-4.5 w-4.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"
+              />
+            </a>
+          </Reveal>
+        </div>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Reveal delay={0.12}>
+            <p className="flex h-full items-start gap-2.5 rounded-xl border bg-muted/40 p-4 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              <Icon name="shield-check" className="h-4.5 w-4.5 mt-0.5 shrink-0 text-primary" />
+              <span>{t("nusuk.dgaNote")}</span>
+            </p>
+          </Reveal>
+          <Reveal delay={0.16}>
+            <p className="flex h-full items-start gap-2.5 rounded-xl border bg-muted/40 p-4 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              <Icon name="heart-pulse" className="h-4.5 w-4.5 mt-0.5 shrink-0 text-gold-deep" />
+              <span>{t("nusuk.healthNote")}</span>
+            </p>
+          </Reveal>
+        </div>
       </div>
     </section>
   );
@@ -1089,6 +1284,7 @@ export function NusukView() {
       ) : (
         <>
           <MetricsSection metrics={data.metrics} totalSyncs={data.connection.totalSyncs} />
+          <OfficialSection />
           <PermitCheckerSection />
           <MatrixSection ecosystems={data.ecosystems} />
           <ApiBridgeSection />
