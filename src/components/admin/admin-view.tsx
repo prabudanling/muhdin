@@ -26,6 +26,7 @@ import { AdminResources } from "@/components/admin/admin-resources";
 import { AdminComplaints } from "@/components/admin/admin-complaints";
 import { AdminSubscribers } from "@/components/admin/admin-subscribers";
 import { AdminAudit } from "@/components/admin/admin-audit";
+import { AdminBranches } from "@/components/admin/admin-branches";
 import { visibleSections, ROLE_LABELS } from "@/lib/roles";
 import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ const MENU = [
   { id: "faqs", label: "FAQ", icon: "help-circle" },
   { id: "testimonials", label: "Testimoni", icon: "quote" },
   { id: "management", label: "Struktur Organisasi", icon: "users" },
+  { id: "branches", label: "Jaringan Daerah (DPD)", icon: "landmark" },
   { id: "settings", label: "Pengaturan Situs", icon: "settings" },
   { id: "translator", label: "Penerjemah Cerdas", icon: "languages" },
   { id: "gallery", label: "Galeri Kegiatan", icon: "instagram" },
@@ -200,6 +202,7 @@ export function AdminView() {
           {section === "faqs" && <AdminFaqs />}
           {section === "testimonials" && <AdminTestimonials />}
           {section === "management" && <AdminManagement />}
+          {section === "branches" && <AdminBranches />}
           {section === "settings" && (
             <>
               <AdminSettings />

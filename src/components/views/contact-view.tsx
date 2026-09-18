@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { useT } from "@/lib/i18n";
+import { BranchesSection } from "@/components/site/branches-section";
 import type { Faq } from "@/lib/types";
 
 const CONTACT_CARDS = [
@@ -75,6 +76,11 @@ export function ContactView() {
             </TabsContent>
           </Tabs>
         </div>
+      </section>
+
+      {/* Kantor cabang & jaringan daerah (DPD) — Task 19 */}
+      <section className="py-14 bg-mint/30 dark:bg-muted/30">
+        <BranchesSection />
       </section>
     </div>
   );

@@ -546,3 +546,28 @@ Stage Summary:
 - 12 fitur baru LIVE: Pelacak Status Pendaftaran (kode tiket MHD-XXXXXX), Galeri Kegiatan, Agenda Kegiatan, Pusat Unduhan (4 PDF asli + counter), Lapor Pengaduan, Newsletter footer, RSS/robots/sitemap, 6 modul CMS baru, Lonceng notifikasi in-app, Log Aktivitas (audit trail otomatis), Ekspor CSV 5 jenis, Rate-limit anti-spam form publik
 - Arsitektur: 6 model DB baru + 19 file API baru + 12 file UI baru + 5 namespace i18n (id/en/ar) — semua lewat token warna Task 16 (WCAG AA) & gating peran Task 15/17
 - Total endpoint baru: gallery, events, resources(+download), complaints, subscribers, audit, export, rss, track = 9 keluarga endpoint
+
+---
+Task ID: 19 (DPD & Jaringan Kepengurusan Daerah — Branch Office)
+Agent: Z.ai Code (main thread)
+Task: "tolong tambahkan Dewan Pimpinan Daerah Jawa Barat; PIC: Tn. H. Muhammad Lutfi Azmi +6281316516524; Branch OFFICE MUHDIN JABAR: Perumahan Andalusia Garden Cluster Granada No.11, Mangkubumi, Mangkubumi, Tasikmalaya, 46181, Jawa Barat, Indonesia" — fitur Jaringan Daerah (DPD/Branch Office) dari nol: schema, API, portal (Tentang+Kontak), CMS, i18n 3 bahasa.
+
+Work Log:
+- SCHEMA: model baru RegionalBranch (name, code, province, city, officeName, address, picName, picPhone, email?, description?, published, order) + db push + RESTART dev server (wajib setelah push — pola lama tetap berlaku), health 200.
+- TYPES: src/lib/types.ts += RegionalBranchItem (13 field).
+- API BARU: /api/branches (GET publik published urut order + ?all=1 utk sesi admin + applyEntityTranslations fields [name, officeName, address, description] entity "RegionalBranch"; POST guardRole [SUPER_ADMIN,ADMIN,EDITOR] + logAudit CREATE) & /api/branches/[id] (PUT/DELETE guard sama + logAudit UPDATE/DELETE).
+- SEED: scripts/seed-task19.mjs (idempotent via cek code) — DPD-JABAR: name "Dewan Pimpinan Daerah Jawa Barat", city Tasikmalaya, province Jawa Barat, officeName "Branch Office MUHDIN JABAR", address lengkap sesuai input user, picName "Tn. H. Muhammad Lutfi Azmi", picPhone "+6281316516524", description koordinasi wilayah, order 1.
+- PORTAL: komponen bersama src/components/site/branches-section.tsx (SectionHeading + grid grid-cols-1 lg:grid-cols-2 + min-w-0 anti-overflow mobile; kartu: header gradient forest + ikon landmark + badge kode monospace + kota/provinsi; blok KANTOR (officeName + address + link Google Maps search API); blok PIC (avatar inisial, nama, telepon dir=ltr font-mono, tombol "Chat WhatsApp" → https://wa.me/{digits}); badge "Resmi"; empty state + skeleton + counter "{n} wilayah"); dipasang di about-view (#/tentang, setelah Struktur Organisasi, sebelum Roadmap) & contact-view (#/kontak, section bg-mint setelah form).
+- I18N: locales/branches.ts (18 key × id/en/ar — eyebrow/title/subtitle/countLabel/picLabel/phoneLabel/officeLabel/addressLabel/waCta/waAria/mapAria/mapCta/emptyTitle/emptyDesc) + daftar di dictionaries.ts; konten DB otomatis diterjemahkan engine (EN: "West Java Regional Leadership Council" — terverifikasi tersimpan di ContentTranslation).
+- CMS: admin-branches.tsx (CrudManager "Jaringan Daerah (DPD)" endpoint /api/branches?all=1; 12 field termasuk Nama PIC + Nomor PIC (WhatsApp) dgn hint format 62xxx; kolom Kepengurusan/Kode/PIC/Kantor(preview map-pin)/Urutan/Status Terbit-Draft; searchKeys name,code,province,city,picName,officeName); roles.ts += branches [SUPER_ADMIN,ADMIN,EDITOR] setelah management; admin-view.tsx += menu "Jaringan Daerah (DPD)" ikon landmark + import + render.
+
+VERIFIKASI:
+- lint 0 error; tsc 0 error baru (1 error sendiri "b is unknown" di branches/route.ts diperbaiki — let rows jadi dua variabel typed terpisah; sisa error hanya pre-existing file agen lain).
+- CURL 10/10: GET publik 200 (1 row DPD-JABAR), POST tanpa cookie 401, POST admin 201, GET ?all=1 admin 2 rows, PUT 200, DELETE 200, GET publik kembali 1 row, POST verifikator 403, audit log CREATE/UPDATE/DELETE RegionalBranch tercatat (dgn akun+peran), GET ?locale=en → "West Java Regional Leadership Council" (auto-translate tersimpan).
+- AGENT BROWSER E2E: #/tentang → section "Kepengurusan Daerah & Branch Office", kartu DPD-JABAR lengkap (href wa.me/6281316516524 + Google Maps query alamat persis); #/kontak → section sama tampil; CMS login → menu "Jaringan Daerah (DPD)" → tabel berisi row dgn PIC & kantor → dialog Ubah semua field terisi benar (nama/kode/provinsi/kota/kantor/alamat/PIC/telepon); EN & AR (dir=rtl lang=ar) judul+judul kartu diterjemahkan; mobile 390px scrollWidth=390 (0 overflow), kartu stack 1 kolom rapi.
+- console 0 error; dev.log bersih (hanya prisma:query sehat + upsert ContentTranslation).
+
+Stage Summary:
+- Fitur "Jaringan Kepengurusan Daerah (DPD & Branch Office)" LIVE end-to-end: data DPD Jawa Barat (PIC Tn. H. Muhammad Lutfi Azmi +6281316516524, Branch Office MUHDIN JABAR Tasikmalaya) tampil di 2 halaman publik (#/tentang & #/kontak) dengan tombol WhatsApp & Google Maps, dikelola dari CMS modul baru, i18n 3 bahasa (id/en/ar RTL) termasuk terjemahan konten DB otomatis.
+- Artefak: schema RegionalBranch, 2 route API + audit, seed-task19.mjs, branches-section.tsx, admin-branches.tsx, locales/branches.ts — pola CrudManager/guardRole/audit/applyEntityTranslations konsisten dengan Task 14-18.
+- Menambah DPD/cabang baru berikutnya cukup dari CMS (Tambah) — tidak perlu ubah kode.

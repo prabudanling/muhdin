@@ -186,6 +186,26 @@ model Management {
   order    Int    @default(0)
 }
 
+/// Jaringan kepengurusan daerah — DPD/DPC & Branch Office (Task 19).
+/// Contoh: DPD Jawa Barat + Branch Office MUHDIN JABAR Tasikmalaya.
+model RegionalBranch {
+  id          String   @id @default(cuid())
+  name        String // "Dewan Pimpinan Daerah Jawa Barat"
+  code        String   @default("") // "DPD-JABAR"
+  province    String   @default("")
+  city        String   @default("")
+  officeName  String   @default("") // "Branch Office MUHDIN JABAR"
+  address     String   @default("") // alamat lengkap kantor
+  picName     String   @default("") // Person In Charge
+  picPhone    String   @default("") // format bebas, tampil + wa.me link
+  email       String?
+  description String?
+  published   Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model SiteSetting {
   id    String @id @default(cuid())
   key   String @unique

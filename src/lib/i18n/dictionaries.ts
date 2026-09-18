@@ -21,6 +21,7 @@ import { galleryDict } from "@/lib/i18n/locales/gallery";
 import { agendaDict } from "@/lib/i18n/locales/agenda";
 import { downloadsDict } from "@/lib/i18n/locales/downloads";
 import { reportDict } from "@/lib/i18n/locales/report";
+import { branchesDict } from "@/lib/i18n/locales/branches";
 
 const dicts = [
   commonDict,
@@ -42,6 +43,7 @@ const dicts = [
   agendaDict,
   downloadsDict,
   reportDict,
+  branchesDict,
 ];
 
 export const dictionaries: Record<"id" | "en" | "ar", Record<string, unknown>> = {

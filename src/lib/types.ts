@@ -133,6 +133,23 @@ export interface ManagementMember {
   order: number;
 }
 
+/** Jaringan kepengurusan daerah — DPD/DPC & Branch Office (Task 19). */
+export interface RegionalBranchItem {
+  id: string;
+  name: string;
+  code: string;
+  province: string;
+  city: string;
+  officeName: string;
+  address: string;
+  picName: string;
+  picPhone: string;
+  email: string | null;
+  description: string | null;
+  published: boolean;
+  order: number;
+}
+
 export interface SiteSettings {
   [key: string]: string;
 }

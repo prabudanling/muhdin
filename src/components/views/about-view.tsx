@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BRAND, CORE_VALUES, PARTNERS, KPI_ROWS } from "@/lib/constants";
+import { BranchesSection } from "@/components/site/branches-section";
 import { useT } from "@/lib/i18n";
 import type { ManagementMember, Roadmap, SiteSettings } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -191,8 +192,11 @@ export function AboutView() {
         </div>
       </section>
 
+      {/* Jaringan Kepengurusan Daerah (DPD & Branch Office) — Task 19 */}
+      <BranchesSection />
+
       {/* Roadmap + KPI */}
-      <section className="py-14">
+      <section className="py-14 bg-mint/30 dark:bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
             eyebrow={t("about.roadmapEyebrow")}
