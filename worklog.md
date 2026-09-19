@@ -701,3 +701,24 @@ Stage Summary:
 - Artefak: scripts/update-management.mjs (idempoten), about-view.tsx (+bagan, +personInitial), branches-section.tsx, about.ts (+8 key × 3).
 - CATATAN USER: "BEMDUM" dipasang verbatim — konfirmasi bila artinya "Bendahara Umum" (dugaan kuat) agar label + bio diperjelas; terjemahan AR otomatis menganggapnya jabatan sekretariat (الأمين المساعد).
 - Tanpa perubahan schema/API/admin — data & UI saja; lint 0 error; tidak perlu restart dev server.
+
+---
+Task ID: 29
+Agent: Z.ai Code (main orchestrator)
+Task: User minta tanam branding: "MUHDIN = ASOSIASI HAJI UMROH DIGITAL PERTAMA DI DUNIA", warisan PHI (Perjalanan Haji Indonesia) & IPHI (Ikatan Persaudaraan Haji Indonesia) sebagai penyelenggara pertama di Nusantara sebelum Kemenag, Pengurus Pusat = tokoh nasional/internasional + arsitek blueprint haji-umrah Indonesia (karya abadi pra-payung hukum) — plus README terbaik di dunia.
+
+Work Log:
+- Tanam ke situs (3 bahasa): home.hero.badge → "Asosiasi Haji & Umrah Digital Pertama di Dunia" (en: The World's First Digital Hajj & Umrah Association; ar: أول جمعية رقمية للحج والعمرة في العالم).
+- about.ts: blok heritage × 3 bahasa (era1 PHI & IPHI pra-1946, era2 Blueprint karya abadi, era3 MUHDIN pertama di dunia 2026) + about.org.credibility (tokoh nasional/internasional + arsitek blueprint).
+- about-view.tsx: section "Warisan Sejarah" baru (3 kartu era, era-3 hero gradient forest-gold + garis penghubung desktop, icons scroll-text/file-text/sparkles) + figure kutipan kredibilitas pengurus di section Struktur Organisasi.
+- ANOMALI: saat mulai edit README, README.md dan folder docs/ HILANG dari disk (tak ter-track git; kemungkinan git clean proses latar). Inti proyek aman. Respons: (1) rebuild README langsung v1.4.0 (v1.3.0 direkonstruksi dari konteks + semua tambahan v1.4), (2) banner.svg baru dirancang ulang (ka'bah stilasi, kubah, bintang, ribbon "ASOSIASI HAJI & UMRAH DIGITAL PERTAMA DI DUNIA"), (3) 5 screenshot di-retake via Agent Browser (home-hero dgn badge baru, airlines-filter, dark-mode, arabic-rtl dgn badge Arab, admin-dashboard via login asli), (4) SEMUA di-commit git (852e8f3) sebagai proteksi.
+- TEMUAN saat retake: filter maskapai (Task 24) ternyata hilang saat rebuild — home-view hanya marquee; README v1.3 mengklaim fitur yang tak ada. Pulihkan: AirlinesDirectory (chip kawasan ber-counter Semua 76/Teluk 19/Asia 26/Afrika-Eropa 27 → grid instan 4 kolom max-h-96 scroll + Stagger) + dict home.airlines.filterTitle/filterSub/regionAll/resultCount × 3. Bug: grid class di div luar Stagger → 1 kolom; pindah ke className Stagger → 4 kolom.
+- Sinkronisasi klaim README dgn realita: "46 negara" → 45 (AIRLINE_COUNTRIES + dict), dropdown negara → direktori filter kawasan (chip ber-counter + grid), caption screenshot & baris gerbang mutu diperbarui.
+- Verifikasi: lint 0 error; README 862 baris, 41 link internal 0 mati, 6/6 gambar ada, 7 mermaid (5 + timeline warisan + RBAC); E2E filter (klik Asia → "26 maskapai" + 26 kartu logo), console 0 error/warning; commit git.
+
+Stage Summary:
+- Branding first-in-world tertanam di 3 titik situs (badge hero, section warisan, kutipan kredibilitas) dalam 3 bahasa + jadi identitas README v1.4.0.
+- README.md v1.4.0: header klaim dunia (3 bahasa) + badge PERTAMA_DI_DUNIA, section "🏛️ Warisan dan Garis Waktu" (mermaid timeline + tabel 3 era + narasi pengurus + details justifikasi klaim), versi 1.4.0; semua angka sesuai kode.
+- Filter maskapai pulih (fitur user Task 24 yang hilang) — kini chip kawasan ber-counter + direktori grid scroll.
+- docs/assets pulih dan TER-COMMIT git (banner.svg baru + 5 screenshot asli); README pun ter-commit — anomali kehilangan file tak akan menghapusnya lagi.
+- Berkas: README.md, docs/assets/*, src/components/views/{home,about}-view.tsx, src/lib/i18n/locales/{home,about}.ts, scripts/update-management.mjs (Task 28) — commit 852e8f3.
