@@ -22,7 +22,9 @@ function waDigits(phone: string): string {
 }
 
 function initials(name: string): string {
-  const clean = name.replace(/^(Tn\.|Ny\.|H\.|Hj\.|Drs\.|Ir\.|Prof\.)\s*/i, "").trim();
+  const clean = name
+    .replace(/^(Hj?\.|Drs\.|Prof\.|Dr\.|Ir\.|KH\.|Tn\.|Ny\.)*\s*/gi, "")
+    .trim();
   return clean.charAt(0).toUpperCase() || "?";
 }
 

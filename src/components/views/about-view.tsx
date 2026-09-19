@@ -15,6 +15,14 @@ import { useT } from "@/lib/i18n";
 import type { ManagementMember, Roadmap, SiteSettings } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+/** Inisial nama — buang seluruh gelar di depan (Prof., Dr., KH., H., …). */
+function personInitial(name: string): string {
+  const clean = name
+    .replace(/^(Hj?\.|Drs\.|Prof\.|Dr\.|Ir\.|KH\.|Tn\.|Ny\.)*\s*/gi, "")
+    .trim();
+  return clean.charAt(0).toUpperCase() || "?";
+}
+
 export function AboutView() {
   const { t, locale } = useT();
   const [management, setManagement] = useState<ManagementMember[] | null>(null);
@@ -165,6 +173,49 @@ export function AboutView() {
             title={t("about.mgmtTitle")}
             subtitle={t("about.mgmtSubtitle")}
           />
+          {/* Bagan Struktur Kepengurusan — struktur resmi (Task 28) */}
+          <Reveal className="mt-10">
+            <div className="mx-auto max-w-3xl rounded-3xl border bg-card p-6 sm:p-10 shadow-sm">
+              <div className="flex flex-col items-center" role="img" aria-label={t("about.org.pp") + " → " + t("about.org.bakorwil") + " → " + t("about.org.bakorcab")}>
+                {/* Pengurus Pusat */}
+                <div className="w-full max-w-md rounded-2xl bg-gradient-to-br from-forest to-forest-deep p-5 text-center text-white shadow-md relative overflow-hidden">
+                  <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
+                  <div className="relative">
+                    <Icon name="landmark" className="mx-auto h-6 w-6 text-gold" />
+                    <p className="mt-2 text-lg font-extrabold tracking-wide">{t("about.org.pp")}</p>
+                    <p className="text-xs text-emerald-50/80">{t("about.org.ppFull")}</p>
+                  </div>
+                </div>
+                {/* Penunjukan */}
+                <div className="flex flex-col items-center">
+                  <span className="h-5 w-px bg-border" aria-hidden="true" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-[11px] font-bold text-gold-deep">
+                    <Icon name="user-plus" className="h-3.5 w-3.5" />
+                    {t("about.org.appoint")}
+                  </span>
+                  <span className="h-5 w-px bg-border" aria-hidden="true" />
+                </div>
+                {/* Bakorwil */}
+                <div className="w-full max-w-md rounded-2xl border-2 border-primary/25 bg-primary/[0.06] p-4 text-center">
+                  <Icon name="network" className="mx-auto h-5 w-5 text-primary" />
+                  <p className="mt-1.5 font-extrabold text-primary">{t("about.org.bakorwil")}</p>
+                  <p className="text-xs text-muted-foreground">{t("about.org.bakorwilFull")}</p>
+                </div>
+                <span className="h-5 w-px bg-border" aria-hidden="true" />
+                {/* Bakorcab */}
+                <div className="w-full max-w-md rounded-2xl border-2 border-border bg-muted/40 p-4 text-center">
+                  <Icon name="building-2" className="mx-auto h-5 w-5 text-foreground/60" />
+                  <p className="mt-1.5 font-extrabold">{t("about.org.bakorcab")}</p>
+                  <p className="text-xs text-muted-foreground">{t("about.org.bakorcabFull")}</p>
+                </div>
+              </div>
+              <p className="mt-6 flex items-start justify-center gap-1.5 text-center text-[11px] text-muted-foreground leading-relaxed max-w-lg mx-auto">
+                <Icon name="info" className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gold-deep" />
+                <span>{t("about.org.note")}</span>
+              </p>
+            </div>
+          </Reveal>
+
           {!management ? (
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -177,7 +228,7 @@ export function AboutView() {
                 <Reveal key={m.id} delay={i * 0.07}>
                   <div className="h-full rounded-2xl border bg-card p-6 shadow-sm text-center hover:shadow-lg transition-shadow">
                     <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-primary to-forest grid place-items-center text-white text-xl font-extrabold shadow-md">
-                      {m.name.replace(/^(H\.|Hj\.|Drs\.|Ir\.|Prof\.)\s*/i, "").charAt(0)}
+                      {personInitial(m.name)}
                     </div>
                     <h3 className="mt-4 font-bold text-sm leading-snug">{m.name}</h3>
                     <Badge className="mt-2 bg-gold/15 text-gold-deep border-gold/30 text-[10px] hover:bg-gold/25">

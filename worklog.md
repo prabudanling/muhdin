@@ -681,3 +681,23 @@ Stage Summary:
 - Artefak: scripts/fetch-airline-logos.mjs (rerunnable), public/airlines/*.png (76 file), src/lib/airlines.ts (generated), globals.css (+reverse), home-view.tsx (AirlinesSection), locales/home.ts (airlines 3 bahasa)
 - Total logo di halaman: 148 render (76 unik × loop + 4 unggulan), bobot total ~230KB, semua lazy-loaded
 - Keputusan: logo di-host lokal di public/ (bukan hotlink CDN) agar aman untuk shared hosting release; script mendukung re-run untuk menambah/refresh maskapai
+
+---
+Task ID: 28
+Agent: Z.ai Code (main orchestrator)
+Task: User kirim SUSUNAN PENGURUS MUHDIN resmi (Pembina/Penasehat/Ketua Umum/Sekjen/BEMDUM) + STRUKTUR organisasi (Pengurus Pusat → penunjukan → Bakorwil Provinsi → Bakorcab Kab/Kota) → pasang ke data & UI.
+
+Work Log:
+- Audit: model Management (name/position/bio/order), API /api/management (applyEntityTranslations position+bio via ContentTranslation), view about-view.tsx section "Struktur Organisasi", BranchesSection + RegionalBranch (DPD-JABAR), dict about.ts 3 bahasa, admin CRUD AdminManagement siap pakai.
+- Buat scripts/update-management.mjs (idempoten): ganti 5 entri seed fiktif → susunan resmi: 1 Pembina Prof. Dr. Anwar Sanusi · 2 Penasehat KH. Qosim Saleh, Lc., M.Si. · 3 Ketua Umum Drs. Arif Racman Hakim · 4 Sekretaris Jenderal Gugun Gunara · 5 BEMDUM Jonaedi, M.Pd. (posisi ditulis verbatim sesuai user; bio = deskripsi fungsi jabatan, tanpa karangan riwayat pribadi). Hapus ContentTranslation lama entity Management.
+- Selaraskan RegionalBranch: DPD-JABAR → BAKORWIL-JABAR "Badan Koordinator Wilayah Provinsi Jawa Barat" (alamat & PIC Tasikmalaya dipertahankan), deskripsi menyebut koordinasi Bakorcab + pembentukan via penunjukan.
+- about.ts: tambah blok about.org.* × 3 bahasa (pp, ppFull, appoint, bakorwil, bakorwilFull, bakorcab, bakorcabFull, note).
+- about-view.tsx: bagan struktur vertikal (Pengurus Pusat gradient forest + ikon landmark → pill emas "Penunjukan" → Bakorwil → Bakorcab + catatan) — pure Tailwind, flex-col center, RTL-safe, role=img + aria-label; perbaiki fungsi inisial avatar (personInitial: strip gelar berulang H./Hj./Drs./Prof./Dr./Ir./KH./Tn./Ny. — bug lama: "Prof. Dr. Anwar" → inisial spasi kosong).
+- branches-section.tsx: fungsi initials sama-sama diperluas (KH./Dr. kini terstrip).
+- Verifikasi: lint 0 error; curl /api/management → 5 pengurus urut; /api/branches → BAKORWIL-JABAR; Agent Browser E2E #/tentang: ID 11/11 teks cocok (bagan + 5 nama + Bakorwil JABAR), EN (Central Board/Appointed/Provincial Bakorwil/Regency-City Bakorcab + jabatan AI: Patron/Advisor/Chairman/Secretary General), AR dir=rtl + المجلس المركزي/بالتعيين/مجلس التنسيق الإقليمي + jabatan Arab (المشرف/المستشار/رئيس مجلس الإدارة/الأمين العام); nama orang tak diterjemahkan ✓; screenshot desktop+mobile 390px indah; console 0 error/warning.
+
+Stage Summary:
+- Halaman #/tentang kini menampilkan struktur resmi: bagan hierarki (Pengurus Pusat → Penunjukan → Bakorwil Provinsi → Bakorcab Kab/Kota) + 5 kartu pengurus inti dengan nama asli; jaringan daerah selaras terminologi Bakorwil/Bakorcab.
+- Artefak: scripts/update-management.mjs (idempoten), about-view.tsx (+bagan, +personInitial), branches-section.tsx, about.ts (+8 key × 3).
+- CATATAN USER: "BEMDUM" dipasang verbatim — konfirmasi bila artinya "Bendahara Umum" (dugaan kuat) agar label + bio diperjelas; terjemahan AR otomatis menganggapnya jabatan sekretariat (الأمين المساعد).
+- Tanpa perubahan schema/API/admin — data & UI saja; lint 0 error; tidak perlu restart dev server.
