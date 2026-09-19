@@ -15,6 +15,7 @@ import {
   AIRLINES_GCC,
   AIRLINES_ASIA,
   AIRLINES_AFRICA_EUROPE,
+  AIRLINES_ALL,
   AIRLINES_COUNT,
   AIRLINE_COUNTRIES,
   airlineLogo,
@@ -842,6 +843,81 @@ function AirlineRow({
   );
 }
 
+/* ================= DIREKTORI FILTER KAWASAN — pulihan Task 29 ================= */
+type RegionKey = "all" | "gcc" | "asia" | "africaEurope";
+
+function AirlinesDirectory() {
+  const { t } = useT();
+  const [region, setRegion] = useState<RegionKey>("all");
+
+  const regions: { key: RegionKey; label: string; list: Airline[] }[] = [
+    { key: "all", label: t("home.airlines.regionAll"), list: AIRLINES_ALL },
+    { key: "gcc", label: t("home.airlines.regionGcc"), list: AIRLINES_GCC },
+    { key: "asia", label: t("home.airlines.regionAsia"), list: AIRLINES_ASIA },
+    { key: "africaEurope", label: t("home.airlines.regionAfricaEurope"), list: AIRLINES_AFRICA_EUROPE },
+  ];
+  const active = regions.find((r) => r.key === region) ?? regions[0];
+
+  return (
+    <Reveal className="mt-12">
+      <div className="rounded-3xl border bg-card p-5 sm:p-7 shadow-sm">
+        <div className="flex flex-col items-start gap-1">
+          <h3 className="text-lg font-extrabold leading-tight">{t("home.airlines.filterTitle")}</h3>
+          <p className="text-xs text-muted-foreground">{t("home.airlines.filterSub")}</p>
+        </div>
+
+        {/* Chip filter kawasan ber-counter */}
+        <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t("home.airlines.filterTitle")}>
+          {regions.map((r) => {
+            const isActive = region === r.key;
+            return (
+              <button
+                key={r.key}
+                type="button"
+                onClick={() => setRegion(r.key)}
+                aria-pressed={isActive}
+                className={cn(
+                  "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition-all",
+                  isActive
+                    ? "border-transparent bg-gradient-to-r from-gold to-gold-soft text-forest-deep shadow-md"
+                    : "border-border bg-muted/40 text-foreground/75 hover:border-gold/40 hover:bg-gold/10 hover:text-gold-deep"
+                )}
+              >
+                {r.label}
+                <span
+                  className={cn(
+                    "grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-extrabold",
+                    isActive ? "bg-forest-deep/15 text-forest-deep" : "bg-primary/10 text-primary"
+                  )}
+                >
+                  {r.list.length}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Grid hasil direktori — scroll vertikal */}
+        <p className="mt-5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground" aria-live="polite">
+          {t("home.airlines.resultCount", { n: active.list.length })}
+        </p>
+        <div
+          key={active.key}
+          className="mt-3 max-h-96 overflow-y-auto pe-1 scrollbar-thin"
+        >
+          <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" stagger={0.03}>
+            {active.list.map((a) => (
+              <StaggerItem key={a.code}>
+                <AirlineChip a={a} />
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
 function AirlinesSection() {
   const { t, locale } = useT();
   return (
@@ -929,6 +1005,9 @@ function AirlinesSection() {
           <AirlineRow airlines={AIRLINES_ASIA} regionKey="regionAsia" duration={64} reverse />
           <AirlineRow airlines={AIRLINES_AFRICA_EUROPE} regionKey="regionAfricaEurope" duration={56} />
         </div>
+
+        {/* Direktori filter kawasan — pulihan Task 29 */}
+        <AirlinesDirectory />
 
         <Reveal className="mt-8">
           <p className="flex items-start justify-center gap-2 text-center text-[11px] leading-relaxed text-muted-foreground">

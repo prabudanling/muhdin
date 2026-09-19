@@ -100,6 +100,60 @@ export function AboutView() {
         </div>
       </section>
 
+      {/* Warisan Sejarah — PHI · IPHI · Blueprint · MUHDIN (Task 29) */}
+      <section className="py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <SectionHeading
+            eyebrow={t("about.heritage.eyebrow")}
+            title={t("about.heritage.title")}
+            subtitle={t("about.heritage.subtitle")}
+          />
+          <div className="relative mt-10">
+            {/* Garis penghubung era (desktop) */}
+            <span aria-hidden className="hidden lg:block absolute top-1/2 start-8 end-8 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+            <div className="relative grid gap-4 lg:grid-cols-3">
+              {[
+                { k: "era1", icon: "scroll-text" },
+                { k: "era2", icon: "file-text" },
+                { k: "era3", icon: "sparkles", hero: true },
+              ].map((era, i) => (
+                <Reveal key={era.k} delay={i * 0.1}>
+                  <div
+                    className={cn(
+                      "relative h-full rounded-2xl border p-6 shadow-sm text-center transition-shadow hover:shadow-lg",
+                      era.hero
+                        ? "border-gold/50 bg-gradient-to-br from-forest to-forest-deep text-white overflow-hidden"
+                        : "bg-card"
+                    )}
+                  >
+                    {era.hero && <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />}
+                    <div className="relative">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em]",
+                          era.hero
+                            ? "bg-gold/25 text-gold-soft border border-gold/50"
+                            : "bg-primary/10 text-primary border border-primary/25"
+                        )}
+                      >
+                        <Icon name={era.icon} className="h-3 w-3" />
+                        {t(`about.heritage.${era.k}Label`)}
+                      </span>
+                      <h3 className={cn("mt-4 text-lg font-extrabold", era.hero ? "text-gold-gradient" : "text-foreground")}>
+                        {t(`about.heritage.${era.k}Title`)}
+                      </h3>
+                      <p className={cn("mt-2.5 text-xs leading-relaxed", era.hero ? "text-emerald-50/85" : "text-muted-foreground")}>
+                        {t(`about.heritage.${era.k}Desc`)}
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Prinsip Federasi */}
       <section className="py-14 bg-mint/30 dark:bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -173,6 +227,16 @@ export function AboutView() {
             title={t("about.mgmtTitle")}
             subtitle={t("about.mgmtSubtitle")}
           />
+          {/* Kredibilitas pengurus — Task 29 */}
+          <Reveal className="mt-10">
+            <figure className="mx-auto max-w-3xl rounded-2xl border border-gold/30 bg-gold/[0.07] px-6 py-5 text-center">
+              <blockquote className="text-sm font-semibold leading-relaxed text-foreground/90">
+                “{t("about.org.credibility")}”
+              </blockquote>
+              <figcaption className="sr-only">{t("about.mgmtEyebrow")}</figcaption>
+            </figure>
+          </Reveal>
+
           {/* Bagan Struktur Kepengurusan — struktur resmi (Task 28) */}
           <Reveal className="mt-10">
             <div className="mx-auto max-w-3xl rounded-3xl border bg-card p-6 sm:p-10 shadow-sm">

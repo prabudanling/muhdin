@@ -7,7 +7,7 @@ export const homeDict = {
   id: {
     home: {
       hero: {
-        badge: "Asosiasi di Atas Asosiasi Penyelenggara Ibadah — Operator Nusuk Indonesia",
+        badge: "Asosiasi Haji & Umrah Digital Pertama di Dunia",
         title1: "Transformasi Digitalisasi",
         titleGold: "Umroh & Haji",
         title2: "Indonesia 2030",
@@ -75,6 +75,10 @@ export const homeDict = {
         regionAsia: "Asia",
         regionAfricaEurope: "Afrika & Eropa",
         note: "Rute reguler & musiman (umrah/haji charter) dapat berubah mengikuti regulasi penerbangan masing-masing negara. Logo merek dagang milik maskapai terkait.",
+        filterTitle: "Jelajahi Direktori Maskapai",
+        filterSub: "Pilih kawasan untuk menyaring direktori — hasilnya instan.",
+        regionAll: "Semua Kawasan",
+        resultCount: "{n} maskapai",
       },
       ekosistem: {
         eyebrow: "Arsitektur Layanan",
@@ -244,7 +248,7 @@ export const homeDict = {
   en: {
     home: {
       hero: {
-        badge: "The Umbrella Association of Worship Travel Operators — Nusuk Operator Indonesia",
+        badge: "The World's First Digital Hajj & Umrah Association",
         title1: "Digital Transformation of",
         titleGold: "Umrah & Hajj",
         title2: "Indonesia 2030",
@@ -312,6 +316,10 @@ export const homeDict = {
         regionAsia: "Asia",
         regionAfricaEurope: "Africa & Europe",
         note: "Regular & seasonal routes (umrah/hajj charters) may change according to each country's aviation regulations. Logos are trademarks of their respective airlines.",
+        filterTitle: "Explore the Airline Directory",
+        filterSub: "Pick a region to filter the directory — results are instant.",
+        regionAll: "All Regions",
+        resultCount: "{n} airlines",
       },
       ekosistem: {
         eyebrow: "Service Architecture",
@@ -481,7 +489,7 @@ export const homeDict = {
   ar: {
     home: {
       hero: {
-        badge: "اتحاد جمعيات منظمي رحلات العبادة — مشغل نسك في إندونيسيا",
+        badge: "أول جمعية رقمية للحج والعمرة في العالم",
         title1: "التحول الرقمي",
         titleGold: "للعمرة والحج",
         title2: "في إندونيسيا 2030",
@@ -549,6 +557,10 @@ export const homeDict = {
         regionAsia: "آسيا",
         regionAfricaEurope: "أفريقيا وأوروبا",
         note: "قد تتغير الرحلات المنتظمة والموسمية (تشارتر العمرة والحج) وفق أنظمة الطيران في كل دولة. الشعارات علامات تجارية لشركات الطيران المعنية.",
+        filterTitle: "استكشف دليل شركات الطيران",
+        filterSub: "اختر منطقة لتصفية الدليل — النتائج فورية.",
+        regionAll: "كل المناطق",
+        resultCount: "{n} شركة طيران",
       },
       ekosistem: {
         eyebrow: "هندسة الخدمات",
