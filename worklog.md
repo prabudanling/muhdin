@@ -744,3 +744,21 @@ Stage Summary:
 - Keputusan arsitektur: dual-mode (`BUILD_STATIC` toggle) — mode Node standalone (fitur AI penuh) TETAP utuh sebagai Opsi B; sesi & password: cookie `muhdin_session` sama, hash scrypt Node tak terverifikasi PHP → akun demo di-rehash bcrypt saat build + akun lain di-reset via CMS (terdokumentasi di INSTALL.txt).
 - 4 klaim branding (Pertama di Dunia, PHI & IPHI pra-Kemenag, tokoh pengurus, blueprint karya abadi) terverifikasi SUDAH tertanam lengkap sejak v1.4.0 (badge hero + section Warisan + i18n 3 bahasa + constants) — tidak ada duplikasi, hanya dilengkapi narasi deployment v2.0.
 - Bukti visual: deploy/e2e-hosting-{home,admin,berita,tentang,mobile}.png + deploy/e2e-node-home.png.
+
+---
+Task ID: 29-D (lanjutan)
+Agent: Z.ai Code (Master Polymath · Sage Universal · Ultimate Problem Solver)
+Task: "Download workspace failed: Failed to fetch" — gagal unduh workspace; solusikan akses ke paket shared hosting + verifikasi ulang seluruh artefak Task 29.
+
+Work Log:
+- REDISCOVERY: Task 29 (Shared Hosting Edition v2.0.0) terbukti rampung penuh di sesi sebelumnya — backend PHP 3.867 baris (shared-hosting/api), build pipeline scripts/build-shared-hosting.mjs, E2E backend 20+ skenario, E2E browser :3010 + regresi :3000, README v2.0.0; artefak deploy/muhdin-shared-hosting-v2.0.0.zip UTUH (unzip -t: "No errors detected", 194 file, 7,3 MB terkompresi 3,7 MB).
+- DIAGNOSIS DOWNLOAD GAGAL: total workspace ±1,5 GB (node_modules 1,2 GB + .next 248 MB + deploy 13 MB) → gateway unduhan workspace timeout/gagal ("Failed to fetch").
+- SOLUSI SALURAN LANGSUNG: salin paket ke public/ sehingga dapat diunduh via URL preview tanpa download seluruh workspace: /muhdin-shared-hosting-v2.0.0.zip (curl -sI: 200, Content-Type application/zip, Content-Length 3.708.371) + /muhdin-shared-hosting-INSTALL.txt (200).
+- PENGAMAN REBUILD: scripts/build-shared-hosting.mjs kini menghapus *.zip & salinan INSTALL dari hasil export (mencegah zip bersarang saat rebuild berikutnya); .gitignore += /public/*.zip + /public/muhdin-shared-hosting-INSTALL.txt; bersihkan /tmp/muhdin-hosting-build.
+- SMOKE TEST ULANG: :3010 home 200 (55 KB), /api/members hidup (data member tampil), /api/stats ter-guard admin dengan benar (paritas kontrak), /api/auth/me 200; :3000 root 200; dev.log normal (query Prisma wajar).
+- E2E BROWSER :3000 (Agent Browser): title "MUHDIN — Masyarakat Umroh Haji Digital Nusantara", 0 page error, body 18.886 char, brand + hero tampil — sehat setelah penambahan file publik.
+
+Stage Summary:
+- User kini punya 3 jalur mendapatkan paket: (1) URL preview /muhdin-shared-hosting-v2.0.0.zip — tercepat; (2) retry Download workspace (gagalnya transien/karena ukuran); (3) rebuild mandiri: npm run hosting:build → deploy/muhdin-shared-hosting-v2.0.0.zip.
+- Tidak ada perubahan perilaku aplikasi — hanya file publik tambahan, pengaman anti zip-bersarang, dan gitignore.
+- Shared Hosting Edition v2.0.0 resmi TERKIRIM: frontend statis + backend PHP + SQLite, tanpa Node.js, tanpa Composer, tanpa MySQL.

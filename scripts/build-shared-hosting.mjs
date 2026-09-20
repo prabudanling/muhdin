@@ -108,6 +108,14 @@ cpSync(path.join(root, "shared-hosting", "api"), path.join(outDir, "api"), { rec
 cpSync(path.join(root, "shared-hosting", ".htaccess"), path.join(outDir, ".htaccess"));
 // Database SQLite (berkas yang sama dengan versi Node).
 cpSync(dbSrc, path.join(outDir, "data", "muhdin.sqlite"));
+// Beres-beres: salinan unduhan darurat di public/ (*.zip, INSTALL) tidak boleh
+// ikut ke dalam paket — mencegah zip di dalam zip (self-bloat) saat rebuild.
+for (const f of readdirSync(outDir)) {
+  if (/\.zip$/i.test(f) || f === "muhdin-shared-hosting-INSTALL.txt") {
+    rmSync(path.join(outDir, f));
+    log(`Bersihkan artefak publik dari paket: ${f}`);
+  }
+}
 
 // Re-hash password akun demo → bcrypt (agar login demo berfungsi di hosting PHP).
 {
