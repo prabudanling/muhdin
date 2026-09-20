@@ -19,6 +19,12 @@ const publicDir = path.join(root, "public");
 const standalone = path.join(root, ".next", "standalone");
 
 if (!existsSync(standalone)) {
+  // Di Vercel, `next build` tidak menghasilkan folder standalone — itu NORMAL.
+  // Vercel menangani packaging serverless-nya sendiri, jadi akhiri dengan sukses.
+  if (process.env.VERCEL === "1") {
+    console.log("[post-build] Mode Vercel terdeteksi — langkah standalone dilewati (Vercel menangani packaging). ✓");
+    process.exit(0);
+  }
   console.error("[post-build] Folder .next/standalone tidak ditemukan — jalankan `next build` dulu.");
   process.exit(1);
 }

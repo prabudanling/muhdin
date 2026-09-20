@@ -9,7 +9,7 @@
                          tidak basi; ketika offline, UI menampilkan pesan)
    Ganti MUHDIN_VERSION saat deploy baru untuk memaksa refresh cache.
    ============================================================ */
-const MUHDIN_VERSION = "muhdin-v15.0.0";
+const MUHDIN_VERSION = "muhdin-v2.0.0";
 const PRECACHE = `${MUHDIN_VERSION}-precache`;
 const RUNTIME = `${MUHDIN_VERSION}-runtime`;
 const NAV_TIMEOUT_MS = 4000;

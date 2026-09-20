@@ -1,0 +1,798 @@
+     1→<?php
+     2→/**
+     3→ * ============================================================================
+     4→ * lib.php — Fondasi MUHDIN PHP Edition (shared hosting, tanpa Node.js)
+     5→ * ----------------------------------------------------------------------------
+     6→ * Replika helper server-side versi Node (src/lib/*) dengan kontrak identik:
+     7→ *   - ok()/fail()               : amplop JSON {error} + status sama persis
+     8→ *   - Router                    : dispatcher pattern 'a/b/:param' + '*'
+     9→ *   - db()/q()/q_one()/q_all()  : PDO SQLite (tabel = nama model Prisma)
+    10→ *   - cast_row()                : DateTime epoch-ms (Prisma) → ISO-8601 + bool
+    11→ *   - guard_admin/guard_role/guard_super : pesan error identik Node
+    12→ *   - log_audit, rate_limit     : AuditLog + tabel RateLimit (SQLite)
+    13→ *   - apply_translations        : ContentTranslation (fallback teks Indonesia)
+    14→ *   - send_wa_message           : 3 provider WA (FONNTE/WABLAS/CUSTOM), 10 dtk
+    15→ * ============================================================================
+    16→ */
+    17→declare(strict_types=1);
+    18→
+    19→require_once __DIR__ . '/config.php';
+    20→
+    21→/* ============================================================ error handling */
+    22→error_reporting(E_ALL);
+    23→ini_set('display_errors', MUHDIN_DEBUG ? '1' : '0');
+    24→ini_set('log_errors', '1');
+    25→if (!MUHDIN_DEBUG) {
+    26→    set_exception_handler(static function (Throwable $e): void {
+    27→        error_log('[muhdin-api] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    28→        fail('Kesalahan server internal.', 500);
+    29→    });
+    30→}
+    31→
+    32→/* ================================================================== respons */
+    33→function ok($data, int $status = 200): void
+    34→{
+    35→    http_response_code($status);
+    36→    header('Content-Type: application/json; charset=utf-8');
+    37→    header('X-MUHDIN-API: php/' . MUHDIN_API_VERSION);
+    38→    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    39→    exit;
+    40→}
+    41→
+    42→function fail(string $message, int $status = 400): void
+    43→{
+    44→    ok(['error' => $message], $status);
+    45→}
+    46→
+    47→/* =============================================================== database */
+    48→function db(): PDO
+    49→{
+    50→    static $pdo = null;
+    51→    if ($pdo === null) {
+    52→        if (!is_file(MUHDIN_DB_PATH)) {
+    53→            fail('Database tidak ditemukan di ' . basename(dirname(MUHDIN_DB_PATH)) . '/ — pastikan data/muhdin.sqlite ikut terunggah.', 500);
+    54→        }
+    55→        $pdo = new PDO('sqlite:' . MUHDIN_DB_PATH, null, null, [
+    56→            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    57→            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    58→        ]);
+    59→        try { $pdo->exec('PRAGMA journal_mode=WAL'); } catch (Throwable $e) { /* NFS: biarkan mode bawaan */ }
+    60→        $pdo->exec('PRAGMA busy_timeout=5000');
+    61→        $pdo->exec('PRAGMA foreign_keys=ON');
+    62→        // Tabel pendukung backend PHP (rate limit).
+    63→        $pdo->exec('CREATE TABLE IF NOT EXISTS RateLimit (key TEXT PRIMARY KEY, hits TEXT NOT NULL DEFAULT "[]")');
+    64→    }
+    65→    return $pdo;
+    66→}
+    67→
+    68→/** Jalankan query berparameter. */
+    69→function q(string $sql, array $params = []): PDOStatement
+    70→{
+    71→    $st = db()->prepare($sql);
+    72→    $st->execute($params);
+    73→    return $st;
+    74→}
+    75→
+    76→/** Semua baris hasil. */
+    77→function q_all(string $sql, array $params = []): array
+    78→{
+    79→    return q($sql, $params)->fetchAll();
+    80→}
+    81→
+    82→/** Satu baris atau null. */
+    83→function q_one(string $sql, array $params = []): ?array
+    84→{
+    85→    $row = q($sql, $params)->fetch();
+    86→    return $row === false ? null : $row;
+    87→}
+    88→
+    89→/** Eksekusi non-SELECT; return rowCount. */
+    90→function q_exec(string $sql, array $params = []): int
+    91→{
+    92→    return q($sql, $params)->rowCount();
+    93→}
+    94→
+    95→/* ================================================= waktu, id, konversi */
+    96→function now_ms(): int
+    97→{
+    98→    return (int) round(microtime(true) * 1000);
+    99→}
+   100→
+   101→/** ID unik gaya cuid (25 karakter, awalan c). */
+   102→function new_id(): string
+   103→{
+   104→    static $seq = 0;
+   105→    $seq++;
+   106→    $t = base_convert((string) now_ms(), 10, 36);
+   107→    $r = bin2hex(random_bytes(8));
+   108→    return 'c' . $t . $r . base_convert((string) $seq, 10, 36);
+   109→}
+   110→
+   111→/** epoch-ms → ISO-8601 UTC dengan presisi milidetik (gaya serialisasi Prisma). */
+   112→function iso_date(?int $ms): ?string
+   113→{
+   114→    if ($ms === null) return null;
+   115→    $sec = (int) floor($ms / 1000);
+   116→    return gmdate('Y-m-d\TH:i:s', $sec) . '.' . sprintf('%03d', $ms % 1000) . 'Z';
+   117→}
+   118→
+   119→/** Nilai tanggal masuk (string ISO / angka epoch) → epoch-ms untuk kolom SQLite. */
+   120→function date_to_ms($value): ?int
+   121→{
+   122→    if ($value === null || $value === '') return null;
+   123→    if (is_numeric($value)) return (int) $value;
+   124→    $t = strtotime((string) $value);
+   125→    return $t === false ? null : $t * 1000;
+   126→}
+   127→
+   128→/**
+   129→ * Kolom tanggal & boolean per tabel (mengikuti prisma/schema.prisma).
+   130→ * Prisma 6 menyimpan DateTime SQLite sebagai INTEGER epoch-ms.
+   131→ */
+   132→const DATE_COLS = [
+   133→    'User'                 => ['lastLoginAt', 'createdAt', 'updatedAt'],
+   134→    'Session'              => ['expiresAt', 'createdAt'],
+   135→    'Article'              => ['createdAt', 'updatedAt'],
+   136→    'Ecosystem'            => ['createdAt', 'updatedAt'],
+   137→    'JourneyStep'          => [],
+   138→    'Roadmap'              => [],
+   139→    'Member'               => ['createdAt', 'updatedAt'],
+   140→    'MembershipApplication'=> ['reviewedAt', 'createdAt', 'updatedAt'],
+   141→    'Tutorial'             => ['createdAt', 'updatedAt'],
+   142→    'ContactMessage'       => ['createdAt'],
+   143→    'Faq'                  => ['createdAt'],
+   144→    'Testimonial'          => ['createdAt'],
+   145→    'Management'           => [],
+   146→    'RegionalBranch'       => ['createdAt', 'updatedAt'],
+   147→    'SiteSetting'          => [],
+   148→    'NusukConnection'      => ['lastSyncAt', 'createdAt', 'updatedAt'],
+   149→    'NusukPermit'          => ['issuedAt', 'expiresAt', 'syncedAt'],
+   150→    'NusukSyncLog'         => ['createdAt'],
+   151→    'ContentTranslation'   => ['createdAt', 'updatedAt'],
+   152→    'WhatsAppSetting'      => ['lastTestAt', 'createdAt', 'updatedAt'],
+   153→    'Gallery'              => ['createdAt', 'updatedAt'],
+   154→    'Event'                => ['startsAt', 'endsAt', 'createdAt', 'updatedAt'],
+   155→    'Resource'             => ['createdAt', 'updatedAt'],
+   156→    'Subscriber'           => ['createdAt'],
+   157→    'Complaint'            => ['respondedAt', 'createdAt', 'updatedAt'],
+   158→    'AuditLog'             => ['createdAt'],
+   159→];
+   160→
+   161→const BOOL_COLS = [
+   162→    'User'                 => ['isActive'],
+   163→    'Article'              => ['featured'],
+   164→    'Tutorial'             => ['published'],
+   165→    'Testimonial'          => ['published'],
+   166→    'RegionalBranch'       => ['published'],
+   167→    'NusukConnection'      => ['autoSync'],
+   168→    'WhatsAppSetting'      => ['enabled', 'notifyContact', 'notifyApplication'],
+   169→    'Gallery'              => ['published'],
+   170→    'Event'                => ['published'],
+   171→    'Resource'             => ['published'],
+   172→    'Subscriber'           => ['isActive'],
+   173→];
+   174→
+   175→const INT_COLS = [
+   176→    'User'                 => [],
+   177→    'Article'              => ['views'],
+   178→    'Ecosystem'            => ['number'],
+   179→    'JourneyStep'          => ['step'],
+   180→    'Roadmap'              => ['order'],
+   181→    'Member'               => ['memberSince'],
+   182→    'MembershipApplication'=> [],
+   183→    'Tutorial'             => ['duration', 'order', 'views'],
+   184→    'Faq'                  => ['order'],
+   185→    'Testimonial'          => ['rating'],
+   186→    'Management'           => ['order'],
+   187→    'RegionalBranch'       => ['order'],
+   188→    'NusukConnection'      => ['totalSyncs'],
+   189→    'NusukPermit'          => [],
+   190→    'NusukSyncLog'         => ['recordsAffected', 'durationMs'],
+   191→    'Gallery'              => ['order'],
+   192→    'Resource'             => ['downloads'],
+   193→    'WhatsAppSetting'      => [],
+   194→];
+   195→
+   196→/** Normalisasi satu baris SQLite → bentuk JSON ala Prisma (ISO date, bool, int). */
+   197→function cast_row(string $table, array $row): array
+   198→{
+   199→    foreach (DATE_COLS[$table] ?? [] as $c) {
+   200→        if (array_key_exists($c, $row) && $row[$c] !== null) {
+   201→            $row[$c] = is_numeric($row[$c]) ? iso_date((int) $row[$c]) : $row[$c];
+   202→        }
+   203→    }
+   204→    foreach (BOOL_COLS[$table] ?? [] as $c) {
+   205→        if (array_key_exists($c, $row) && $row[$c] !== null) {
+   206→            $row[$c] = (bool) ((int) $row[$c]);
+   207→        }
+   208→    }
+   209→    foreach (INT_COLS[$table] ?? [] as $c) {
+   210→        if (array_key_exists($c, $row) && $row[$c] !== null && is_numeric($row[$c])) {
+   211→            $row[$c] = (int) $row[$c];
+   212→        }
+   213→    }
+   214→    return $row;
+   215→}
+   216→
+   217→function cast_rows(string $table, array $rows): array
+   218→{
+   219→    return array_map(static fn (array $r): array => cast_row($table, $r), $rows);
+   220→}
+   221→
+   222→/* ======================================================== input request */
+   223→function json_body(): array
+   224→{
+   225→    static $body = null;
+   226→    if ($body === null) {
+   227→        $raw = file_get_contents('php://input') ?: '';
+   228→        $decoded = json_decode($raw, true);
+   229→        $body = is_array($decoded) ? $decoded : [];
+   230→        if ($body === [] && $_POST !== []) {
+   231→            $body = $_POST;
+   232→        }
+   233→    }
+   234→    return $body;
+   235→}
+   236→
+   237→function body(string $key, $default = null)
+   238→{
+   239→    $b = json_body();
+   240→    return array_key_exists($key, $b) ? $b[$key] : $default;
+   241→}
+   242→
+   243→function qget(string $key, ?string $default = null): ?string
+   244→{
+   245→    $v = $_GET[$key] ?? null;
+   246→    return ($v === null || $v === '') ? $default : (string) $v;
+   247→}
+   248→
+   249→function qget_int(string $key, int $default): int
+   250→{
+   251→    $v = qget($key);
+   252→    if ($v === null) return $default;
+   253→    return is_numeric($v) ? (int) $v : $default;
+   254→}
+   255→
+   256→function client_ip(): string
+   257→{
+   258→    $xff = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+   259→    if ($xff !== '') {
+   260→        $parts = explode(',', $xff);
+   261→        return trim($parts[0]);
+   262→    }
+   263→    return $_SERVER['REMOTE_ADDR'] ?? 'local';
+   264→}
+   265→
+   266→function read_cookie(string $name): ?string
+   267→{
+   268→    return isset($_COOKIE[$name]) && $_COOKIE[$name] !== '' ? (string) $_COOKIE[$name] : null;
+   269→}
+   270→
+   271→/* ================================================================== router */
+   272→final class Router
+   273→{
+   274→    /** @var array<string, array<string, callable>> */
+   275→    private array $routes = [];
+   276→
+   277→    public function on(string $method, string $pattern, callable $handler): void
+   278→    {
+   279→        $this->routes[strtoupper($method)][$pattern] = $handler;
+   280→    }
+   281→
+   282→    /** Pattern: segmen literal, ':param', dan '*' (sisa segmen). */
+   283→    public function dispatch(string $method, string $path): void
+   284→    {
+   285→        $segs = $path === '' ? [] : explode('/', trim($path, '/'));
+   286→        foreach (['ANY', strtoupper($method)] as $m) {
+   287→            foreach ($this->routes[$m] ?? [] as $pattern => $handler) {
+   288→                $params = $this->match($pattern === '' ? [] : explode('/', $pattern), $segs);
+   289→                if ($params !== null) {
+   290→                    $handler($params);
+   291→                    return;
+   292→                }
+   293→            }
+   294→        }
+   295→        fail('Endpoint tidak ditemukan: ' . strtoupper($method) . ' /' . implode('/', $segs), 404);
+   296→    }
+   297→
+   298→    /** @return array<string,string>|null */
+   299→    private function match(array $pattern, array $segs): ?array
+   300→    {
+   301→        $params = [];
+   302→        $i = 0;
+   303→        foreach ($pattern as $ps) {
+   304→            if ($ps === '*') {
+   305→                $rest = array_slice($segs, $i);
+   306→                if ($rest === []) return null;
+   307→                $params['rest'] = implode('/', $rest);
+   308→                return $params;
+   309→            }
+   310→            if (!array_key_exists($i, $segs)) return null;
+   311→            if ($ps !== '' && $ps[0] === ':') {
+   312→                $params[substr($ps, 1)] = rawurldecode($segs[$i]);
+   313→            } elseif ($ps !== $segs[$i]) {
+   314→                return null;
+   315→            }
+   316→            $i++;
+   317→        }
+   318→        return count($segs) === count($pattern) ? $params : null;
+   319→    }
+   320→}
+   321→
+   322→/* ================================================================ otentikasi */
+   323→/**
+   324→ * Mirip getSessionUser(): cookie muhdin_session → baris Session+User.
+   325→ * Sesi kedaluwarsa / user nonaktif dibersihkan (paritas Task 15-c).
+   326→ * Return baris User penuh (termasuk kolom password — handler yang memilah).
+   327→ */
+   328→function current_user(): ?array
+   329→{
+   330→    try {
+   331→        $token = read_cookie(MUHDIN_SESSION_COOKIE);
+   332→        if ($token === null) return null;
+   333→        $row = q_one(
+   334→            'SELECT u.*, s.id AS __sessionId, s.expiresAt AS __expiresAt FROM Session s JOIN User u ON u.id = s.userId WHERE s.token = ? LIMIT 1',
+   335→            [$token]
+   336→        );
+   337→        if ($row === null) return null;
+   338→        if ((int) $row['__expiresAt'] < now_ms()) {
+   339→            q_exec('DELETE FROM Session WHERE id = ?', [$row['__sessionId']]);
+   340→            return null;
+   341→        }
+   342→        if (!((int) $row['isActive'])) {
+   343→            q_exec('DELETE FROM Session WHERE userId = ?', [$row['id']]);
+   344→            return null;
+   345→        }
+   346→        return $row;
+   347→    } catch (Throwable $e) {
+   348→        return null;
+   349→    }
+   350→}
+   351→
+   352→/**
+   353→ * Verifikasi password. Hash aktif di edisi PHP = bcrypt ($2y$, password_hash).
+   354→ * Hash scrypt warisan versi Node ("salt:hash") tidak dapat diverifikasi PHP —
+   355→ * akun demo di-rehash bcrypt saat build, akun lain direset lewat CMS.
+   356→ */
+   357→function verify_password(string $password, string $stored): bool
+   358→{
+   359→    if ($password === '' || $stored === '') return false;
+   360→    if (strpos($stored, ':') !== false && strpos($stored, '$') !== 0) {
+   361→        return false; // format scrypt Node → tidak didukung PHP
+   362→    }
+   363→    $hash = str_starts_with($stored, '$2b$') || str_starts_with($stored, '$2a$')
+   364→        ? '$2y$' . substr($stored, 4)
+   365→        : $stored;
+   366→    return password_verify($password, $hash);
+   367→}
+   368→
+   369→function hash_password(string $password): string
+   370→{
+   371→    return password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
+   372→}
+   373→
+   374→/** Buat sesi baru + set cookie (paritas createSession Node). */
+   375→function create_session(string $userId): string
+   376→{
+   377→    $token = bin2hex(random_bytes(32));
+   378→    $now = now_ms();
+   379→    q_exec(
+   380→        'INSERT INTO Session (id, token, userId, expiresAt, createdAt) VALUES (?,?,?,?,?)',
+   381→        [new_id(), $token, $userId, $now + MUHDIN_SESSION_DAYS * 86400000, $now]
+   382→    );
+   383→    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+   384→        || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
+   385→    setcookie(MUHDIN_SESSION_COOKIE, $token, [
+   386→        'expires'  => time() + MUHDIN_SESSION_DAYS * 86400,
+   387→        'path'     => '/',
+   388→        'secure'   => $https,
+   389→        'httponly' => true,
+   390→        'samesite' => 'Lax',
+   391→    ]);
+   392→    return $token;
+   393→}
+   394→
+   395→function destroy_session(): void
+   396→{
+   397→    $token = read_cookie(MUHDIN_SESSION_COOKIE);
+   398→    if ($token !== null) {
+   399→        q_exec('DELETE FROM Session WHERE token = ?', [$token]);
+   400→    }
+   401→    setcookie(MUHDIN_SESSION_COOKIE, '', [
+   402→        'expires'  => time() - 3600,
+   403→        'path'     => '/',
+   404→        'secure'   => false,
+   405→        'httponly' => true,
+   406→        'samesite' => 'Lax',
+   407→    ]);
+   408→}
+   409→
+   410→function public_user(array $u): array
+   411→{
+   412→    $out = cast_row('User', $u);
+   413→    unset($out['password'], $out['__sessionId'], $out['__expiresAt']);
+   414→    return $out;
+   415→}
+   416→
+   417→/* ============================================================ guard (RBAC) */
+   418→/** Sesi valid (peran apa pun) — pesan identik guardAdmin Node. */
+   419→function guard_admin(): array
+   420→{
+   421→    $u = current_user();
+   422→    if ($u === null) fail('Tidak diizinkan — silakan login sebagai admin.', 401);
+   423→    return $u;
+   424→}
+   425→
+   426→/** Sesi + peran dalam daftar — pesan identik guardRole Node. */
+   427→function guard_role(array $allowed): array
+   428→{
+   429→    $u = guard_admin();
+   430→    if (!in_array($u['role'], $allowed, true)) {
+   431→        fail('Peran Anda tidak memiliki akses ke aksi ini.', 403);
+   432→    }
+   433→    return $u;
+   434→}
+   435→
+   436→/** Hanya SUPER_ADMIN — pesan identik guardSuperAdmin Node. */
+   437→function guard_super(): array
+   438→{
+   439→    $u = current_user();
+   440→    if ($u === null) fail('Tidak diizinkan — silakan login sebagai admin.', 401);
+   441→    if ($u['role'] !== 'SUPER_ADMIN') {
+   442→        fail('Hanya Super Admin yang dapat mengelola akun admin.', 403);
+   443→    }
+   444→    return $u;
+   445→}
+   446→
+   447→/* =================================================================== audit */
+   448→/** Jejak audit gagal-aman (paritas logAudit Node). */
+   449→function log_audit(?array $user, string $action, string $entity, ?string $entityId = null, ?string $detail = null): void
+   450→{
+   451→    try {
+   452→        q_exec(
+   453→            'INSERT INTO AuditLog (id, userId, userName, role, action, entity, entityId, detail, createdAt) VALUES (?,?,?,?,?,?,?,?,?)',
+   454→            [
+   455→                new_id(),
+   456→                $user['id'] ?? null,
+   457→                $user['name'] ?? 'sistem',
+   458→                $user['role'] ?? '',
+   459→                $action,
+   460→                $entity,
+   461→                $entityId,
+   462→                $detail,
+   463→                now_ms(),
+   464→            ]
+   465→        );
+   466→    } catch (Throwable $e) {
+   467→        // Log audit tidak boleh mengganggu alur utama.
+   468→    }
+   469→}
+   470→
+   471→/* ============================================================== rate limit */
+   472→/** Paritas rateLimit Node: bucket:ip, default 5 hit / 60 detik. */
+   473→function rate_limit(string $bucket, int $max = 5, int $windowMs = 60000): bool
+   474→{
+   475→    try {
+   476→        $key = $bucket . ':' . client_ip();
+   477→        $now = now_ms();
+   478→        $row = q_one('SELECT hits FROM RateLimit WHERE key = ?', [$key]);
+   479→        $hits = [];
+   480→        if ($row !== null) {
+   481→            $decoded = json_decode($row['hits'], true);
+   482→            if (is_array($decoded)) $hits = $decoded;
+   483→        }
+   484→        $hits = array_values(array_filter(array_map('intval', $hits), static fn ($t) => $now - $t < $windowMs));
+   485→        if (count($hits) >= $max) {
+   486→            q_exec('UPDATE RateLimit SET hits = ? WHERE key = ?', [json_encode($hits), $key]);
+   487→            return false;
+   488→        }
+   489→        $hits[] = $now;
+   490→        if ($row === null) {
+   491→            q_exec('INSERT INTO RateLimit (key, hits) VALUES (?,?)', [$key, json_encode($hits)]);
+   492→        } else {
+   493→            q_exec('UPDATE RateLimit SET hits = ? WHERE key = ?', [json_encode($hits), $key]);
+   494→        }
+   495→        // Housekeeping ringan.
+   496→        if (random_int(1, 100) === 1) {
+   497→            q_exec('DELETE FROM RateLimit WHERE key NOT IN (SELECT DISTINCT key FROM RateLimit)', []);
+   498→            q_exec("DELETE FROM RateLimit WHERE hits = '[]'", []);
+   499→        }
+   500→        return true;
+   501→    } catch (Throwable $e) {
+   502→        return true; // kegagalan limiter tidak boleh memblokir form
+   503→    }
+   504→}
+   505→
+   506→/* =============================================================== slug/tiket */
+   507→function slugify(string $text): string
+   508→{
+   509→    $t = strtolower(trim($text));
+   510→    $t = preg_replace('/[^a-z0-9\s-]/', '', $t) ?? '';
+   511→    $t = preg_replace('/[\s_]+/', '-', $t) ?? '';
+   512→    $t = preg_replace('/-+/', '-', $t) ?? '';
+   513→    return trim($t, '-');
+   514→}
+   515→
+   516→const TICKET_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+   517→
+   518→/** Kode tiket unik MHD-XXXXXX (paritas generateTicketCode Node). */
+   519→function generate_ticket_code(): string
+   520→{
+   521→    for ($attempt = 0; $attempt < 25; $attempt++) {
+   522→        $code = 'MHD-';
+   523→        for ($i = 0; $i < 6; $i++) {
+   524→            $code .= TICKET_CHARS[random_int(0, strlen(TICKET_CHARS) - 1)];
+   525→        }
+   526→        $exists = q_one('SELECT id FROM MembershipApplication WHERE ticketCode = ?', [$code]);
+   527→        if ($exists === null) return $code;
+   528→    }
+   529→    $n = now_ms();
+   530→    $fallback = '';
+   531→    for ($i = 0; $i < 6; $i++) {
+   532→        $fallback = TICKET_CHARS[$n % strlen(TICKET_CHARS)] . $fallback;
+   533→        $n = intdiv($n, strlen(TICKET_CHARS));
+   534→    }
+   535→    return 'MHD-' . $fallback;
+   536→}
+   537→
+   538→/* ============================================================ i18n konten */
+   539→/** Locale yang diminta (?locale= → cookie) — default id. */
+   540→function want_locale(): string
+   541→{
+   542→    $l = qget('locale') ?? read_cookie(MUHDIN_LOCALE_COOKIE) ?? 'id';
+   543→    return in_array($l, ['id', 'en', 'ar'], true) ? $l : 'id';
+   544→}
+   545→
+   546→/**
+   547→ * Terapkan terjemahan konten DB (ContentTranslation) ke baris — paritas
+   548→ * applyEntityTranslations Node. Tanpa AI: hanya cache terjemahan yang ada;
+   549→ * field tanpa terjemahan tetap memakai teks Indonesia (fallback bawaan).
+   550→ */
+   551→function apply_translations(array $rows, string $entity, string $locale): array
+   552→{
+   553→    if ($locale === 'id' || $rows === []) return $rows;
+   554→    try {
+   555→        $all = q_all('SELECT entityKey, field, value FROM ContentTranslation WHERE entity = ? AND locale = ?', [$entity, $locale]);
+   556→    } catch (Throwable $e) {
+   557→        return $rows;
+   558→    }
+   559→    if ($all === []) return $rows;
+   560→    $map = [];
+   561→    foreach ($all as $t) {
+   562→        $map[$t['entityKey']][$t['field']] = $t['value'];
+   563→    }
+   564→    foreach ($rows as $i => $row) {
+   565→        $key = $row['id'] ?? $row['slug'] ?? null;
+   566→        if ($key !== null && isset($map[$key]) && is_array($map[$key])) {
+   567→            foreach ($map[$key] as $field => $value) {
+   568→                if (array_key_exists($field, $row) && $value !== null && $value !== '') {
+   569→                    $rows[$i][$field] = $value;
+   570→                }
+   571→            }
+   572→        }
+   573→    }
+   574→    return $rows;
+   575→}
+   576→
+   577→/* =============================================================== WhatsApp */
+   578→const WA_PROVIDERS = ['FONNTE', 'WABLAS', 'CUSTOM'];
+   579→
+   580→/** Baris konfigurasi WhatsApp singleton (dibuat bila belum ada). */
+   581→function get_whatsapp_setting(): array
+   582→{
+   583→    $row = q_one('SELECT * FROM WhatsAppSetting ORDER BY createdAt ASC LIMIT 1');
+   584→    if ($row !== null) return $row;
+   585→    $now = now_ms();
+   586→    q_exec(
+   587→        'INSERT INTO WhatsAppSetting (id, provider, apiUrl, token, target, enabled, notifyContact, notifyApplication, lastTestAt, lastTestStatus, createdAt, updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+   588→        [new_id(), 'FONNTE', '', '', '', 0, 1, 1, null, '', $now, $now]
+   589→    );
+   590→    return cast_row('WhatsAppSetting', q_one('SELECT * FROM WhatsAppSetting ORDER BY createdAt ASC LIMIT 1') ?? []);
+   591→}
+   592→
+   593→/** Normalisasi nomor Indonesia: 0/8 awal → 62. */
+   594→function normalize_wa_number(string $raw): string
+   595→{
+   596→    $digits = preg_replace('/\D/', '', $raw) ?? '';
+   597→    if (str_starts_with($digits, '0')) $digits = '62' . substr($digits, 1);
+   598→    elseif (str_starts_with($digits, '8')) $digits = '62' . $digits;
+   599→    return $digits;
+   600→}
+   601→
+   602→/** POST ke gateway + penafsiran body (paritas post() Node). Timeout 10 dtk. */
+   603→function wa_post(string $url, array $headers, string $bodyRaw): array
+   604→{
+   605→    $ch = curl_init($url);
+   606→    curl_setopt_array($ch, [
+   607→        CURLOPT_POST           => true,
+   608→        CURLOPT_POSTFIELDS     => $bodyRaw,
+   609→        CURLOPT_HTTPHEADER     => $headers,
+   610→        CURLOPT_RETURNTRANSFER => true,
+   611→        CURLOPT_TIMEOUT        => 10,
+   612→        CURLOPT_CONNECTTIMEOUT => 10,
+   613→    ]);
+   614→    $text = curl_exec($ch);
+   615→    $errno = curl_errno($ch);
+   616→    $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+   617→    curl_close($ch);
+   618→    if ($errno === CURLE_OPERATION_TIMEDOUT) {
+   619→        return ['sent' => false, 'detail' => 'Timeout — gateway tidak merespons 10 detik.'];
+   620→    }
+   621→    if ($errno !== 0) {
+   622→        return ['sent' => false, 'detail' => 'Koneksi gateway gagal (' . $errno . ').'];
+   623→    }
+   624→    $text = (string) $text;
+   625→    if ($status < 200 || $status >= 300) {
+   626→        return ['sent' => false, 'detail' => 'HTTP ' . $status . ' — ' . mb_substr($text, 0, 160) ?: 'tanpa isi'];
+   627→    }
+   628→    $json = json_decode($text, true);
+   629→    if (is_array($json) && (isset($json['status']) && ($json['status'] === false || $json['status'] === 'false' || $json['status'] === 0))) {
+   630→        return ['sent' => false, 'detail' => (string) ($json['reason'] ?? $json['message'] ?? 'Gateway menolak pesan.')];
+   631→    }
+   632→    return ['sent' => true, 'detail' => mb_substr($text, 0, 200) ?: 'OK'];
+   633→}
+   634→
+   635→/** Kirim pesan WhatsApp sesuai konfigurasi (paritas sendWhatsAppMessage). */
+   636→function send_wa_message(string $message): array
+   637→{
+   638→    try {
+   639→        $cfg = get_whatsapp_setting();
+   640→        if (!((int) $cfg['enabled'])) return ['sent' => false, 'detail' => 'Notifikasi WhatsApp sedang nonaktif.'];
+   641→        if ($cfg['token'] === '') return ['sent' => false, 'detail' => 'Token gateway belum diisi.'];
+   642→        if ($cfg['target'] === '') return ['sent' => false, 'detail' => 'Nomor tujuan admin belum diisi.'];
+   643→        $target = normalize_wa_number($cfg['target']);
+   644→
+   645→        switch ($cfg['provider']) {
+   646→            case 'FONNTE':
+   647→                return wa_post(
+   648→                    'https://api.fonnte.com/send',
+   649→                    ['Authorization: ' . $cfg['token']],
+   650→                    http_build_query(['target' => $target, 'message' => $message])
+   651→                );
+   652→            case 'WABLAS':
+   653→                return wa_post(
+   654→                    'https://console.wablas.com/api/send-message?token=' . urlencode($cfg['token']),
+   655→                    ['Content-Type: application/json'],
+   656→                    json_encode(['phone' => $target, 'message' => $message], JSON_UNESCAPED_UNICODE)
+   657→                );
+   658→            case 'CUSTOM':
+   659→                if ($cfg['apiUrl'] === '') return ['sent' => false, 'detail' => 'URL endpoint CUSTOM belum diisi.'];
+   660→                return wa_post(
+   661→                    $cfg['apiUrl'],
+   662→                    ['Content-Type: application/json'],
+   663→                    json_encode(['token' => $cfg['token'], 'target' => $target, 'message' => $message], JSON_UNESCAPED_UNICODE)
+   664→                );
+   665→            default:
+   666→                return ['sent' => false, 'detail' => 'Provider tidak dikenal: ' . $cfg['provider']];
+   667→        }
+   668→    } catch (Throwable $e) {
+   669→        $msg = $e->getMessage();
+   670→        return ['sent' => false, 'detail' => str_contains($msg, 'timeout') ? 'Timeout — gateway tidak merespons 10 detik.' : $msg];
+   671→    }
+   672→}
+   673→
+   674→function wa_contact_template(array $m): string
+   675→{
+   676→    $lines = [
+   677→        "🔔 *Pesan Baru — Portal MUHDIN*",
+   678→        "",
+   679→        "*Nama:* " . $m['name'],
+   680→        "*Email:* " . $m['email'],
+   681→    ];
+   682→    if (!empty($m['phone'])) $lines[] = "*Telepon:* " . $m['phone'];
+   683→    $lines[] = "*Subjek:* " . $m['subject'];
+   684→    $lines[] = "";
+   685→    $msg = (string) $m['message'];
+   686→    $lines[] = mb_strlen($msg) > 500 ? mb_substr($msg, 0, 500) . '…' : $msg;
+   687→    $lines[] = "";
+   688→    $lines[] = "_Silakan balas melalui CMS MUHDIN → Pesan Masuk._";
+   689→    return implode("\n", $lines);
+   690→}
+   691→
+   692→function wa_application_template(array $a): string
+   693→{
+   694→    return implode("\n", [
+   695→        "📋 *Pendaftaran Anggota Baru — MUHDIN*",
+   696→        "",
+   697→        "*Kode Tiket:* " . $a['ticketCode'],
+   698→        "*Organisasi:* " . $a['orgName'],
+   699→        "*Tipe:* " . $a['type'],
+   700→        "*Kontak:* " . $a['contactName'],
+   701→        "*Email:* " . $a['email'],
+   702→        "*Telepon:* " . $a['phone'],
+   703→        "*Kota:* " . $a['city'],
+   704→        "*No. Izin:* " . $a['licenseNo'],
+   705→        "",
+   706→        "_Tinjau melalui CMS MUHDIN → Pendaftaran._",
+   707→    ]);
+   708→}
+   709→
+   710→function wa_complaint_template(array $c): string
+   711→{
+   712→    $lines = [
+   713→        "⚠️ *Pengaduan Jamaah Baru — MUHDIN*",
+   714→        "",
+   715→        "*Pelapor:* " . $c['name'],
+   716→    ];
+   717→    if (!empty($c['targetMember'])) $lines[] = "*Penyelenggara Dilaporkan:* " . $c['targetMember'];
+   718→    $lines[] = "*Kategori:* " . $c['category'];
+   719→    $lines[] = "";
+   720→    $lines[] = "_Tinjau melalui CMS MUHDIN → Pengaduan._";
+   721→    return implode("\n", $lines);
+   722→}
+   723→
+   724→/** Notifier gagal-aman (paritas notify* Node) — memakai saklar masing-masing. */
+   725→function wa_notify(string $kind, array $payload): void
+   726→{
+   727→    try {
+   728→        $cfg = get_whatsapp_setting();
+   729→        $enabled = (int) $cfg['enabled'];
+   730→        $allowed = $kind === 'application' ? (int) $cfg['notifyApplication'] : (int) $cfg['notifyContact'];
+   731→        if (!$enabled || !$allowed) return;
+   732→        $text = match ($kind) {
+   733→            'contact'     => wa_contact_template($payload),
+   734→            'application' => wa_application_template($payload),
+   735→            'complaint'   => wa_complaint_template($payload),
+   736→            default       => null,
+   737→        };
+   738→        if ($text === null) return;
+   739→        $res = send_wa_message($text);
+   740→        q_exec(
+   741→            'UPDATE WhatsAppSetting SET lastTestAt = ?, lastTestStatus = ?, updatedAt = ? WHERE id = ?',
+   742→            [now_ms(), ($res['sent'] ? 'OK' : 'GAGAL') . ' — ' . mb_substr($res['detail'], 0, 180), now_ms(), $cfg['id']]
+   743→        );
+   744→    } catch (Throwable $e) {
+   745→        // notifikasi tidak boleh mengganggu alur utama
+   746→    }
+   747→}
+   748→
+   749→/* ================================================================== misc IO */
+   750→/** Respons unduhan CSV + BOM UTF-8 (paritas export Node). */
+   751→function csv_response(string $filename, array $header, array $rows): void
+   752→{
+   753→    header('Content-Type: text/csv; charset=utf-8');
+   754→    header('Content-Disposition: attachment; filename="' . $filename . '"');
+   755→    $out = fopen('php://output', 'w');
+   756→    fwrite($out, "\xEF\xBB\xBF");
+   757→    fputcsv($out, $header);
+   758→    foreach ($rows as $r) {
+   759→        fputcsv($out, $r);
+   760→    }
+   761→    fclose($out);
+   762→    exit;
+   763→}
+   764→
+   765→/** Nilai string aman untuk kolom NOT NULL (null → default). */
+   766→function str_or(string $key, string $default = ''): string
+   767→{
+   768→    $v = body($key);
+   769→    return is_string($v) ? $v : (is_numeric($v) ? (string) $v : $default);
+   770→}
+   771→
+   772→function nullable_str(string $key): ?string
+   773→{
+   774→    $v = body($key);
+   775→    if ($v === null) return null;
+   776→    if (is_string($v)) return $v === '' ? null : $v;
+   777→    return null;
+   778→}
+   779→
+   780→function bool_int(string $key, int $default): int
+   781→{
+   782→    $v = body($key);
+   783→    if (is_bool($v)) return $v ? 1 : 0;
+   784→    if (is_numeric($v)) return ((int) $v) ? 1 : 0;
+   785→    if (is_string($v)) {
+   786→        $lv = strtolower($v);
+   787→        if (in_array($lv, ['true', '1', 'yes'], true)) return 1;
+   788→        if (in_array($lv, ['false', '0', 'no'], true)) return 0;
+   789→    }
+   790→    return $default;
+   791→}
+   792→
+   793→function int_or(string $key, int $default): int
+   794→{
+   795→    $v = body($key);
+   796→    return is_numeric($v) ? (int) $v : $default;
+   797→}
+   798→

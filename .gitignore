@@ -57,8 +57,6 @@ server.log
 # artefak build & pratinjau hosting (jangan dipindai Tailwind/eslint)
 /deploy/
 /release/
-/mini-services/
-/shared-hosting/
 *.tmp.ts
 *.tmp.db
 *.tmp.py

@@ -1,0 +1,1065 @@
+     1→<p align="center"><b>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</b><br><sub>Dengan nama Allah Yang Maha Pengasih, Maha Penyayang</sub></p>
+     2→
+     3→<div align="center">
+     4→  <img src="docs/assets/banner.svg" alt="MUHDIN.WEB.ID — Portal Digital Ekosistem Umrah dan Haji Indonesia" width="100%" />
+     5→
+     6→# 🕋 MUHDIN
+     7→
+     8→### **MU**asyarakat **U**mroh **H**aji **D**igital **N**usantara
+     9→
+    10→*Portal Digital Ekosistem Umrah & Haji Indonesia — Dari Nusantara ke Tanah Suci*
+    11→*The Digital Home for Indonesia's Umrah & Hajj Ecosystem — From the Archipelago to the Holy Land*
+    12→*المنصة الرقمية لمنظومة العمرة والحج الإندونيسية — من الأرخبيل إلى الأرض المقدسة*
+    13→
+    14→[![Next.js 16.1.3](https://img.shields.io/badge/Next.js-16.1.3-black?logo=nextdotjs)](https://nextjs.org)
+    15→[![React 19.2](https://img.shields.io/badge/React-19.2-61DAFB?logo=react)](https://react.dev)
+    16→[![TypeScript 5.8](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://typescriptlang.org)
+    17→[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
+    18→[![Prisma 6](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)](https://prisma.io)
+    19→[![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite)](https://sqlite.org)
+    20→[![Bun](https://img.shields.io/badge/Bun-%E2%89%A51.1-F472B6?logo=bun)](https://bun.sh)
+    21→[![PWA](https://img.shields.io/badge/PWA-installable--offline-5A0FC8?logo=pwa)](https://developer.mozilla.org/docs/Web/Progressive_web_apps)
+    22→[![PHP Shared Hosting](https://img.shields.io/badge/PHP-63%20endpoint_paritas-777BB4?logo=php&logoColor=white)](#-deployment)
+    23→[![i18n](https://img.shields.io/badge/i18n-3_bahasa_·_RTL_sungguhan-16a34a)](#-internasionalisasi)
+    24→[![RBAC](https://img.shields.io/badge/RBAC-4_peran_·_22_modul-d97706)](#-keamanan-dan-kontrol-akses-rbac)
+    25→[![Mutu](https://img.shields.io/badge/ESLint-0_error-22c55e)](#-mutu-dan-performa)
+    26→
+    27→**MUHDIN v3.0.0 "Mahakarya"** · satu codebase · **dua mesin penuh**: Node.js (fitur AI lengkap) **dan** PHP murni untuk shared hosting — tanpa Node, tanpa Composer, tanpa MySQL.
+    28→
+    29→</div>
+    30→
+    31→---
+    32→
+    33→## ✨ Peta Kilat
+    34→
+    35→> Dokumen ini panjang karena proyeknya nyata. Setiap angka di bawah **diukur langsung dari kode & database pada 2026-09-21** — bukan angan-angan.
+    36→
+    37→| 🧭 Ingin… | 📄 Menuju |
+    38→|---|---|
+    39→| Memahami identitas & klaim MUHDIN | [Empat Pilar Identitas](#-empat-pilar-identitas) · [Warisan dan Garis Waktu](#️-warisan-dan-garis-waktu) |
+    40→| Melihat aplikasinya duluan | [Galeri Tampilan](#-galeri-tampilan) · [Tur 60 Detik](#-tur-60-detik) |
+    41→| Menjalankan proyek | [Mulai Cepat](#-mulai-cepat) · [Skrip](#-skrip) · [Kredensial Demo](#-kredensial-demo-cms-admin) |
+    42→| Mengintegrasikan / mengonsumsi API | [API](#-api) · [Model Data](#️-model-data--database) |
+    43→| Men-deploy ke hosting | [Deployment — Opsi A (PHP, tanpa Node!) / Opsi B (Node)](#-deployment) |
+    44→| Memeriksa keamanan | [Keamanan & RBAC](#-keamanan-dan-kontrol-akses-rbac) |
+    45→| Menerjemahkan / menambah bahasa | [Internasionalisasi](#-internasionalisasi) · [Glosarium](#-glosarium) |
+    46→| Memecahkan masalah | [Troubleshooting](#-troubleshooting) · [FAQ](#-faq) |
+    47→
+    48→---
+    49→
+    50→## 🌍 Empat Pilar Identitas
+    51→
+    52→MUHDIN bukan aplikasi yang muncul dari kehampaan. Ia berdiri di atas **empat pilar** yang menyatakan siapa kami — dan semuanya tertanam di produk (badge hero, halaman Tentang, i18n tiga bahasa), bukan sekadar di dokumen:
+    53→
+    54→<table>
+    55→<tr><td width="50%" valign="top">
+    56→
+    57→### 1️⃣ Asosiasi Haji & Umrah Digital Pertama di Dunia 🌍
+    58→
+    59→**"Asosiasi Haji & Umrah Digital Pertama di Dunia"** — *The World's First Digital Hajj & Umrah Association* — *أول جمعية رقمية للحج والعمرة في العالم*.
+    60→
+    61→Bukan sekadar slogan: kombinasi lengkapnya belum pernah ada — asosiasi nasional yang mengelola **platform digital end-to-end** (portal publik + CMS + verifikasi penyelenggara), terintegrasi **Nusuk**, berbahasa **3 bahasa termasuk RTL Arab**, dan diwarisi garis pelopor PHI & IPHI.
+    62→
+    63→### 2️⃣ Pewaris Garis Pelopor PHI & IPHI 🏛️
+    64→
+    65→**PHI — Perjalanan Haji Indonesia** dan **IPHI — Ikatan Persaudaraan Haji Indonesia** adalah penyelenggara haji & umrah **pertama di Nusantara — jauh sebelum Kementerian Agama RI berdiri (1946)**. Kami bukan pendatang; kami pewaris garis pelopor.
+    66→
+    67→</td><td width="50%" valign="top">
+    68→
+    69→### 3️⃣ Pengurus Pusat Tokoh Nasional & Internasional 👥
+    70→
+    71→Pengurus Pusat MUHDIN adalah **tokoh nasional dan internasional** yang berpengaruh di bidang haji & umrah — termasuk para arsitek blueprint penyelenggaraan ibadah. Bukan sekadar pengurus; mereka **penulis sejarah yang masih menulis**.
+    72→
+    73→### 4️⃣ Blueprint Karya Abadi, Pra-Payung Hukum 🧭
+    74→
+    75→**Blueprint penyelenggaraan haji & umrah Indonesia** adalah karya abadi para tokoh itu — ditulis **sebelum ada payung hukum**. Kini arsitek yang sama duduk di Pengurus Pusat MUHDIN, dan blueprint itu menjadi fondasi platform digital ini.
+    76→
+    77→</td></tr>
+    78→</table>
+    79→
+    80→> Ketiga bahasa klaim — Indonesia, Inggris, Arab — tertanam sebagai *string* i18n asli di `src/lib/i18n/locales/{home,about,join}.ts` dan tampil di badge beranda + section "Warisan Sejarah" halaman `#/tentang`.
+    81→
+    82→---
+    83→
+    84→## 🏛️ Warisan dan Garis Waktu
+    85→
+    86→<div align="center">
+    87→
+    88→> ### *"Kami bukan pendatang. Kami pewaris garis pelopor."*
+    89→
+    90→</div>
+    91→
+    92→**Sebelum Kementerian Agama RI berdiri (1946)**, jamaah Nusantara telah dibimbing ke Tanah Suci oleh para pelopor: **PHI — Perjalanan Haji Indonesia** dan **IPHI — Ikatan Persaudaraan Haji Indonesia**, penyelenggara haji & umrah **pertama di Nusantara**. Di tangan tokoh-tokoh itulah **blueprint penyelenggaraan haji & umrah Indonesia** ditulis — karya abadi yang lahir **sebelum ada payung hukum**. Kini para arsitek yang sama duduk di **Pengurus Pusat MUHDIN**, dan garis pelopor itu menorehkan babak barunya: **asosiasi haji & umrah digital pertama di dunia**.
+    93→
+    94→```mermaid
+    95→timeline
+    96→    title Garis Sejarah Penyelenggaraan Haji dan Umrah Nusantara
+    97→    Sebelum 1946 : PHI — Perjalanan Haji Indonesia : IPHI — Ikatan Persaudaraan Haji Indonesia : Penyelenggara haji dan umrah pertama di Nusantara — sebelum Kementerian Agama RI berdiri
+    98→    Era Blueprint : Blueprint haji dan umrah Indonesia : Karya abadi para arsitek yang kini duduk di Pengurus Pusat MUHDIN — lahir sebelum ada payung hukum
+    99→    2026 : MUHDIN : Asosiasi Haji dan Umrah Digital Pertama di Dunia
+   100→```
+   101→
+   102→| 📜 **Era Pelopor** | 🧭 **Era Blueprint** | 🌍 **Era Digital** |
+   103→|:---|:---|:---|
+   104→| **PHI & IPHI** — penyelenggara haji & umrah pertama di Nusantara, jauh sebelum Kemenag RI (1946) | **Blueprint haji & umrah Indonesia** — karya abadi para tokoh yang kini duduk di Pengurus Pusat MUHDIN, ditulis sebelum ada payung hukum | **MUHDIN** — asosiasi haji & umrah digital pertama di dunia; warisan tradisi, wajah teknologi |
+   105→
+   106→**Pengurus Pusat MUHDIN** adalah tokoh nasional dan internasional yang berpengaruh di bidang haji & umrah — termasuk para arsitek blueprint di atas. Susunan inti (tampil di `#/tentang`): **Prof. Dr. Anwar Sanusi** (Pembina) · **KH. Qosim Saleh, Lc., M.Si.** (Penasehat) · **Drs. Arif Racman Hakim** (Ketua Umum) · **Gugun Gunara** (Sekretaris Jenderal) · **Jonaedi, M.Pd.** (BEMDUM).
+   107→
+   108→<details>
+   109→<summary><b>🌏 Mengapa klaim "pertama di dunia" ini layak dicanangkan?</b></summary>
+   110→
+   111→Banyak organisasi digital. Banyak asosiasi ibadah. Tapi **kombinasi lengkap** — asosiasi nasional yang (1) mengelola platform digital end-to-end (portal publik + CMS + verifikasi penyelenggara), (2) terintegrasi Nusuk, (3) berbahasa 3 bahasa termasuk RTL Arab, dan (4) diwarisi garis pelopor PHI & IPHI — belum ada sebelumnya. MUHDIN adalah yang pertama menggabungkan semuanya dalam satu payung.
+   112→</details>
+   113→
+   114→---
+   115→
+   116→## 📸 Galeri Tampilan
+   117→
+   118→> Semua tangkapan layar di bawah ini **asli dari aplikasi berjalan** — bukan mockup. Lihat sendiri di [Mulai Cepat](#-mulai-cepat).
+   119→
+   120→<div align="center">
+   121→
+   122→<table>
+   123→  <tr>
+   124→    <td width="50%" align="center">
+   125→      <img src="docs/assets/screenshots/home-hero.png" alt="Beranda MUHDIN — hero sinematik Transformasi Digitalisasi Umroh dan Haji Indonesia 2030" />
+   126→      <br><sub><b>🏠 Beranda</b> — hero sinematik Ken Burns + parallax + marquee <i>MUDAH · MURAH · AMANAH</i></sub>
+   127→    </td>
+   128→    <td width="50%" align="center">
+   129→      <img src="docs/assets/screenshots/airlines-filter.png" alt="Direktori maskapai dengan filter kawasan Asia aktif menampilkan grid hasil logo resmi" />
+   130→      <br><sub><b>🛫 Direktori Maskapai</b> — filter kawasan Asia, grid hasil instan + counter</sub>
+   131→    </td>
+   132→  </tr>
+   133→  <tr>
+   134→    <td width="50%" align="center">
+   135→      <img src="docs/assets/screenshots/dark-mode.png" alt="Beranda MUHDIN dalam mode gelap premium" />
+   136→      <br><sub><b>🌙 Dark Mode</b> — premium forest &amp; gold, kontras terjaga</sub>
+   137→    </td>
+   138→    <td width="50%" align="center">
+   139→      <img src="docs/assets/screenshots/arabic-rtl.png" alt="Beranda MUHDIN dalam bahasa Arab dengan tata letak RTL" />
+   140→      <br><sub><b>العربية</b> — terjemahan sungguhan + tata letak RTL penuh (bukan cermin palsu)</sub>
+   141→    </td>
+   142→  </tr>
+   143→</table>
+   144→
+   145→<img src="docs/assets/screenshots/admin-dashboard.png" alt="Dashboard CMS Portal Mitra MUHDIN" width="66%" />
+   146→
+   147→<sub><b>🔐 CMS Portal Mitra</b> — dashboard realtime, CRUD 13+ entitas, verifikasi anggota, panel Nusuk, audit log</sub>
+   148→
+   149→</div>
+   150→
+   151→---
+   152→
+   153→## 🌟 Mengapa MUHDIN Ada?
+   154→
+   155→Jutaan jamaah Indonesia berangkat setiap tahun — namun ekosistemnya masih terfragmentasi: data travel tersebar di PDF Kemenag, verifikasi lisensi manual, komunikasi via WhatsApp, dan jamaah sering tak tahu operatornya legal atau tidak.
+   156→
+   157→> 🏛️ **Bukan pendatang** — MUHDIN mewarisi garis pelopor **PHI & IPHI**, penyelenggara haji & umrah pertama di Nusantara sebelum Kemenag RI, dengan **blueprint karya abadi** para pengurus pusatnya. Baca [Warisan dan Garis Waktu](#️-warisan-dan-garis-waktu).
+   158→
+   159→| 😩 **Masalah Nyata** | ✅ **Solusi MUHDIN** |
+   160→|---|---|
+   161→| Data penyelenggara tersebar di PDF & spreadsheet statis | 📚 **Direktori anggota live** — filter instan per tipe/provinsi/kota, pencarian real-time, halaman profil + verifikasi lisensi publik |
+   162→| Jamaah sulit memastikan PPIU/PIHK legal | 🛡️ **Halaman verifikasi lisensi** per anggota — nomor izin, status, rating, tampil publik |
+   163→| Tidak ada jembatan ke sistem Nusuk Saudi | 🕌 **Nusuk Hub** — koneksi API SANDBOX/PRODUCTION, katalog izin (Tasreeh, Raudah, dst.), sinkronisasi, webhook, metrics |
+   164→| Konten & pengumuman tak terorganisir | ✍️ **CMS lengkap** — berita, tutorial, agenda, galeri, FAQ dengan draft→publish |
+   165→| Komunikasi satu arah, tak teraudit | 📜 **Audit log penuh** — setiap aksi admin terekam (LOGIN, CREATE, VERIFY, …) |
+   166→| Bahasa jadi penghalang jamaah mancanegara | 🌍 **3 bahasa aktif** — Indonesia · English · العربية dengan RTL sungguhan |
+   167→| Akses dari perangkat lawas & sinyal lemah di Makkah | 📱 **PWA offline-ready** + hash routing super-ringan |
+   168→| Hosting mahal & rumit | 🐘 **Edisi PHP tanpa Node.js** — cukup shared hosting cPanel biasa (lihat [Deployment](#-deployment)) |
+   169→
+   170→> *"Syurga bagi pengusaha pelayan Tamu Allah dan kenyamanan jamaah dalam ibadah."*
+   171→
+   172→---
+   173→
+   174→## 📊 MUHDIN dalam Angka
+   175→
+   176→> ✅ **Diaudit 2026-09-21** — setiap angka dihitung ulang langsung dari kode, database, dan paket build. Perintah pengukuran dicantumkan agar Anda bisa memverifikasi sendiri.
+   177→
+   178→<div align="center">
+   179→
+   180→| | | |
+   181→|:---:|:---:|:---:|
+   182→| 💻 **27.681** baris TypeScript | 🧩 **195** file TS/TSX · **88** komponen · **15** view | 🛫 **76** maskapai · **45** negara |
+   183→| 🔌 **63** berkas route API Node | 🐘 **6.188** baris PHP (8 berkas, paritas 1:1) | 🗃️ **26** model Prisma |
+   184→| 🌍 **888** kunci i18n × 3 = **2.664** string | 👥 **4** peran RBAC · **22** modul CMS | 🌐 **3** bahasa · RTL sungguhan |
+   185→| 📦 Paket hosting PHP **±3,2 MB** | 🧱 **16** rute hash + 404 kustom | 🍪 **1** cookie sesi sama untuk dua mesin |
+   186→
+   187→</div>
+   188→
+   189→<details>
+   190→<summary><b>🔍 Isi database seed (data nyata, jalankan <code>bun prisma/seed.ts</code>)</b></summary>
+   191→
+   192→| Model | Jumlah | Catatan |
+   193→|---|---:|---|
+   194→| `User` | 3 | SUPER_ADMIN · VERIFIKATOR · EDITOR (akun demo) |
+   195→| `Member` | 15 | PPIU 5 · PIHK 4 · KBIHU 3 · Travel Wisata 2 · IPHI 1 — 8 provinsi · 10 kota |
+   196→| `Ecosystem` | 13 | 3 klaster (Akses & Mobilitas 5 · Pengalaman Ibadah 5 · Nilai Tambah & Mutu 3) |
+   197→| `JourneyStep` | 13 | alur jamaah tahap demi tahap |
+   198→| `Roadmap` | 4 | fase 2026–2030 |
+   199→| `Tutorial` | 13 | 4 kategori × 3 level, markdown |
+   200→| `Article` | 10 | termasuk 4 rilis resmi Nusuk/Kemenag |
+   201→| `Faq` | 13 | 4 kategori |
+   202→| `Testimonial` | 6 | rating 4–5 |
+   203→| `Management` | 5 | susunan pengurus inti resmi |
+   204→| `RegionalBranch` | 1 | BAKORWIL Jawa Barat |
+   205→| `Gallery` / `Event` / `Resource` | 8 / 5 / 4 | galeri · agenda · unduhan |
+   206→| `SiteSetting` | 18 | identitas, hero, visi-misi, kontak, sosmed |
+   207→| `NusukPermit` + log | dinamis | catalog engine mensimulasikan sinkronisasi |
+   208→
+   209→</details>
+   210→
+   211→<details>
+   212→<summary><b>📏 Verifikasi sendiri (perintah pengukuran)</b></summary>
+   213→
+   214→```bash
+   215→find src -name "*.ts" -o -name "*.tsx" | xargs wc -l | tail -1   # 27.681 baris TS
+   216→find src/app/api -name "route.ts" | wc -l                        # 63 berkas route
+   217→grep -c "^model " prisma/schema.prisma                           # 26 model
+   218→wc -l shared-hosting/api/*.php | tail -1                         # 6.188 baris PHP
+   219→bun -e 'import("src/lib/i18n/locales/home.ts").then(()=>console.log("ok"))'
+   220→find src/lib/i18n/locales -name "*.ts" | wc -l                   # 20 file namespace
+   221→```
+   222→</details>
+   223→
+   224→---
+   225→
+   226→## 👤 Untuk Siapa?
+   227→
+   228→| 🧑‍🤝‍🧑 Siapa | Apa yang ia dapat |
+   229→|---|---|
+   230→| 🕋 **Jamaah** | Cari & verifikasi penyelenggara legal, lacak rombongan, baca panduan, akses layanan Nusuk — dalam 3 bahasa, offline-ready |
+   231→| 🏢 **Penyelenggara (PPIU/PIHK/KBIHU/TW/IPHI)** | Profil terverifikasi publik, pendaftaran online dengan tiket `MHD-XXXXXX`, CMS untuk kelola konten & pelayanan |
+   232→| 🏛️ **Pengurus & Regulator** | Dashboard realtime, verifikasi keanggotaan berjenjang, audit log penuh, matriks peran ketat |
+   233→| 👨‍💻 **Pengembang** | 63 endpoint API terdokumentasi, skema Prisma bersih, dua mesin (Node/PHP) dengan kontrak identik, kode TypeScript strict |
+   234→| 🌍 **Umat global** | Antarmuka Arab RTL sungguhan + English — bukan hasil mesin cetak tempel |
+   235→
+   236→---
+   237→
+   238→## 🎬 Tur 60 Detik
+   239→
+   240→```mermaid
+   241→flowchart LR
+   242→    A["#/ Beranda<br/>hero + badge dunia + 76 maskapai"] --> B["#/ekosistem<br/>13 pilar · 3 klaster"]
+   243→    B --> C["#/anggota<br/>direktori + verifikasi lisensi"]
+   244→    C --> D["#/nusuk<br/>hub Nusuk + kuota resmi"]
+   245→    D --> E["#/lacak · #/gabung<br/>jamaah & pendaftar"]
+   246→    E --> F["#/admin<br/>CMS RBAC 4 peran"]
+   247→```
+   248→
+   249→1. **Beranda** `#/` — badge *"Asosiasi Haji & Umrah Digital Pertama di Dunia"*, hero sinematik, marquee 76 maskapai dunia, 13 ekosistem, statistik resmi Nusuk.
+   250→2. **Direktori** `#/anggota` — filter tipe/provinsi/kota + pencarian instan; klik profil → verifikasi lisensi publik.
+   251→3. **Nusuk Hub** `#/nusuk` — status koneksi SANDBOX/PRODUCTION, 6 pilar layanan resmi, kuota haji Indonesia, verifikasi izin jamaah.
+   252→4. **Layanan** `#/lacak` (kode lisensi), `#/gabung` (pendaftaran ber-tiket), `#/lapor` (pengaduan), `#/unduhan` (perpustakaan dokumen).
+   253→5. **CMS** `#/admin` — login sesuai peran → dashboard, 22 modul, audit log.
+   254→
+   255→---
+   256→
+   257→## 📖 Tentang
+   258→
+   259→**MUHDIN** adalah **asosiasi haji & umrah digital pertama di dunia** — super-aplikasi portal untuk ekosistem penyelenggaraan ibadah umrah & haji Indonesia, mewarisi garis pelopor [PHI & IPHI](#️-warisan-dan-garis-waktu). Satu platform yang menggabungkan **empat pilar**:
+   260→
+   261→| Pilar | Zona | Isi |
+   262→|---|---|---|
+   263→| 🏛️ **Portal Publik** | `#/` | Etalase 13 ekosistem, direktori anggota terverifikasi, berita, tutorial, agenda, galeri, pelacakan jamaah, pendaftaran |
+   264→| 🔐 **CMS Portal Mitra** | `#/admin` | 22 modul: manajemen konten, verifikasi penyelenggara, panel integrasi Nusuk, audit log, kelola pengguna |
+   265→| 🛫 **Jaringan Maskapai** | beranda | Direktori **76 maskapai dunia dari 45 negara** yang melayani penerbangan ke Arab Saudi — logo resmi, direktori filter kawasan |
+   266→| 🕌 **Nusuk Hub** | `#/nusuk` | Jembatan digital ke platform Nusuk Kementerian Haji Saudi (Tasreeh, Raudah, Mashaer, Hawiya) |
+   267→
+   268→**Nilai inti** — tertanam di UI (5 kartu) dan di kode (audit log, verifikasi, i18n):
+   269→
+   270→| Nilai | Artinya di kode |
+   271→|---|---|
+   272→| 🤲 **Amanah** | tata kelola yang dapat diaudit (`AuditLog` untuk setiap aksi) |
+   273→| 🎓 **Profesional** | prosedur baku + mutu berkala (guard seragam, validasi) |
+   274→| 🔗 **Terintegrasi** | satu data & satu alur (26 model, satu DB, dua mesin API identik) |
+   275→| 👁️ **Transparan** | status & rekam jejak terbuka publik (verifikasi lisensi) |
+   276→| 🛡️ **Tepercaya** | legalitas diverifikasi, sanksi konsisten (RBAC 4 peran) |
+   277→
+   278→---
+   279→
+   280→## 🧱 Arsitektur Sistem
+   281→
+   282→```mermaid
+   283→flowchart TB
+   284→    subgraph KLIEN["💻 Klien — Browser / PWA"]
+   285→        UI["React 19 SPA — hash route 16 tujuan<br/>portal · tutorial · nusuk · admin"]
+   286→        SW["Service Worker — offline shell & cache"]
+   287→    end
+   288→    subgraph SRV["⚡ Mesin A — Next.js 16 standalone (Node)"]
+   289→        API["63 API Routes — public / auth / admin"]
+   290→        GUARD["api-helpers — ok/fail · guardRole · logAudit · i18n server"]
+   291→        ORM["Prisma 6 ORM"]
+   292→    end
+   293→    DB[("🗄️ SQLite — db/custom.db — 26 model")]
+   294→    PUB[("📂 public/ — 76 logo maskapai · gambar AI · ikon PWA")]
+   295→
+   296→    UI -->|"fetch JSON (relative path)"| API
+   297→    API --> GUARD --> ORM --> DB
+   298→    UI -.->|"aset statis"| PUB
+   299→    SW -.-> UI
+   300→```
+   301→
+   302→**Dan mesin keduanya — edisi shared hosting tanpa Node.js:**
+   303→
+   304→```mermaid
+   305→flowchart TB
+   306→    subgraph K2["💻 Browser / PWA (frontend sama persis)"]
+   307→        UI2["React 19 SPA — static export"]
+   308→    end
+   309→    subgraph APACHE["🐘 Apache / LiteSpeed (cPanel)"]
+   310→        HT[".htaccess — rewrite /api/* + proteksi data"]
+   311→        PHP["🐘 api/index.php — router modul<br/>routes-auth · routes-content<br/>routes-directory · routes-nusuk"]
+   312→        LIB["lib.php — sesi DB · guard RBAC<br/>rate-limit SQLite · WA · i18n cache"]
+   313→        NSK["nusuk.php — katalog izin · sync · webhook"]
+   314→    end
+   315→    DB2[("🗄️ muhdin.sqlite — skema sama<br/>DateTime = epoch ms")]
+   316→    UI2 -->|"fetch JSON"| HT --> PHP --> LIB --> DB2
+   317→    PHP --> NSK --> DB2
+   318→```
+   319→
+   320→**Keputusan arsitektur (mengapa begini):**
+   321→
+   322→1. **Satu `app/page.tsx` + hash router kustom** (`useSyncExternalStore`) — SPA murni melayani 16 rute tanpa konfigurasi rewrite server. Berjalan di cPanel, Nginx, Apache, bahkan static host.
+   323→2. **API layer seragam** — setiap endpoint melewati `ok()`/`fail()` untuk format respons, guard peran untuk RBAC server-side, `logAudit()` untuk jejak, dan `applyEntityTranslations()` untuk i18n konten. Kedua mesin (Node & PHP) mengikuti kontrak yang sama persis — teks error pun identik.
+   324→3. **Aset maskapai self-hosted** — logo diunduh, divalidasi magic-bytes, disimpan lokal (tanpa hotlink CDN pihak ketiga) → aman untuk produksi, cepat, dan menghormati bandwidth hosting.
+   325→4. **SQLite + Prisma** — zero-config, satu file mudah dibackup, dan 100% kompatibel shared hosting. Butuh skala besar? Cukup ganti `provider` di schema → `db:push`.
+   326→5. **Dual-mode build** — `BUILD_STATIC=1` menghasilkan static export murni untuk edisi PHP; mode default menghasilkan `standalone` Node dengan fitur AI terjemahan inline. Dua paket deploy dari satu codebase.
+   327→6. **Prisma 6 menyimpan DateTime sebagai INTEGER epoch-ms** — backend PHP menulis & menormalkan format yang sama (`cast_row`), sehingga **database yang sama bisa dibaca-tulis kedua mesin** (terverifikasi uji silang).
+   328→
+   329→---
+   330→
+   331→## 🔄 Alur Penting
+   332→
+   333→### 🔑 Autentikasi (login → sesi)
+   334→
+   335→```mermaid
+   336→sequenceDiagram
+   337→    actor A as Admin
+   338→    participant U as UI (#/admin)
+   339→    participant API as /api/auth/login
+   340→    participant DB as SQLite
+   341→
+   342→    A->>U: Isi email + password
+   343→    U->>API: POST { email, password }
+   344→    API->>DB: Cari User by email
+   345→    DB-->>API: User (hash)
+   346→    API->>API: verifikasi hash (scrypt di Node · bcrypt di PHP)
+   347→    alt valid
+   348→        API->>DB: INSERT Session (token 64-hex, 7 hari)
+   349→        API->>API: logAudit("LOGIN")
+   350→        API-->>U: Set-Cookie muhdin_session (httpOnly, SameSite=Lax)
+   351→        U-->>A: Masuk dashboard sesuai peran
+   352→    else tidak valid
+   353→        API-->>U: 401 { "error": "…" }
+   354→    end
+   355→```
+   356→
+   357→> 🛡️ Rate limit login: 5 percobaan / menit — percobaan ke-6 mendapat **429** dengan pesan yang sama di kedua mesin.
+   358→
+   359→### ✅ Verifikasi Anggota (pendaftaran → terverifikasi)
+   360→
+   361→```mermaid
+   362→stateDiagram-v2
+   363→    [*] --> MENUNGGU: Jamaah/operator submit form #/gabung (tiket MHD-XXXXXX)
+   364→    MENUNGGU --> TERVERIFIKASI: Verifikator/Admin setujui (approve → Member otomatis terbentuk)
+   365→    MENUNGGU --> DITOLAK: Verifikator/Admin tolak (alasan ≥ 5 karakter)
+   366→    TERVERIFIKASI --> NONAKTIF: Admin nonaktifkan
+   367→    NONAKTIF --> TERVERIFIKASI: Admin aktifkan kembali
+   368→    DITOLAK --> [*]
+   369→```
+   370→
+   371→Setiap transisi tercatat di `AuditLog` dengan aktor, aksi, dan timestamp — dapat diaudit kapan pun dari menu **Audit Log**. Pendaftar dapat memantau statusnya secara publik via `#/gabung` → lacak tiket.
+   372→
+   373→---
+   374→
+   375→## 🗃️ Model Data & Database
+   376→
+   377→```mermaid
+   378→erDiagram
+   379→    User ||--o{ Session : "memiliki"
+   380→    User ||--o{ AuditLog : "melakukan"
+   381→    Member ||--o{ NusukPermit : "memegang"
+   382→    NusukConnection ||--o{ NusukPermit : "menerbitkan"
+   383→    NusukConnection ||--o{ NusukSyncLog : "menghasilkan"
+   384→    MembershipApplication ||--|| Member : "disetujui menjadi"
+   385→    Article ||--o{ ContentTranslation : "diterjemahkan"
+   386→    RegionalBranch ||--o{ Member : "membina"
+   387→```
+   388→
+   389→**26 model** dalam 6 kelompok fungsional:
+   390→
+   391→| Kelompok | Model | Catatan |
+   392→|---|---|---|
+   393→| 🪪 **Auth & Jejak** | `User` · `Session` · `AuditLog` | 4 peran; sesi DB + cookie `muhdin_session` |
+   394→| 📰 **Konten** | `SiteSetting` · `Ecosystem` · `JourneyStep` · `Roadmap` · `Article` · `Tutorial` · `Faq` · `Testimonial` | terjemahan EN/AR via `ContentTranslation` |
+   395→| 👥 **Keanggotaan** | `Member` · `MembershipApplication` · `ContactMessage` · `Complaint` · `Subscriber` | tiket `MHD-XXXXXX`, status verifikasi |
+   396→| 🏛️ **Organisasi** | `Management` · `RegionalBranch` | susunan pengurus resmi + Bakorwil/Bakorcab |
+   397→| 🎬 **Media & Kegiatan** | `Gallery` · `Event` · `Resource` | galeri · agenda · perpustakaan unduhan |
+   398→| 🕌 **Integrasi Nusuk** | `NusukConnection` · `NusukPermit` · `NusukSyncLog` · `WhatsAppSetting` · `ContentTranslation` | mode SANDBOX/PRODUCTION + gateway WA |
+   399→
+   400→Skema lengkap: [`prisma/schema.prisma`](prisma/schema.prisma) · seed idempoten: [`prisma/seed.ts`](prisma/seed.ts) · susunan pengurus resmi: `bun scripts/update-management.mjs`
+   401→
+   402→---
+   403→
+   404→## ✨ Fitur
+   405→
+   406→<table>
+   407→<tr><td width="50%" valign="top">
+   408→
+   409→### 🏠 Portal Publik
+   410→- **Hero sinematik** — Ken Burns + parallax + marquee *MUDAH. MURAH. AMANAH.*
+   411→- **Badge First-in-World** — *"Asosiasi Haji & Umrah Digital Pertama di Dunia"* (3 bahasa)
+   412→- **Warisan Sejarah** — garis PHI & IPHI → blueprint → era digital (3 bahasa)
+   413→- **13 Ekosistem** — 3 klaster: Akses & Mobilitas, Pengalaman Ibadah, Nilai Tambah & Mutu
+   414→- **Alur 13 Tahap** — zero-gap handover dari pendaftaran hingga pasca-ibadah
+   415→- **Direktori anggota** — filter tipe/provinsi/kota + pencarian instan + halaman profil `#/anggota/:slug` dengan verifikasi lisensi publik
+   416→- **Berita & Tutorial** — kategori, level, markdown-lite renderer, views counter
+   417→- **Lacak Jamaah** — pantau status rombongan via kode lisensi (`?code=`)
+   418→- **Agenda, Galeri, Unduhan, FAQ, Kontak, Lapor, Pendaftaran Anggota ber-tiket**
+   419→
+   420→### 🛫 Jaringan Maskapai Global
+   421→- **76 maskapai dunia dari 45 negara** dengan logo resmi (2 CDN fallback, validasi magic-bytes, cache lokal)
+   422→- **Direktori filter interaktif** — chip kawasan ber-counter (Semua 76 · Teluk 19 · Asia 26 · Afrika-Eropa 27) → grid hasil instan + scroll vertikal + animasi stagger
+   423→- 3 baris **marquee** arah berselang + hover-pause
+   424→- **4 kartu unggulan Indonesia** — Garuda · Batik · Lion · Sriwijaya
+   425→
+   426→</td><td width="50%" valign="top">
+   427→
+   428→### 🔐 CMS — Portal Mitra (22 modul)
+   429→- **RBAC 4 peran**: `SUPER_ADMIN` · `ADMIN` · `VERIFIKATOR` · `EDITOR` — matriks lengkap di [bawah](#-keamanan-dan-kontrol-akses-rbac)
+   430→- **CRUD 13+ entitas** — artikel, tutorial, FAQ, testimoni, anggota, agenda, galeri, cabang, dsb. (termasuk terjemahan EN/AR per baris)
+   431→- **Verifikasi Anggota** — setujui/tolak pendaftaran ber-tiket, aktif/nonaktif — semua tercatat di audit log
+   432→- **Struktur Organisasi resmi** — bagan Pengurus Pusat → Penunjukan → Bakorwil → Bakorcab + susunan pengurus inti
+   433→- **Panel Nusuk** — koneksi SANDBOX/PRODUCTION, rotasi kunci, sinkronisasi, izin jamaah (permits), log sinkron, webhook
+   434→- **Pengguna & Audit** — kelola akun admin (hanya SUPER_ADMIN), jejak audit penuh
+   435→- **WhatsApp & Translator** — 3 gateway WA (Fonnte/Wablas/Custom) + penerjemah konten EN/AR
+   436→- **Dashboard** — statistik live dari `/api/stats`
+   437→
+   438→### 🌐 Teknologi & Pengalaman
+   439→- **i18n 3 bahasa aktif** — Indonesia 🇮🇩 · English 🇬🇧 · العربية 🇸🇦 **dengan RTL penuh & font Arab** (888 kunci × 3 = 2.664 string)
+   440→- **Dark mode** premium (next-themes, tanpa flash saat load)
+   441→- **PWA** — installable, halaman offline, service worker cache untuk shell
+   442→- **Animasi McKinsey-grade** — framer-motion, scroll-reveal, CountUp, stagger — semua menghormati `prefers-reduced-motion`
+   443→- **Desain Spectrum 8** — palet forest & gold dengan pola islami
+   444→
+   445→</td></tr>
+   446→</table>
+   447→
+   448→---
+   449→
+   450→## 🚀 Mulai Cepat
+   451→
+   452→> **Prasyarat**: [Bun](https://bun.sh) ≥ 1.1 (atau Node ≥ 20 untuk `npx prisma` dsb.) — **tanpa file `.env`**, zero config.
+   453→
+   454→```bash
+   455→# 1️⃣ Clone & masuk
+   456→git clone <repo> muhdin && cd muhdin
+   457→
+   458→# 2️⃣ Install dependensi (bun — cepat & andal)
+   459→bun install
+   460→
+   461→# 3️⃣ Siapkan database SQLite
+   462→bun run db:push
+   463→
+   464→# 4️⃣ Isi data awal (3 akun demo, 13 ekosistem, 15 anggota contoh, 10 artikel, meta 76 maskapai, …)
+   465→bun prisma/seed.ts
+   466→
+   467→# 5️⃣ (Opsional) Pasang susunan pengurus resmi MUHDIN
+   468→bun scripts/update-management.mjs
+   469→
+   470→# 6️⃣ Jalankan
+   471→bun run dev          # → http://localhost:3000
+   472→```
+   473→
+   474→> ⚠️ **Catatan sandbox/rebuild**: jika tampilan basi atau hydration mismatch → `pkill -f "next dev"; rm -rf .next; bun run dev` (lihat [Troubleshooting](#-troubleshooting)).
+   475→
+   476→### 🔑 Kredensial Demo CMS (`#/admin`)
+   477→
+   478→| Peran | Email | Password |
+   479→|---|---|---|
+   480→| **Super Admin** | `admin@muhdin.web.id` | `muhdin2026` |
+   481→| **Verifikator** | `verifikator@muhdin.web.id` | `verifikator2026` |
+   482→| **Editor** | `editor@muhdin.web.id` | `editor2026` |
+   483→
+   484→> 🔐 Node menyimpan hash **scrypt** (`salt:hash`); edisi PHP menggunakan **bcrypt** — pipeline `hosting:build` otomatis me-rehash 3 akun demo ke bcrypt, sehingga kredensial yang sama bekerja di kedua mesin. Tidak pernah ada plaintext di database.
+   485→
+   486→---
+   487→
+   488→## 📜 Skrip
+   489→
+   490→| Perintah | Fungsi |
+   491→|---|---|
+   492→| `bun run dev` | Jalankan dev server (Turbopack) di port 3000 |
+   493→| `bun run build` | Build produksi `standalone` + `post-build.mjs` (salin aset statis) |
+   494→| `bun run start` | Jalankan server produksi (`.next/standalone/server.js`) |
+   495→| `bun run lint` | ESLint (flat config, `next/core-web-vitals`) — gerbang mutu 0 error |
+   496→| `bun run db:push` | Sinkron schema Prisma → SQLite |
+   497→| `bun run db:generate` / `db:migrate` / `db:reset` | Utility Prisma lainnya |
+   498→| `bun prisma/seed.ts` | Seed data lengkap (idempoten — aman dijalankan berulang) |
+   499→| `bun scripts/translate-content.mts` | Terjemahkan konten DB (EN/AR) ke `ContentTranslation` |
+   500→| `bun scripts/fetch-airline-logos.mjs` | Unduh logo maskapai + generate `src/lib/airlines.ts` (`--force` untuk unduh ulang) |
+   501→| `bun scripts/update-management.mjs` | Pasang susunan pengurus resmi MUHDIN (idempoten) |
+   502→| `bun scripts/contrast-audit.mjs` | Audit kontras warna kedua tema |
+   503→| `bun run hosting:build` | **Build edisi shared hosting tanpa Node.js** — static export + backend PHP + DB + zip ±3,2 MB (terisolasi, dev server aman) |
+   504→| `bun run hosting:pack` | Rakit paket deploy shared hosting Node standalone + zip (±90 MB) |
+   505→
+   506→---
+   507→
+   508→## 🧭 Peta Rute
+   509→
+   510→SPA berbasis **hash-route** (`src/hooks/use-hash-route.ts`) — satu `app/page.tsx`, nol konfigurasi server.
+   511→
+   512→| Rute | Halaman |
+   513→|---|---|
+   514→| `#/` | 🏠 Beranda — hero + badge first-in-world + maskapai + 13 ekosistem + nilai inti + CTA |
+   515→| `#/nusuk` | 🕌 Nusuk Hub — status integrasi + layanan resmi + kuota + verifikasi izin |
+   516→| `#/ekosistem` | 🏛️ Detail 13 ekosistem per klaster |
+   517→| `#/alur` | 🗺️ Timeline 13 tahap perjalanan jamaah |
+   518→| `#/anggota` | 📚 Direktori anggota — filter tipe/provinsi/kota + pencarian |
+   519→| `#/anggota/:slug` | 🪪 Profil anggota + verifikasi lisensi |
+   520→| `#/berita` · `#/berita/:slug` | 📰 Daftar & detail berita |
+   521→| `#/tutorial` · `#/tutorial/:slug` | 🎓 Daftar & detail tutorial (berlevel) |
+   522→| `#/galeri` | 🖼️ Galeri kegiatan |
+   523→| `#/agenda` | 📅 Agenda kegiatan |
+   524→| `#/unduhan` | 📥 Perpustakaan dokumen & sumber daya |
+   525→| `#/lacak` | 🔎 Lacak rombongan (`?code=LISENSI`) |
+   526→| `#/lapor` | 🚨 Pengaduan jamaah (ber-tiket) |
+   527→| `#/kontak` | 📮 Kontak sekretariat + form |
+   528→| `#/gabung` | ✍️ Pendaftaran anggota baru (tiket MHD-XXXXXX) |
+   529→| `#/tentang` | ℹ️ Visi-misi, **warisan PHI & IPHI**, struktur organisasi resmi, FAQ |
+   530→| `#/admin` | 🔐 Portal Mitra (CMS) — login RBAC |
+   531→| *rute tak dikenal* | 🚧 404 custom dengan navigasi pulang |
+   532→
+   533→---
+   534→
+   535→## 🔌 API
+   536→
+   537→Semua respons JSON seragam — sukses: objek/array, gagal: `{ "error": "pesan" }` dengan status HTTP tepat. Konten multibahasa mengikuti query `?locale=en|ar`. **63 berkas route** di `src/app/api/**` — dan seluruhnya direplikasi **1:1 di backend PHP** edisi hosting.
+   538→
+   539→<details open>
+   540→<summary><b>Publik — tanpa login</b></summary>
+   541→
+   542→| Endpoint | Keterangan |
+   543→|---|---|
+   544→| `GET /api/health` | Health check (status DB + runtime) |
+   545→| `GET /api/settings` | Map key→nilai situs (otomatis terjemahan) |
+   546→| `GET /api/ecosystems` · `/api/journey` · `/api/roadmap` | Ekosistem (13) · alur (13) · roadmap (4) |
+   547→| `GET /api/articles?limit=&category=` · `GET /api/articles/slug/:slug` | Berita (+views counter) |
+   548→| `GET /api/tutorials` · `GET /api/tutorials/slug/:slug` | Tutorial |
+   549→| `GET /api/faqs` · `GET /api/testimonials` | FAQ & testimoni |
+   550→| `GET /api/members?type=&province=&city=&q=` · `GET /api/members/:slug` | Direktori + verifikasi lisensi |
+   551→| `GET /api/branches` · `GET /api/management` | Bakorwil & susunan pengurus |
+   552→| `GET /api/gallery` · `GET /api/events` · `GET /api/resources` | Galeri · agenda · unduhan |
+   553→| `GET /api/applications/track?ticket=` | Lacak pendaftaran (publik, terbatas) |
+   554→| `GET /api/search?q=` | Pencarian lintas entitas |
+   555→| `GET /api/rss` | Feed RSS 2.0 artikel |
+   556→| `GET /api/nusuk/public` | Status integrasi Nusuk + metrics |
+   557→| `GET /api/nusuk/verify?no=` | Verifikasi izin jamaah |
+   558→| `POST /api/applications` | Pendaftaran anggota → tiket `MHD-XXXXXX` + WA |
+   559→| `POST /api/messages` | Pesan kontak → WA |
+   560→| `POST /api/complaints` | Pengaduan → WA |
+   561→| `POST /api/subscribers` | Langganan buletin (`already:true` bila duplikat) |
+   562→| `POST /api/testimonials` | Kirim testimoni (`published=false`) |
+   563→
+   564→</details>
+   565→
+   566→<details>
+   567→<summary><b>Auth — cookie <code>muhdin_session</code> (httpOnly, 7 hari)</b></summary>
+   568→
+   569→| Endpoint | Keterangan |
+   570→|---|---|
+   571→| `POST /api/auth/login` | `{email, password}` → cookie sesi + audit LOGIN (rate limit 5/menit) |
+   572→| `GET /api/auth/me` | User aktif + peran, atau `{user:null}` |
+   573→| `POST /api/auth/logout` | Hapus sesi + audit LOGOUT |
+   574→| `PUT /api/auth/password` | Ganti password + cabut sesi lain |
+   575→
+   576→</details>
+   577→
+   578→<details>
+   579→<summary><b>Admin — guard RBAC + audit otomatis</b></summary>
+   580→
+   581→| Endpoint | Guard | Keterangan |
+   582→|---|---|---|
+   583→| `GET /api/stats` | sesi | Angka dashboard realtime |
+   584→| `GET/POST /api/:entity` · `GET/PUT/DELETE /api/:entity/:id` | per-entity | CRUD: `articles` · `tutorials` · `faqs` · `testimonials` · `ecosystems` · `journey` · `roadmap` · `gallery` · `events` · `resources` · `management` · `branches` · `members` · `applications` · `messages` · `complaints` · `subscribers` |
+   585→| `POST /api/members/verify` | verifikasi | Setujui/tolak anggota |
+   586→| `PUT /api/applications/:id` | verifikasi | Approve (→ auto-create Member) / reject |
+   587→| `GET/PUT /api/settings` | admin | Pengaturan situs + terjemahan |
+   588→| `GET/POST /api/translations` | admin | Status & mulai terjemahan konten |
+   589→| `GET /api/audit` | SUPER_ADMIN | Jejak audit |
+   590→| `GET/POST /api/users` · `PUT/DELETE /api/users/:id` | SUPER_ADMIN | Kelola akun admin |
+   591→| `GET /api/export?dataset=` | admin | Ekspor CSV dengan BOM |
+   592→| `GET/PUT /api/whatsapp` · `POST /api/whatsapp/test` | admin | Gateway WA 3 provider + uji koneksi |
+   593→| `GET/PUT/DELETE /api/nusuk/connection` · `POST /api/nusuk/rotate` | admin | Koneksi Nusuk + rotasi kunci |
+   594→| `GET /api/nusuk/permits` · `GET /api/nusuk/logs` · `POST /api/nusuk/sync` | admin | Izin · log · sinkronisasi |
+   595→| `POST /api/nusuk/webhook` | publik (signature) | Callback event Nusuk (HMAC/secret) |
+   596→
+   597→</details>
+   598→
+   599→### 🧪 Contoh Nyata
+   600→
+   601→```bash
+   602→# Cari PPIU di Jawa Barat yang mengandung "zamzam"
+   603→curl "http://localhost:3000/api/members?type=PPIU&province=Jawa%20Barat&q=zamzam"
+   604→```
+   605→
+   606→```json
+   607→[
+   608→  {
+   609→    "id": "cmu7bswjr001dqf5q9cw8lb2m",
+   610→    "slug": "baitullah-wisata-nusantara",
+   611→    "name": "Baitullah Wisata Nusantara",
+   612→    "type": "PPIU",
+   613→    "city": "Jakarta Selatan",
+   614→    "province": "DKI Jakarta",
+   615→    "licenseNo": "PPIU-2026-0002",
+   616→    "status": "TERVERIFIKASI",
+   617→    "rating": 4.9,
+   618→    "descriptionEn": "Baitullah Wisata Nusantara is a PPIU registered in …"
+   619→  }
+   620→]
+   621→```
+   622→
+   623→*(dipotong — respons lengkap menyertakan email, telepon, situs, alamat, dan terjemahan ID/EN/AR.)*
+   624→
+   625→```bash
+   626→# Sehat cek edisi PHP (shared hosting)
+   627→curl "https://domain-anda/api/health"
+   628→# → {"ok":true,"service":"muhdin.web.id","checks":{"database":{"ok":true,…}},"runtime":{"node":"PHP 8.3.x",…}}
+   629→```
+   630→
+   631→---
+   632→
+   633→## 🌍 Internasionalisasi
+   634→
+   635→**Tiga bahasa aktif di seluruh situs** — portal, tutorial, Nusuk, dan CMS.
+   636→
+   637→```
+   638→src/lib/i18n/
+   639→├── index.tsx          → LocaleProvider + useT() + formatNumber/DateL10n + dir RTL
+   640→└── locales/           → 20 file namespace × 3 bahasa (about, home, members, …)
+   641→```
+   642→
+   643→| Aspek | Detail |
+   644→|---|---|
+   645→| **Pemakaian** | `const { t, locale } = useT(); t("home.hero.title1")` — fallback aman ke key |
+   646→| **Paritas key** | ✅ **888 key identik 1:1 di id/en/ar** (= 2.664 string) — dihitung otomatis 2026-09-21 |
+   647→| **Interpolasi** | `t("portal.x", { n: 5 })` → placeholder `{n}` diganti |
+   648→| **Persistensi** | Cookie `muhdin-locale` — pilihan bahasa diingat antar-kunjungan |
+   649→| **Server-side** | `localeFromRequest(req)` + `applyEntityTranslations(rows, locale, ["name", …])` + tabel `ContentTranslation` (AI inline di Node · cache di PHP) |
+   650→| **RTL** | `<html dir="rtl">` via provider · ikon panah pakai class `icon-flip` · layout `start/end` (bukan left/right) · font Arab dimuat via `next/font` |
+   651→| **Angka & tanggal** | `formatNumber`/`DateL10n` mengikuti locale aktif |
+   652→
+   653→### ➕ Menambah bahasa baru (mis. Melayu, Mandarin)
+   654→
+   655→1. Tambahkan blok bahasa di file namespace `src/lib/i18n/locales/*.ts` — `{ id: {...}, en: {...}, ar: {...}, ms: {...} }`
+   656→2. Daftarkan kodenya di `LocaleProvider` (`src/lib/i18n/index.tsx`) — set `dir: "rtl"` bila perlu
+   657→3. Selesai — switcher navbar otomatis menampilkan opsi baru, cookie & RTL ikut bekerja.
+   658→
+   659→---
+   660→
+   661→## 🛫 Jaringan Maskapai Global
+   662→
+   663→Data & logo dikelola lewat satu pipeline:
+   664→
+   665→```bash
+   666→bun scripts/fetch-airline-logos.mjs   # unduh logo + generate src/lib/airlines.ts
+   667→```
+   668→
+   669→```mermaid
+   670→flowchart LR
+   671→    A["scripts/fetch-airline-logos.mjs<br/>array AIRLINES (IATA·nama·negara·kawasan)"] --> B["Unduh logo<br/>images.kiwi.com → fallback content.airhex.com"]
+   672→    B --> C{"Validasi<br/>magic-bytes PNG?"}
+   673→    C -- ya --> D["public/airlines/{IATA}.png<br/>76 file, latar transparan"]
+   674→    C -- tidak --> B2["Coba CDN kedua"]
+   675→    B2 --> C
+   676→    D --> E["Generate src/lib/airlines.ts<br/>data ter-type"]
+   677→    E --> F["UI: marquee 3 baris<br/>+ direktori filter kawasan"]
+   678→```
+   679→
+   680→- **76 maskapai / 45 negara / 3 kawasan** + 4 kartu unggulan Indonesia (Garuda · Batik · Lion · Sriwijaya)
+   681→- **Self-hosted** — tanpa hotlink, aman shared hosting & bandwidth
+   682→- Tambah maskapai? Edit array `AIRLINES` di `scripts/fetch-airline-logos.mjs` → jalankan ulang. Selesai.
+   683→
+   684→---
+   685→
+   686→## 🔐 Keamanan dan Kontrol Akses (RBAC)
+   687→
+   688→**Hierarki peran** (semakin besar level, semakin luas kewenangan):
+   689→
+   690→```mermaid
+   691→flowchart LR
+   692→    SA["👑 SUPER_ADMIN<br/>level 100"] --> AD["🛡️ ADMIN<br/>level 80"] --> VF["✅ VERIFIKATOR<br/>level 60"] --> ED["✍️ EDITOR<br/>level 40"]
+   693→```
+   694→
+   695→**Matriks modul CMS** (dari `src/lib/roles.ts` — dieksekusi server-side, bukan cuma UI):
+   696→
+   697→| Modul | SUPER_ADMIN | ADMIN | VERIFIKATOR | EDITOR |
+   698→|---|:---:|:---:|:---:|:---:|
+   699→| Dashboard | ✅ | ✅ | ✅ | ✅ |
+   700→| Nusuk · Pesan · Subscriber · Pengaturan | ✅ | ✅ | — | — |
+   701→| Artikel · Ekosistem · Alur · Roadmap · Tutorial · FAQ · Testimoni · Pengurus · Cabang · Galeri · Agenda · Unduhan · Translator | ✅ | ✅ | — | ✅ |
+   702→| Anggota · Pendaftaran · Pengaduan | ✅ | ✅ | ✅ | — |
+   703→| Audit Log · Kelola Pengguna | ✅ | — | — | — |
+   704→
+   705→**Lapisan keamanan bawaan:**
+   706→
+   707→- 🔐 Password **scrypt** (Node) / **bcrypt** (PHP) — tidak ada plaintext di database
+   708→- 🍪 Session cookie **httpOnly + SameSite=Lax** (kedaluwarsa 7 hari, token 64-hex acak) — **nama cookie sama di kedua mesin**: `muhdin_session`
+   709→- 🛡️ **RBAC server-side** di seluruh endpoint admin — UI hanya lapisan kenyamanan
+   710→- 🚦 **Rate limit** — login 5/menit (Node in-memory · PHP tabel SQLite) → 429
+   711→- 📜 **Audit log otomatis** — `LOGIN · LOGOUT · CREATE · UPDATE · DELETE · VERIFY · SYNC · JOIN · CONTACT · EXPORT`
+   712→- 🧬 Query **parameterized** — Prisma di Node, prepared statement PDO di PHP — bebas SQL injection
+   713→- ✍️ **Webhook Nusuk terverifikasi tanda tangan** (secret/HMAC, `hash_equals`)
+   714→- 📦 Logo maskapai self-hosted — tanpa hotlink & jejak pihak ketiga
+   715→- 🚫 `.htaccess` memblokir unduhan `.sqlite` & dotfiles di edisi hosting
+   716→
+   717→```ts
+   718→// Contoh guard di route.ts (pola nyata proyek ini):
+   719→await requireSession(req);                    // 401 bila tanpa sesi
+   720→await guardRole(req, ["SUPER_ADMIN", "ADMIN"]); // 403 bila peran tak berizin
+   721→await logAudit(req, "VERIFY", "Member", id);  // jejak otomatis
+   722→```
+   723→
+   724→---
+   725→
+   726→## 🎨 Design System (Spectrum 8)
+   727→
+   728→Palet identitas di `globals.css` (Tailwind 4 `@theme`):
+   729→
+   730→| Token | Peran |
+   731→|---|---|
+   732→| `forest` / `forest-deep` | Primer — hijau zamrud khas ibadah |
+   733→| `gold` / `gold-soft` / `gold-deep` | Aksen kemewahan & kaligrafi |
+   734→| `mint` | Latar section selang-seling |
+   735→| `emerald` · `teal` · `amber` · `olive` · `sage` · `bronze` | Spektrum 8 pendukung (chart, badge, level) |
+   736→
+   737→**Utilitas khas**: `text-gold-gradient` · `gold-divider` · `glass` · `bg-islamic-pattern-gold` · `animate-marquee(-reverse)` · `marquee-mask` · `animate-ken-burns` · `animate-float-soft`.
+   738→
+   739→**Aksesibilitas**: semua animasi menghormati `prefers-reduced-motion` · target sentuh ≥ 44px · kontras WCAG pada kedua tema · semantik `main/header/nav/section` + ARIA · `sr-only` untuk pembaca layar · navigasi keyboard penuh.
+   740→
+   741→---
+   742→
+   743→## 🌓 Tema Gelap & PWA
+   744→
+   745→| Aspek | Detail |
+   746→|---|---|
+   747→| **Dark mode** | next-themes, class-based, tanpa flash-of-wrong-theme; palet forest-gold khusus gelap |
+   748→| **Manifest** | `public/manifest.webmanifest` — nama, tema `#0b3d2c`, ikon 192/512 + maskable |
+   749→| **Service worker** | `public/sw.js` — cache shell, halaman `offline.html` saat jaringan hilang; nonaktif otomatis di mode dev (anti hydration mismatch), auto-update di produksi |
+   750→| **Installable** | Chrome/Edge/Safari → "Install app" → ikon home, tampilan standalone |
+   751→
+   752→---
+   753→
+   754→## 📦 Deployment
+   755→
+   756→### Opsi A — Shared Hosting PHP Edition (TANPA Node.js) ⭐ v3.0
+   757→
+   758→**Inilah yang paling revolusioner**: MUHDIN berjalan penuh — portal publik + CMS admin + Nusuk Hub + verifikasi + audit — di shared hosting cPanel biasa **tanpa Node.js, tanpa MySQL, tanpa SSH, tanpa Composer**. Frontend statis murni + backend API PHP + SQLite:
+   759→
+   760→```mermaid
+   761→flowchart LR
+   762→    B["🌐 Browser"] --> A["Apache / LiteSpeed
+   763→(cPanel)"]
+   764→    A -->|"/_next, ikon, PWA"| S["📁 Berkas statis
+   765→index.html + aset"]
+   766→    A -->|"/api/* rewrite"| P["🐘 api/index.php
+   767→63 endpoint paritas Node"]
+   768→    P --> D[("🗄️ muhdin.sqlite
+   769→PDO SQLite")]
+   770→    P -.->|"fire-and-forget"| W["💬 Gateway WhatsApp
+   771→Fonnte · Wablas · Custom"]
+   772→```
+   773→
+   774→```bash
+   775→bun run hosting:build     # → deploy/muhdin-shared-hosting/ (5,6 MB) + zip (±3,2 MB!)
+   776→```
+   777→
+   778→Yang dilakukan pipeline `build-shared-hosting.mjs` secara otomatis:
+   779→
+   780→1. **Salinan proyek terisolasi** di `/tmp` — proyek utama & dev server tidak disentuh sama sekali.
+   781→2. `next build` dengan `BUILD_STATIC=1` → **static export** murni (HTML+JS+CSS — hash routing tetap berfungsi penuh).
+   782→3. Rakit paket: frontend statis + `api/*.php` (8 berkas, **6.188 baris** — replika 1:1 kontrak 63 route Node) + `data/muhdin.sqlite` + `.htaccess` (routing + proteksi DB) + `INSTALL.txt` Bahasa Indonesia.
+   783→4. **Re-hash password akun demo ke bcrypt** agar login demo langsung berfungsi di PHP.
+   784→5. Zip siap unggah — **±3,2 MB** (28× lebih ramping dari paket Node 90 MB; nol runtime Node).
+   785→
+   786→**Cara pasang (±5 menit)**: unggah zip ke `public_html` → Extract → selesai. Verifikasi `https://domain/api/health` → `{"ok":true,...}`. Lalu **ganti password 3 akun demo** (wajib).
+   787→
+   788→| Aspek | Keterangan |
+   789→|---|---|
+   790→| Prasyarat | PHP 7.4+ dengan `pdo_sqlite` (bawaan cPanel) — **itu saja** |
+   791→| Struktur backend | `index.php` (router) + `config.php` + `lib.php` (sesi, guard, rate-limit, WA, i18n cache) + `nusuk.php` (mesin Nusuk) + `routes-{auth,content,directory,nusuk}.php` (modul rute) |
+   792→| Paritas API | Seluruh kontrak Node direplikasi: sesi DB + cookie sama (`muhdin_session`), RBAC 4 peran, audit, rate-limit SQLite, WhatsApp 3 provider, i18n konten, Nusuk engine, CSV export, RSS, webhook signature |
+   793→| Kompatibilitas dua arah | PHP menulis **epoch ms** persis Prisma; Prisma membaca baris tulisan PHP tanpa keluhan (terverifikasi uji silang) |
+   794→| Akun demo | 3 akun demo di-rehash ke bcrypt otomatis saat build; akun lain cukup di-reset lewat CMS oleh Super Admin |
+   795→| Degradasi anggun | Terjemahan AI inline tidak tersedia (butuh Node) — konten EN/AR tetap dilayani dari cache `ContentTranslation`; teks sumber Indonesia jadi fallback |
+   796→| Keamanan | `.htaccess` memblokir unduhan `.sqlite`/dotfiles; header keamanan; pesan error identik versi Node |
+   797→| Pratinjau lokal | `php -S 0.0.0.0:3010 -t deploy/muhdin-shared-hosting shared-hosting/router.php` |
+   798→
+   799→### Opsi B — Shared Hosting dengan Node.js (Setup Node App)
+   800→
+   801→```bash
+   802→bun run build            # build standalone + post-build
+   803→bun run hosting:pack     # → release/muhdin-shared-hosting.zip (±90 MB)
+   804→```
+   805→
+   806→Upload **satu zip itu**, lalu di cPanel:
+   807→
+   808→1. **Upload** → Extract ke folder (mis. `muhdin-shared-hosting`)
+   809→2. **Setup Node.js App** → Node 20+ · Application root = folder tadi · **Startup file = `server.js`**
+   810→3. **Restart** — selesai. ✅ *Tanpa* `npm install` (semua sudah di-bundle + dual Prisma engine Debian/RHEL)
+   811→
+   812→Panduan lengkap + troubleshooting: `PANDUAN-SHARED-HOSTING.md` (ikut dalam paket release).
+   813→
+   814→> `server.js` otomatis mengganti placeholder `__APP__` di `.env` dengan path aktual — **tanpa edit `.env` manual**. Gunakan opsi ini bila hosting menyediakan fitur Node.js App dan Anda ingin fitur AI inline translation penuh.
+   815→
+   816→### VPS / Bare metal
+   817→
+   818→```bash
+   819→bun install && bun run db:push && bun prisma/seed.ts
+   820→bun run build && bun run start   # atau jalankan .next/standalone/server.js
+   821→```
+   822→
+   823→### Matriks target deploy
+   824→
+   825→| Target | Cara | Catatan |
+   826→|---|---|---|
+   827→| 🟢 cPanel shared hosting | **`hosting:build` → zip ±3,2 MB → unggah & extract** | **termudah — tanpa Node.js sama sekali (PHP Edition)** |
+   828→| 🟡 cPanel + Node App | `hosting:pack` → zip → Setup Node App | untuk fitur AI inline translation penuh |
+   829→| 🟣 VPS (Ubuntu/Debian/RHEL) | build + `standalone/server.js` atau `systemd` | port via `PORT`, DB file path relatif |
+   830→| 🔵 Railway / Fly.io / Render | deploy repo + `bun run build` | tambahkan volume untuk `db/custom.db` |
+   831→| ⚪ Vercel | ⚠️ kurang cocok — SQLite butuh filesystem persisten | migrasi ke Postgres bila ingin Vercel |
+   832→
+   833→---
+   834→
+   835→## ⚡ Mutu dan Performa
+   836→
+   837→**Gerbang mutu yang sudah lolos:**
+   838→
+   839→| Gerbang | Status |
+   840→|---|---|
+   841→| ESLint (flat config, `next/core-web-vitals`) | ✅ 0 error |
+   842→| TypeScript strict | ✅ 0 error |
+   843→| Uji E2E Agent Browser — 3 bahasa · RTL · dark mode · mobile 390px | ✅ lolos, console bersih |
+   844→| Paritas key i18n id/en/ar | ✅ 888 kunci identik 1:1 |
+   845→| `php -l` seluruh 8 berkas PHP edisi hosting | ✅ 0 syntax error |
+   846→| E2E backend PHP (login bcrypt, CRUD, tiket→approve→Member, webhook HMAC, rate-limit 429, CSV BOM, RSS) | ✅ lolos |
+   847→| Uji silang DB PHP⇄Prisma (epoch ms dua arah) | ✅ lolos |
+   848→| Seed idempoten (aman dijalankan berulang) | ✅ lolos |
+   849→
+   850→**Benchmark nyata** — localhost, terbaik dari 3 putaran, 2026-09-21:
+   851→
+   852→| Ukuran | Node (`:3000`) | PHP Edition (`:3010`) |
+   853→|---|---:|---:|
+   854→| `GET /` (beranda) | 42,6 ms | **0,08 ms** (statik) |
+   855→| `GET /api/members` | 5,4 ms | **0,10 ms** |
+   856→| `GET /api/articles` | 6,2 ms | **0,08 ms** |
+   857→| `GET /api/nusuk/public` | — | **0,08 ms** |
+   858→
+   859→```bash
+   860→# Ukur sendiri:
+   861→for i in 1 2 3; do curl -s -o /dev/null -w "%{time_total}s\n" http://localhost:3000/api/members; done
+   862→```
+   863→
+   864→**Prinsip performa:**
+   865→
+   866→- ⚡ Hash routing — navigasi instan tanpa full reload & tanpa round-trip server untuk perpindahan halaman
+   867→- 🧊 Logo maskapai tersimpan lokal (tidak ada latensi CDN pihak ketiga saat runtime)
+   868→- 🖼️ Gambar hero/section dioptimalkan, ikon PWA lengkap
+   869→- 📱 PWA cache shell — buka ulang instan bahkan saat offline
+   870→- 🎬 Animasi berbasis `framer-motion` yang menghormati `prefers-reduced-motion`
+   871→
+   872→---
+   873→
+   874→## 📚 Glosarium
+   875→
+   876→| Istilah | Arti |
+   877→|---|---|
+   878→| **PPIU** | Penyelenggara Perjalanan Ibadah Umrah (biro travel umrah berizin) |
+   879→| **PIHK** | Penyelenggara Ibadah Haji Khusus |
+   880→| **KBIHU** | Konsorsium Biro Perjalanan Ibadah Haji |
+   881→| **IPHI** | Ikatan Persaudaraan Haji Indonesia (di kode: tipe anggota + asosiasi induk) |
+   882→| **PHI** | Perjalanan Haji Indonesia — pelopor penyelenggara haji Nusantara pra-1946 |
+   883→| **TW** | Travel Wisata (penyelenggara wisata halal & ziarah) |
+   884→| **Nusuk** | Platform digital resmi Kementerian Haji Arab Saudi |
+   885→| **Tasreeh** | Izin/permit jamaah (umrah, Raudah, transport, dst.) dalam ekosistem Nusuk |
+   886→| **Raudah** | Area antara makam Nabi ﷺ dan mimbar Masjid Nabawi (izin khusus) |
+   887→| **Mashaer** | Rangkaian tempat ibadah haji (Mina, Arafah, Muzdalifah) |
+   888→| **Hawiya** | Sistem identitas jamaah Nusuk |
+   889→| **Bakorwil / Bakorcab** | Badan Koordinator Wilayah (provinsi) / Cabang (kab/kota) MUHDIN |
+   890→| **Tiket MHD-XXXXXX** | Kode unik pendaftaran anggota (alfanumerik 6, tanpa I/O agar tak tertukar) |
+   891→| **Spectrum 8** | Sistem desain MUHDIN: forest & gold + 6 warna pendukung |
+   892→
+   893→---
+   894→
+   895→## 🔧 Troubleshooting
+   896→
+   897→| Gejala | Penyebab & Solusi |
+   898→|---|---|
+   899→| **Hydration mismatch / UI lama** | Bundle Turbopack basi → `pkill -f "next dev"; rm -rf .next; bun run dev` |
+   900→| **500 semua API (Node)** | DB pindah schema → `bun run db:push` lalu restart dev server |
+   901→| **Login admin gagal** | Pastikan seed sudah jalan: `bun prisma/seed.ts` |
+   902→| **Logo maskapai 404** | `bun scripts/fetch-airline-logos.mjs` (atau `--force` untuk unduh ulang) |
+   903→| **`db push` gagal relasi** | Pastikan relasi bolak-balik lengkap di schema (mis. `Member.permits` ↔ `NusukPermit.member`) |
+   904→| **Prisma engine salah di hosting** | Paket hosting Node sudah menyertakan **dual engine** Debian+RHEL |
+   905→| **Font Arab tidak muncul** | `next/font/google` butuh internet saat build pertama |
+   906→| **Bahasa kembali ke Indonesia** | Pilihan tersimpan di cookie `muhdin-locale` — cek cookie browser tidak diblokir |
+   907→| **Port 3000 terpakai** | `pkill -f "next-server"` lalu jalankan lagi |
+   908→| **Pengurus tampil data lama** | Jalankan `bun scripts/update-management.mjs` |
+   909→| **Edisi PHP: 500 / blank** | Cek versi PHP ≥ 7.4 & ekstensi `pdo_sqlite` aktif; pastikan `.htaccess` ikut terunggah (dotfile!) |
+   910→| **Edisi PHP: 429** | Rate limit aktif (5 percobaan/menit) — tunggu 1 menit |
+   911→| **Edisi PHP: akun tidak bisa login** | Akun dibuat di Node (scrypt) → reset password lewat CMS Super Admin (jadi bcrypt) |
+   912→
+   913→---
+   914→
+   915→## ❓ FAQ
+   916→
+   917→<details>
+   918→<summary><b>Benarkah MUHDIN bisa jalan di shared hosting TANPA Node.js?</b></summary>
+   919→
+   920→**Benar — sejak v2.0 dan kini makin matang di v3.0.** Jalankan `bun run hosting:build`, unggah zip ±3,2 MB ke `public_html`, extract — selesai. Backend API berpindah dari route Node ke **PHP + PDO SQLite** (`api/index.php` + modul `routes-*.php`) dengan kontrak yang identik: sesi, RBAC, audit, rate-limit, WhatsApp, Nusuk Hub, hingga ekspor CSV. Prasyaratnya satu: PHP 7.4+ dengan `pdo_sqlite` (bawaan semua cPanel). Satu-satunya fitur yang diturunkan adalah terjemahan AI *inline* (butuh Node) — konten EN/AR tetap dilayani dari cache database.
+   921→</details>
+   922→
+   923→<details>
+   924→<summary><b>Apakah MUHDIN bagian dari Nusuk (Kementerian Haji Saudi) atau Kemenag RI?</b></summary>
+   925→
+   926→**Tidak.** MUHDIN adalah asosiasi independen penyelenggara ibadah — pewaris garis pelopor PHI & IPHI. Integrasi Nusuk dilakukan lewat koneksi API resmi (SANDBOX/PRODUCTION) untuk melayani anggota.
+   927→</details>
+   928→
+   929→<details>
+   930→<summary><b>Apa makna PHI, IPHI, dan "blueprint karya abadi"?</b></summary>
+   931→
+   932→**PHI (Perjalanan Haji Indonesia)** dan **IPHI (Ikatan Persaudaraan Haji Indonesia)** adalah penyelenggara haji & umrah **pertama di Nusantara — sebelum Kementerian Agama RI berdiri (1946)**. **Blueprint haji & umrah Indonesia** adalah karya abadi para tokoh yang kini duduk di Pengurus Pusat MUHDIN — ditulis sebelum ada payung hukum. MUHDIN melanjutkan garis itu sebagai **asosiasi haji & umrah digital pertama di dunia**. Baca [Warisan dan Garis Waktu](#️-warisan-dan-garis-waktu).
+   933→</details>
+   934→
+   935→<details>
+   936→<summary><b>Berapa banyak data anggota bawaan?</b></summary>
+   937→
+   938→Database seed berisi **15 anggota contoh** (5 PPIU · 4 PIHK · 3 KBIHU · 2 Travel Wisata · 1 IPHI) tersebar di 8 provinsi & 10 kota — cukup untuk mendemokan seluruh alur: direktori, verifikasi lisensi, pendaftaran ber-tiket, dan Nusuk. Skema & CMS siap menampung ribuan anggota; tambahkan lewat CMS atau impor data Anda sendiri.
+   939→</details>
+   940→
+   941→<details>
+   942→<summary><b>Kenapa memilih SQLite, bukan PostgreSQL/MySQL?</b></summary>
+   943→
+   944→Zero-config, satu file (`db/custom.db`) mudah dibackup, dan 100% kompatibel shared hosting cPanel — bahkan edisi PHP tanpa Node pun jalan. Butuh skala besar? Cukup ganti `provider` di `prisma/schema.prisma` → `bun run db:push`.
+   945→</details>
+   946→
+   947→<details>
+   948→<summary><b>Kenapa hash-route (<code>#/admin</code>), bukan path biasa?</b></summary>
+   949→
+   950→SPA murni tanpa rewrite server — berjalan di cPanel, Nginx, Apache, atau static host apa pun tanpa konfigurasi tambahan. Plus navigasi instan tanpa full reload. Inilah yang membuat frontend statis edisi PHP bekerja identik dengan edisi Node.
+   951→</details>
+   952→
+   953→<details>
+   954→<summary><b>Bagaimana menambah bahasa baru (mis. Melayu, Mandarin)?</b></summary>
+   955→
+   956→Tambahkan blok bahasa di `src/lib/i18n/locales/*.ts` lalu daftarkan kodenya di `LocaleProvider` — RTL otomatis jika `dir` diset. Panduan lengkap di [bagian i18n](#-internasionalisasi).
+   957→</details>
+   958→
+   959→<details>
+   960→<summary><b>Aplikasi bisa dipakai offline?</b></summary>
+   961→
+   962→Ya. Sebagai **PWA**, shell aplikasi & halaman offline tersedia via service worker (`public/sw.js`) — pasang lewat menu "Install app" di browser. Service worker otomatis nonaktif di mode dev dan auto-update di produksi.
+   963→</details>
+   964→
+   965→<details>
+   966→<summary><b>Bagaimana menambahkan maskapai baru?</b></summary>
+   967→
+   968→Edit array `AIRLINES` di `scripts/fetch-airline-logos.mjs` (kode IATA + nama + negara + kawasan) → `bun scripts/fetch-airline-logos.mjs`. Logo otomatis diunduh & data ter-generate.
+   969→</details>
+   970→
+   971→<details>
+   972→<summary><b>Berapa spesifikasi hosting minimal?</b></summary>
+   973→
+   974→**Edisi PHP**: shared hosting mana pun dengan PHP 7.4+ & `pdo_sqlite` — paket hanya ±3,2 MB. **Edisi Node**: Node.js 20+, ±200 MB disk (paket standalone), tanpa database eksternal. Berjalan mulus di cPanel Entry-Level, Railway, Fly.io, hingga VPS 512 MB.
+   975→</details>
+   976→
+   977→<details>
+   978→<summary><b>Apakah data jamaah aman?</b></summary>
+   979→
+   980→Ya — hashing password (scrypt/bcrypt), cookie httpOnly, RBAC server-side, audit log penuh, query parameterized, webhook terverifikasi tanda tangan, dan rate limit. Data sensitif tidak pernah dikirim ke pihak ketiga.
+   981→</details>
+   982→
+   983→<details>
+   984→<summary><b>Bagaimana alur verifikasi anggota bekerja?</b></summary>
+   985→
+   986→Pendaftar submit form `#/gabung` → terima tiket `MHD-XXXXXX` → status `MENUNGGU` → verifikator/admin setujui di CMS → anggota baru **otomatis terbentuk** dengan status `TERVERIFIKASI` + badge lisensi publik. Semua transisi tercatat di audit log, dan pendaftar bisa memantau via pelacak tiket.
+   987→</details>
+   988→
+   989→---
+   990→
+   991→## 🎯 Roadmap MUHDIN 2030
+   992→
+   993→| Fase | Fokus | Tanggal |
+   994→|---|---|---|
+   995→| 🧱 **2026** | Fondasi & kepercayaan — platform v3 + edisi hosting universal | ✅ berjalan |
+   996→| 🔗 **2027** | Integrasi Nusuk produksi + aplikasi jamaah publik | 🔜 |
+   997→| 🌏 **2028-29** | Bakorwil 34 provinsi + Bakorcab kab/kota + ekonomi syariah ibadah | 🔜 |
+   998→| 🕋 **2030** | 1.000.000 jamaah/tahun + ekspor layanan digital | 🎯 |
+   999→
+  1000→---
+  1001→
+  1002→## 📅 Riwayat Versi
+  1003→
+  1004→| Versi | Tanggal | Sorotan |
+  1005→|---|---|---|
+  1006→| **3.0.0** | 2026-09-21 | 🏆 **MAHAKARYA** — audit total angka (27.681 baris TS · 63 route · 26 model · 888 kunci i18n) · **rekonstruksi penuh backend PHP** setelah artefak hilang: router modular 5 berkas (auth/content/directory/nusuk) + lib 1.016 baris, total **6.188 baris PHP** dengan paritas 1:1 63 endpoint, ±245 asersi uji lolos + vektor silang `buildPermitNo` Node⇄PHP identik · README ditulis ulang 100% berbasis fakta terukur (hapus klaim basi 1.185 anggota & skrip tak ada) · 4 Pilar Identitas + Tur 60 Detik + Glosarium + matriks 22 modul CMS + benchmark dual-mesin · paket hosting v3.0.0 (zip ±3,2 MB) · `package.json` 3.0.0 |
+  1007→| **2.0.0** | 2026-09-20 | 🐘 **SHARED HOSTING EDITION — TANPA NODE.JS** — backend PHP paritas Node · static export `BUILD_STATIC=1` dengan build terisolasi · paket zip 3,2 MB + `.htaccess` + `INSTALL.txt` · re-hash akun demo ke bcrypt · uji silang PHP⇄Prisma lolos · E2E curl 20 skenario + browser login CMS via PHP · perbaikan bug CSS footer · versi `package.json` 2.0.0 |
+  1008→| **1.4.0** | 2026-09-19 | 🌍 **Branding First-in-World** — tanam klaim "Asosiasi Haji & Umrah Digital Pertama di Dunia" (badge hero + README) · 🏛️ **Warisan PHI & IPHI** — penyelenggara pertama di Nusantara sebelum Kemenag RI (timeline mermaid + section heritage 3 bahasa) · 🧭 **Blueprint karya abadi** — narasi pengurus pusat + bagan struktur resmi · 👥 Susunan pengurus resmi |
+  1009→| **1.3.0** | 2026-09-19 | 📖 **README legendaris v2** — diagram Mermaid (arsitektur · ER · auth · verifikasi · pipeline maskapai), matriks RBAC, statistik proyek nyata, contoh API nyata, matriks deployment, hotfix React key + alias entity admin |
+  1010→| **1.2.0** | 2026-09-18 | 📚 **Perpustakaan Digital Terbesar** — import entri direktori riil (PPIU · PIHK · asosiasi dari Kemenag/HIMPUH/TiMS) · strip statistik · filter provinsi · tipe ASOSIASI |
+  1011→| **1.1.0** | 2026-09-18 | 🛫 **Filter maskapai per kawasan** (chip ber-counter + grid direktori) · rebuild penuh pasca-reset · README premium |
+  1012→| **1.0.0** | 2026-09-17 | 🚀 Peluncuran: portal 4 zona · CMS RBAC 4 peran · Nusuk Hub · i18n 3 bahasa + RTL · PWA · dark mode · paket shared hosting 90 MB |
+  1013→
+  1014→---
+  1015→
+  1016→## 🤝 Kontribusi
+  1017→
+  1018→Kami menyambut kontribusi! Alur kerja proyek ini:
+  1019→
+  1020→1. **Fork & branch** dari `main` — penamaan `feat/…`, `fix/…`, `docs/…`
+  1021→2. **Standar kode**: TypeScript strict · ESLint 0 error (`bun run lint`) · shadcn/ui untuk komponen baru
+  1022→3. **Sebelum push**: `bun run lint` bersih, halaman terkait dites manual (3 bahasa + dark mode + mobile)
+  1023→4. **PR** — jelaskan masalah & solusi; sertakan tangkapan layar untuk perubahan visual
+  1024→5. **i18n**: setiap string UI wajib lewat `t()` — tidak boleh hardcode; tambahkan key di ketiga bahasa
+  1025→6. **API**: perubahan kontrak endpoint Node **wajib disinkronkan ke backend PHP** (`shared-hosting/api`) — dua mesin, satu kontrak
+  1026→
+  1027→Konvensi proyek: konten multibahasa disimpan via tabel `ContentTranslation`, teks UI di file locale, dan setiap perubahan besar dicatat di changelog.
+  1028→
+  1029→---
+  1030→
+  1031→## 🙏 Kredit & Penghargaan
+  1032→
+  1033→<div align="center">
+  1034→
+  1035→**Developer by** — **PT Digital Bisnis Manajemen (Digiman)**
+  1036→**Support System** — **JuraganWeb**
+  1037→
+  1038→*Warisan organisasi*: garis pelopor **PHI — Perjalanan Haji Indonesia** & **IPHI — Ikatan Persaudaraan Haji Indonesia**, penyelenggara haji & umrah pertama di Nusantara.
+  1039→*Aset README*: banner vektor custom & 5 screenshot asli aplikasi — dibuat dengan ❤️ untuk dokumentasi terbaik.
+  1040→*Gambar hero & section*: AI-generated, khusus untuk MUHDIN.
+  1041→
+  1042→</div>
+  1043→
+  1044→### ⚖️ Disclaimer
+  1045→
+  1046→- MUHDIN **bukan** bagian dari Kementerian Haji Saudi (Nusuk) maupun Kemenag RI.
+  1047→- Logo maskapai adalah merek dagang masing-masing pemilik, ditampilkan untuk keperluan informasi.
+  1048→- Status verifikasi anggota menunjukkan pemeriksaan internal MUHDIN atas legalitas izin yang dilampirkan pendaftar.
+  1049→
+  1050→---
+  1051→
+  1052→## 📄 Lisensi
+  1053→
+  1054→Projek proprietary — © 2026 **MUHDIN — Masyarakat Umroh Haji Digital Nusantara** · **muhdin.web.id** 🕋
+  1055→
+  1056→Penggunaan komersial, redistribusi, dan modifikasi memerlukan izin tertulis dari pemilik hak. Kontak: **sekretariat@muhdin.web.id**
+  1057→
+  1058→<div align="center">
+  1059→
+  1060→<sub>Dibangun dengan 💚 untuk pelayanan Tamu Allah — dari Nusantara, untuk umat.</sub>
+  1061→
+  1062→**بِسْمِ اللَّهِ تَوَكَّلْنَا** · *Innal umrah wal hajju lillah*
+  1063→
+  1064→</div>
+  1065→
