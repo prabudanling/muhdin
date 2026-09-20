@@ -260,7 +260,7 @@ export function Footer() {
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {/* Brand */}
             <div className="space-y-4">
-              <div className="[&_div.text-\[10px\]]:text-emerald-100/70">
+              <div className="footer-brand-light">
                 <MuhdinBrand light />
               </div>
               <p className="text-sm leading-relaxed text-emerald-100/70">{t("footer.desc")}</p>

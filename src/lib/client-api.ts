@@ -1,7 +1,25 @@
 "use client";
 
+/**
+ * Shim gateway sandbox-preview: saat halaman dibuka lewat
+ * `?XTransformPort=3010` (mis. preview edisi shared hosting PHP),
+ * setiap panggilan API ikut membawa query itu agar gateway meneruskan
+ * request ke port yang benar. Di produksi/Node dev string ini kosong —
+ * 100% no-op, tidak mengubah perilaku apa pun.
+ */
+const PORT_SUFFIX = (() => {
+  if (typeof window === "undefined") return "";
+  const m = window.location.search.match(/[?&]XTransformPort=(\d+)/);
+  return m ? `XTransformPort=${m[1]}` : "";
+})();
+
+export function withPort(url: string): string {
+  if (!PORT_SUFFIX) return url;
+  return url + (url.includes("?") ? "&" : "?") + PORT_SUFFIX;
+}
+
 export async function apiGet<T>(url: string): Promise<T> {
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(withPort(url), { cache: "no-store" });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error((data as { error?: string }).error || "Gagal memuat data.");
@@ -10,7 +28,7 @@ export async function apiGet<T>(url: string): Promise<T> {
 }
 
 export async function apiSend<T>(url: string, method: "POST" | "PUT" | "PATCH" | "DELETE", body?: unknown): Promise<T> {
-  const res = await fetch(url, {
+  const res = await fetch(withPort(url), {
     method,
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,

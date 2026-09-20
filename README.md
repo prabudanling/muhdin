@@ -23,6 +23,8 @@
 [![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite)](https://sqlite.org)
 [![Bun](https://img.shields.io/badge/Bun-≥1.1-F472B6?logo=bun)](https://bun.sh)
 [![PWA](https://img.shields.io/badge/PWA-installable--offline-5A0FC8?logo=pwa)](https://developer.mozilla.org/docs/Web/Progressive_web_apps)
+[![PHP Shared Hosting](https://img.shields.io/badge/PHP-shared_hosting_tanpa_Node-777BB4?logo=php&logoColor=white)](#-deployment)
+[![PHP Shared Hosting](https://img.shields.io/badge/PHP-shared_hosting_tanpa_Node-777BB4?logo=php&logoColor=white)](#-deployment)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-12-E70FA8?logo=framer)](https://motion.dev)
 [![i18n ID · EN · العربية](https://img.shields.io/badge/i18n-ID_·_EN_·_العربية-success)](#-internasionalisasi)
 [![Pertama di Dunia](https://img.shields.io/badge/PERTAMA_DI_DUNIA-Asosiasi_Haji_·_Umrah_Digital-D4AF37)](#-warisan-dan-garis-waktu)
@@ -401,7 +403,8 @@ bun run dev          # → http://localhost:3000
 | `bun run airlines:fetch` | Unduh logo maskapai + generate `src/lib/airlines.ts` (`--force` untuk unduh ulang) |
 | `bun scripts/import-directory.mjs` | Import perpustakaan digital: entri riil PPIU/PIHK/asosiasi dari `research/*.json` |
 | `bun scripts/update-management.mjs` | Pasang susunan pengurus resmi MUHDIN (idempoten) |
-| `bun run hosting:pack` | Rakit paket deploy shared hosting + zip (± 90 MB) |
+| `bun run hosting:build` | **Build edisi shared hosting tanpa Node.js** — static export + backend PHP + DB + zip 3,2 MB (isolated, dev server aman) |
+| `bun run hosting:pack` | Rakit paket deploy shared hosting Node standalone + zip (± 90 MB) |
 | `bun scripts/gen-assets.ts` | Generate gambar hero/section + ikon PWA (AI) |
 
 ---
@@ -639,7 +642,49 @@ Palet identitas di `globals.css` (Tailwind 4 `@theme`):
 
 ## 📦 Deployment
 
-### Shared Hosting (cPanel) — cara termudah
+### Opsi A — Shared Hosting PHP Edition (TANPA Node.js) ⭐ v2.0
+
+**Inilah yang paling revolusioner**: MUHDIN berjalan penuh — portal publik + CMS admin + Nusuk Hub + verifikasi + audit — di shared hosting cPanel biasa **tanpa Node.js, tanpa MySQL, tanpa SSH, tanpa Composer**. Frontend statis murni + backend API PHP + SQLite:
+
+```mermaid
+flowchart LR
+    B["🌐 Browser"] --> A["Apache / LiteSpeed
+(cPanel)"]
+    A -->|"/_next, ikon, PWA"| S["📁 Berkas statis
+index.html + aset"]
+    A -->|"/api/* rewrite"| P["🐘 api/index.php
+50+ endpoint paritas Node"]
+    P --> D[("🗄️ muhdin.sqlite
+PDO SQLite")]
+    P -.->|"fire-and-forget"| W["💬 Gateway WhatsApp
+Fonnte · Wablas · Custom"]
+```
+
+```bash
+bun run hosting:build     # → deploy/muhdin-shared-hosting/ (5,5 MB) + zip (3,2 MB!)
+```
+
+Yang dilakukan pipeline `build-shared-hosting.mjs` secara otomatis:
+
+1. **Salinan proyek terisolasi** di `/tmp` — proyek utama & dev server tidak disentuh sama sekali.
+2. `next build` dengan `BUILD_STATIC=1` → **static export** murni (HTML+JS+CSS — hash routing tetap berfungsi penuh).
+3. Rakit paket: frontend statis + `api/*.php` (replika 1:1 kontrak 67 route Node) + `data/muhdin.sqlite` + `.htaccess` (routing + proteksi DB) + `INSTALL.txt` Bahasa Indonesia.
+4. **Re-hash password akun demo ke bcrypt** agar login demo langsung berfungsi di PHP.
+5. Zip siap unggah — **3,2 MB** (28× lebih ramping dari paket Node 90 MB; nol runtime Node).
+
+**Cara pasang (± 5 menit)**: unggah zip ke `public_html` → Extract → selesai. Verifikasi `https://domain/api/health` → `{"ok":true,...}`.
+
+| Aspek | Keterangan |
+|---|---|
+| Prasyarat | PHP 7.4+ dengan `pdo_sqlite` (bawaan cPanel) — **itu saja** |
+| Paritas API | Seluruh kontrak Node direplikasi: sesi DB + cookie sama (`muhdin_session`), RBAC 4 peran, audit, rate-limit SQLite, WhatsApp 3 provider, i18n konten, Nusuk engine, CSV export, RSS |
+| Kompatibilitas dua arah | PHP menulis **epoch ms** persis Prisma; Prisma membaca baris tulisan PHP tanpa keluhan (terverifikasi uji silang) |
+| Akun demo | 3 akun demo di-rehash ke bcrypt otomatis saat build; akun lain cukup di-reset lewat CMS oleh Super Admin |
+| Degradasi anggun | Terjemahan AI inline tidak tersedia (butuh Node) — konten EN/AR tetap dilayani dari cache `ContentTranslation`; teks sumber Indonesia jadi fallback |
+| Keamanan | `.htaccess` memblokir unduhan `.sqlite`/`.env`; cookie `Secure` otomatis saat HTTPS; pesan error identik versi Node |
+| Pratinjau lokal | `php -S 0.0.0.0:3010 -t deploy/muhdin-shared-hosting shared-hosting/router.php` |
+
+### Opsi B — Shared Hosting dengan Node.js (Setup Node App)
 
 ```bash
 bun run build            # build standalone + post-build
@@ -654,7 +699,7 @@ Upload **satu zip itu**, lalu di cPanel:
 
 Panduan lengkap + 11 troubleshooting: `PANDUAN-SHARED-HOSTING.md` (ikut dalam paket release).
 
-> `server.js` otomatis mengganti placeholder `__APP__` di `.env` dengan path aktual — **tanpa edit `.env` manual**.
+> `server.js` otomatis mengganti placeholder `__APP__` di `.env` dengan path aktual — **tanpa edit `.env` manual**. Gunakan opsi ini bila hosting menyediakan fitur Node.js App dan Anda ingin fitur AI inline translation penuh.
 
 ### VPS / Bare metal
 
@@ -667,7 +712,8 @@ bun run build && bun run start   # atau jalankan .next/standalone/server.js
 
 | Target | Cara | Catatan |
 |---|---|---|
-| 🟢 cPanel shared hosting | `hosting:pack` → zip → Setup Node App | termudah, sudah termasuk engine ganda |
+| 🟢 cPanel shared hosting | **`hosting:build` → zip 3,2 MB → unggah & extract** | **termudah — tanpa Node.js sama sekali (PHP Edition v2.0)** |
+| 🟡 cPanel + Node App | `hosting:pack` → zip → Setup Node App | untuk fitur AI inline translation penuh |
 | 🟣 VPS (Ubuntu/Debian/RHEL) | build + `standalone/server.js` atau `systemd` | port via `PORT`, DB file path relatif |
 | 🔵 Railway / Fly.io / Render | deploy repo + `bun run build` | tambahkan volume untuk `db/custom.db` |
 | ⚪ Vercel | ⚠️ kurang cocok — SQLite butuh filesystem persisten | migrasi ke Postgres bila ingin Vercel |
@@ -718,6 +764,12 @@ bun run build && bun run start   # atau jalankan .next/standalone/server.js
 ---
 
 ## ❓ FAQ
+
+<details>
+<summary><b>Benarkah MUHDIN bisa jalan di shared hosting TANPA Node.js?</b></summary>
+
+**Benar — sejak v2.0.** Jalankan `bun run hosting:build`, unggah zip 3,2 MB ke `public_html`, extract — selesai. Backend API berpindah dari route Node ke **PHP + PDO SQLite** (`api/index.php`) dengan kontrak yang identik: sesi, RBAC, audit, rate-limit, WhatsApp, Nusuk Hub, hingga ekspor CSV. Prasyaratnya satu: PHP 7.4+ dengan `pdo_sqlite` (bawaan semua cPanel). Satu-satunya fitur yang diturunkan adalah terjemahan AI *inline* (butuh Node) — konten EN/AR tetap dilayani dari cache database.
+</details>
 
 <details>
 <summary><b>Apakah MUHDIN bagian dari Nusuk (Kementerian Haji Saudi) atau Kemenag RI?</b></summary>
@@ -802,6 +854,7 @@ Pendaftar submit form `#/gabung` → status `MENUNGGU` → verifikator setujui/t
 
 | Versi | Tanggal | Sorotan |
 |---|---|---|
+| **2.0.0** | 2026-09-20 | 🐘 **SHARED HOSTING EDITION — TANPA NODE.JS** — backend PHP 1:1 (50+ endpoint: auth sesi DB, RBAC 4 peran, audit, rate-limit SQLite, WhatsApp 3 provider, i18n konten, Nusuk engine penuh, CSV, RSS) · static export `BUILD_STATIC=1` dengan build terisolasi · paket zip **3,2 MB** + `.htaccess` + `INSTALL.txt` Bahasa Indonesia · re-hash akun demo ke bcrypt · **uji silang PHP⇄Prisma lolos** · E2E curl 20 skenario + browser login CMS via PHP · perbaikan bug CSS footer yang menggantung sejak v1.4 · versi `package.json` 2.0.0 |
 | **1.4.0** | 2026-09-19 | 🌍 **Branding First-in-World** — tanam klaim "Asosiasi Haji & Umrah Digital Pertama di Dunia" (badge hero + README) · 🏛️ **Warisan PHI & IPHI** — penyelenggara pertama di Nusantara sebelum Kemenag RI (timeline mermaid + section heritage 3 bahasa) · 🧭 **Blueprint karya abadi** — narasi pengurus pusat + bagan struktur resmi · 👥 Susunan pengurus resmi (Pembina → BEMDUM) |
 | **1.3.0** | 2026-09-19 | 📖 **README legendaris v2** — diagram Mermaid (arsitektur · ER · auth · verifikasi · pipeline maskapai), matriks RBAC, statistik proyek nyata, contoh API nyata, matriks deployment, hotfix React key + alias entity admin |
 | **1.2.0** | 2026-09-18 | 📚 **Perpustakaan Digital Terbesar** — import 1.185 entri riil (914 PPIU · 252 PIHK · 14 asosiasi dari Kemenag/HIMPUH/TiMS) · strip statistik · filter provinsi · tipe ASOSIASI |

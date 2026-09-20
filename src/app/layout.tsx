@@ -96,9 +96,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Locale dari cookie (diset oleh LocaleSwitcher) → html lang/dir SSR konsisten.
-  const store = await cookies();
-  const raw = store.get("muhdin-locale")?.value;
-  const locale = raw === "en" || raw === "ar" ? raw : "id";
+  // Mode BUILD_STATIC (export shared hosting) tidak punya request scope →
+  // default "id"; provider i18n klien menegaskan kembali lang/dir dari cookie.
+  let locale: "id" | "en" | "ar" = "id";
+  if (process.env.BUILD_STATIC !== "1") {
+    const store = await cookies();
+    const raw = store.get("muhdin-locale")?.value;
+    if (raw === "en" || raw === "ar") locale = raw;
+  }
 
   return (
     <html

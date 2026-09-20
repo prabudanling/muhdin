@@ -419,3 +419,10 @@ html[dir="rtl"] pre {
     filter: brightness(0.93);
   }
 }
+
+/* Footer terang: brand kecil (text-[10px]) mengikuti palet footer.
+   Pengganti arbitrary variant [&_div.text-[10px]] yang menghasilkan
+   CSS tidak valid pada parser Tailwind v4 (Lightning CSS). */
+.footer-brand-light .text-\[10px\] {
+  color: color-mix(in srgb, oklch(95% 0.052 163.051) 70%, transparent);
+}

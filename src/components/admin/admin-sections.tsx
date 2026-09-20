@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { apiGet, apiSend, formatDate, formatDateTime, maskKey, timeAgo } from "@/lib/client-api";
+import { apiGet, apiSend, formatDate, formatDateTime, maskKey, timeAgo, withPort } from "@/lib/client-api";
 import { Icon } from "@/components/site/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1317,7 +1317,7 @@ export function AdminNusuk() {
         permitNo = p.permits[0]?.permitNo;
       }
       if (!permitNo) throw new Error("Belum ada izin terdaftar untuk dipakai sebagai sampel event — jalankan sinkronisasi dahulu.");
-      const res = await fetch("/api/nusuk/webhook", {
+      const res = await fetch(withPort("/api/nusuk/webhook"), {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Nusuk-Signature": secret },
         body: JSON.stringify({ permitNo, event: "PERMIT.RENEWED", note: "Uji pipeline dari CMS" }),
