@@ -102,7 +102,7 @@ export function Navbar() {
             </Button>
             <Button
               size="sm"
-              onClick={() => go("gabung")}
+              onClick={() => go("daftar")}
               className="bg-gradient-to-r from-primary to-forest text-white shadow-md hover:shadow-lg hover:from-forest hover:to-primary"
             >
               {t("navbar.gabung")}
@@ -148,7 +148,7 @@ export function Navbar() {
                     <ThemeSwitcher variant="mobile" />
                   </div>
                   <LocaleSwitcher variant="mobile" />
-                  <Button className="w-full" onClick={() => go("gabung")}>
+                  <Button className="w-full" onClick={() => go("daftar")}>
                     {t("navbar.gabung")}
                   </Button>
                   <Button variant="outline" className="w-full" onClick={() => go("admin")}>

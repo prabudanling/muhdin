@@ -1,3 +1,72 @@
+   700→- Halaman #/tentang kini menampilkan struktur resmi: bagan hierarki (Pengurus Pusat → Penunjukan → Bakorwil Provinsi → Bakorcab Kab/Kota) + 5 kartu pengurus inti dengan nama asli; jaringan daerah selaras terminologi Bakorwil/Bakorcab.
+   701→- Artefak: scripts/update-management.mjs (idempoten), about-view.tsx (+bagan, +personInitial), branches-section.tsx, about.ts (+8 key × 3).
+   702→- CATATAN USER: "BEMDUM" dipasang verbatim — konfirmasi bila artinya "Bendahara Umum" (dugaan kuat) agar label + bio diperjelas; terjemahan AR otomatis menganggapnya jabatan sekretariat (الأمين المساعد).
+   703→- Tanpa perubahan schema/API/admin — data & UI saja; lint 0 error; tidak perlu restart dev server.
+   704→
+   705→---
+   706→Task ID: 29
+   707→Agent: Z.ai Code (main orchestrator)
+   708→Task: User minta tanam branding: "MUHDIN = ASOSIASI HAJI UMROH DIGITAL PERTAMA DI DUNIA", warisan PHI (Perjalanan Haji Indonesia) & IPHI (Ikatan Persaudaraan Haji Indonesia) sebagai penyelenggara pertama di Nusantara sebelum Kemenag, Pengurus Pusat = tokoh nasional/internasional + arsitek blueprint haji-umrah Indonesia (karya abadi pra-payung hukum) — plus README terbaik di dunia.
+   709→
+   710→Work Log:
+   711→- Tanam ke situs (3 bahasa): home.hero.badge → "Asosiasi Haji & Umrah Digital Pertama di Dunia" (en: The World's First Digital Hajj & Umrah Association; ar: أول جمعية رقمية للحج والعمرة في العالم).
+   712→- about.ts: blok heritage × 3 bahasa (era1 PHI & IPHI pra-1946, era2 Blueprint karya abadi, era3 MUHDIN pertama di dunia 2026) + about.org.credibility (tokoh nasional/internasional + arsitek blueprint).
+   713→- about-view.tsx: section "Warisan Sejarah" baru (3 kartu era, era-3 hero gradient forest-gold + garis penghubung desktop, icons scroll-text/file-text/sparkles) + figure kutipan kredibilitas pengurus di section Struktur Organisasi.
+   714→- ANOMALI: saat mulai edit README, README.md dan folder docs/ HILANG dari disk (tak ter-track git; kemungkinan git clean proses latar). Inti proyek aman. Respons: (1) rebuild README langsung v1.4.0 (v1.3.0 direkonstruksi dari konteks + semua tambahan v1.4), (2) banner.svg baru dirancang ulang (ka'bah stilasi, kubah, bintang, ribbon "ASOSIASI HAJI & UMRAH DIGITAL PERTAMA DI DUNIA"), (3) 5 screenshot di-retake via Agent Browser (home-hero dgn badge baru, airlines-filter, dark-mode, arabic-rtl dgn badge Arab, admin-dashboard via login asli), (4) SEMUA di-commit git (852e8f3) sebagai proteksi.
+   715→- TEMUAN saat retake: filter maskapai (Task 24) ternyata hilang saat rebuild — home-view hanya marquee; README v1.3 mengklaim fitur yang tak ada. Pulihkan: AirlinesDirectory (chip kawasan ber-counter Semua 76/Teluk 19/Asia 26/Afrika-Eropa 27 → grid instan 4 kolom max-h-96 scroll + Stagger) + dict home.airlines.filterTitle/filterSub/regionAll/resultCount × 3. Bug: grid class di div luar Stagger → 1 kolom; pindah ke className Stagger → 4 kolom.
+   716→- Sinkronisasi klaim README dgn realita: "46 negara" → 45 (AIRLINE_COUNTRIES + dict), dropdown negara → direktori filter kawasan (chip ber-counter + grid), caption screenshot & baris gerbang mutu diperbarui.
+   717→- Verifikasi: lint 0 error; README 862 baris, 41 link internal 0 mati, 6/6 gambar ada, 7 mermaid (5 + timeline warisan + RBAC); E2E filter (klik Asia → "26 maskapai" + 26 kartu logo), console 0 error/warning; commit git.
+   718→
+   719→Stage Summary:
+   720→- Branding first-in-world tertanam di 3 titik situs (badge hero, section warisan, kutipan kredibilitas) dalam 3 bahasa + jadi identitas README v1.4.0.
+   721→- README.md v1.4.0: header klaim dunia (3 bahasa) + badge PERTAMA_DI_DUNIA, section "🏛️ Warisan dan Garis Waktu" (mermaid timeline + tabel 3 era + narasi pengurus + details justifikasi klaim), versi 1.4.0; semua angka sesuai kode.
+   722→- Filter maskapai pulih (fitur user Task 24 yang hilang) — kini chip kawasan ber-counter + direktori grid scroll.
+   723→- docs/assets pulih dan TER-COMMIT git (banner.svg baru + 5 screenshot asli); README pun ter-commit — anomali kehilangan file tak akan menghapusnya lagi.
+   724→- Berkas: README.md, docs/assets/*, src/components/views/{home,about}-view.tsx, src/lib/i18n/locales/{home,about}.ts, scripts/update-management.mjs (Task 28) — commit 852e8f3.
+   725→
+   726→---
+   727→Task ID: 29
+   728→Agent: Z.ai Code (Master Polymath · Sage Universal · Ultimate Problem Solver)
+   729→Task: "bantu aku agar website ini full support di shared hosting tanpa ketergantungan node js" — MUHDIN Shared Hosting Edition v2.0.0 (frontend statis + backend PHP + SQLite).
+   730→
+   731→Work Log:
+   732→- AUDIT TOTAL: 67 file route API dibaca & dipetakan (kontrak respons, guard RBAC, pesan error persis); auth = scrypt `salt:hash` + sesi DB tabel `Session` + cookie `muhdin_session`; i18n konten via `ContentTranslation` + allowlist `SETTING_TRANSLATABLE`; rate-limit in-memory; WhatsApp 3 provider (Fonnte/Wablas/Custom); Nusuk engine (PERMIT_CATALOG, ELIGIBILITY, buildPermitNo sha256, runSync, computeMetrics); export CSV BOM; RSS.
+   733→- BACKEND PHP (shared-hosting/api): `config.php` + `lib.php` (792 baris: PDO SQLite, ok/fail identik, sesi DB identik, guard_admin/guard_role/guard_super, log_audit, rate_limit tabel SQLite, send_wa_message curl timeout 10s, apply_translations tanpa AI dengan fallback Indonesia, slugify, ticket code MHD-XXXXXX) + `nusuk.php` (243 baris: katalog, eligibility, nomor izin deterministik, ensure_connection, compute_metrics, run_sync) + `index.php` (2.832 baris: router 50+ endpoint — replika 1:1 seluruh kontrak Node).
+   734→- PENEMUAN KRITIS: Prisma 6 menyimpan DateTime SQLite sebagai INTEGER epoch-ms (bukan teks ISO). Solusi: PHP menulis epoch (`now_ms()`) dan normalisasi ke ISO-8601 saat output (`cast_row` + DATE_COLS per tabel) — paritas dua arah terverifikasi uji silang (Prisma membaca baris tulisan PHP: Session/Application/AuditLog semuanya benar).
+   735→- FRONTEND: `client-api.ts` + shim `withPort()` (XTransformPort propagation — no-op di produksi); `admin-sections.tsx` webhook test ikut dibungkus; `next.config.ts` flag `BUILD_STATIC=1` → `output: 'export'`; `layout.tsx` + `page.tsx` guard `cookies()` untuk mode statis (provider i18n klien menegaskan lang/dir dari cookie); `robots.ts` + `sitemap.ts` `dynamic = "force-static"`.
+   736→- BUILD PIPELINE (scripts/build-shared-hosting.mjs): salinan terisolasi /tmp (hardlink node_modules, dev server tak tersentuh) → hapus src/app/api → `next build` BUILD_STATIC=1 → rakit paket (frontend + api/*.php + .htaccess + data/muhdin.sqlite + INSTALL.txt) → re-hash 3 akun demo ke bcrypt (via binary php, spawnSync tanpa shell, JSON kutip-tunggal agar `$` bcrypt tak terinterpolasi) → zip.
+   737→- FIX BUG WARISAN: class `[&_div.text-\[10px\]]` di footer.tsx membuat Tailwind v4 menghasilkan CSS tidak valid → dev server 500 setelah cache bersih; diganti `.footer-brand-light` + rule CSS manual di globals.css; akar pemicu resurfacing: Tailwind memindai artefak build → tambah `/deploy/`, `/release/`, `/mini-services/`, `/shared-hosting/` ke .gitignore + eslint ignores.
+   738→- E2E BACKEND (PHP 8.3.32 statis, mini-services/hosting-preview port 3010): php -l 5/5 lolos; 20+ skenario curl — login bcrypt demo, me, stats, CRUD artikel (create/update/delete), pendaftaran publik → tiket MHD-… → track → approve (auto-create member) → verify found, audit log, nusuk public/verify/sync/connection/permits/webhook (signature benar/salah), rate-limit 429 di hit ke-6, ganti password + revoke sesi, logout, translasi EN/AR dari cache, dup subscriber {already:true}, export CSV BOM, RSS, search, DB 403, SPA fallback 200.
+   739→- E2E BROWSER (Agent Browser): edisi hosting :3010 — home styled penuh + data PHP (badge "Asosiasi Haji & Umrah Digital Pertama di Dunia" tampil), login CMS → Dashboard statistik hidup ("Integrasi Nusuk Terhubung · 32 izin aktif · 80% sukses"), modul Berita CRUD table, #/tentang, mobile 390px responsif — console 0 error; regresi :3000 (Node) home/API 200 + console 0 error.
+   740→- README v2.0.0: Opsi A "Shared Hosting PHP Edition (TANPA Node.js)" (mermaid arsitektur + tabel 7 aspek + langkah 5 menit), badge PHP, skrip hosting:build, matriks deploy diperbarui (3,2 MB vs 90 MB = 28× ramping), FAQ baru, Riwayat Versi 2.0.0; validator: 43 header, 27 link internal 0 mati, 8 mermaid. Lint 0 error. package.json → 2.0.0.
+   741→
+   742→Stage Summary:
+   743→- Artefak: `deploy/muhdin-shared-hosting-v2.0.0.zip` (3,5 MB — unggah ke public_html, extract, selesai) + folder `deploy/muhdin-shared-hosting/`; backend `shared-hosting/api/` (3.867 baris PHP); `scripts/build-shared-hosting.mjs`; `shared-hosting/{.htaccess,router.php,INSTALL.txt}`; mini service `mini-services/hosting-preview/` (php -S :3010).
+   744→- Keputusan arsitektur: dual-mode (`BUILD_STATIC` toggle) — mode Node standalone (fitur AI penuh) TETAP utuh sebagai Opsi B; sesi & password: cookie `muhdin_session` sama, hash scrypt Node tak terverifikasi PHP → akun demo di-rehash bcrypt saat build + akun lain di-reset via CMS (terdokumentasi di INSTALL.txt).
+   745→- 4 klaim branding (Pertama di Dunia, PHI & IPHI pra-Kemenag, tokoh pengurus, blueprint karya abadi) terverifikasi SUDAH tertanam lengkap sejak v1.4.0 (badge hero + section Warisan + i18n 3 bahasa + constants) — tidak ada duplikasi, hanya dilengkapi narasi deployment v2.0.
+   746→- Bukti visual: deploy/e2e-hosting-{home,admin,berita,tentang,mobile}.png + deploy/e2e-node-home.png.
+   747→
+   748→---
+   749→Task ID: 29-D (lanjutan)
+   750→Agent: Z.ai Code (Master Polymath · Sage Universal · Ultimate Problem Solver)
+   751→Task: "Download workspace failed: Failed to fetch" — gagal unduh workspace; solusikan akses ke paket shared hosting + verifikasi ulang seluruh artefak Task 29.
+   752→
+   753→Work Log:
+   754→- REDISCOVERY: Task 29 (Shared Hosting Edition v2.0.0) terbukti rampung penuh di sesi sebelumnya — backend PHP 3.867 baris (shared-hosting/api), build pipeline scripts/build-shared-hosting.mjs, E2E backend 20+ skenario, E2E browser :3010 + regresi :3000, README v2.0.0; artefak deploy/muhdin-shared-hosting-v2.0.0.zip UTUH (unzip -t: "No errors detected", 194 file, 7,3 MB terkompresi 3,7 MB).
+   755→- DIAGNOSIS DOWNLOAD GAGAL: total workspace ±1,5 GB (node_modules 1,2 GB + .next 248 MB + deploy 13 MB) → gateway unduhan workspace timeout/gagal ("Failed to fetch").
+   756→- SOLUSI SALURAN LANGSUNG: salin paket ke public/ sehingga dapat diunduh via URL preview tanpa download seluruh workspace: /muhdin-shared-hosting-v2.0.0.zip (curl -sI: 200, Content-Type application/zip, Content-Length 3.708.371) + /muhdin-shared-hosting-INSTALL.txt (200).
+   757→- PENGAMAN REBUILD: scripts/build-shared-hosting.mjs kini menghapus *.zip & salinan INSTALL dari hasil export (mencegah zip bersarang saat rebuild berikutnya); .gitignore += /public/*.zip + /public/muhdin-shared-hosting-INSTALL.txt; bersihkan /tmp/muhdin-hosting-build.
+   758→- SMOKE TEST ULANG: :3010 home 200 (55 KB), /api/members hidup (data member tampil), /api/stats ter-guard admin dengan benar (paritas kontrak), /api/auth/me 200; :3000 root 200; dev.log normal (query Prisma wajar).
+   759→- E2E BROWSER :3000 (Agent Browser): title "MUHDIN — Masyarakat Umroh Haji Digital Nusantara", 0 page error, body 18.886 char, brand + hero tampil — sehat setelah penambahan file publik.
+   760→
+   761→Stage Summary:
+   762→- User kini punya 3 jalur mendapatkan paket: (1) URL preview /muhdin-shared-hosting-v2.0.0.zip — tercepat; (2) retry Download workspace (gagalnya transien/karena ukuran); (3) rebuild mandiri: npm run hosting:build → deploy/muhdin-shared-hosting-v2.0.0.zip.
+   763→- Tidak ada perubahan perilaku aplikasi — hanya file publik tambahan, pengaman anti zip-bersarang, dan gitignore.
+   764→- Shared Hosting Edition v2.0.0 resmi TERKIRIM: frontend statis + backend PHP + SQLite, tanpa Node.js, tanpa Composer, tanpa MySQL.
+   765→
+   766→Addendum 29-F (ops):
+   767→- Server dev berulang kali ditemukan mati antar-perintah tanpa jejak kernel — pemulung proses milik sesi shell aktif; setsid/nohup tidak cukup. Fix final: daemonisasi start-stop-daemon (double-fork, PPID=1) + NODE_OPTIONS heap cap 1792 MB → next-server stabil lintas perintah (RSS hangat ±1,3 GB). PID file: /tmp/muhdin-dev.pid; log: dev-run.log.
+   768→- Verifikasi ketahanan: 2 putaran lintas perintah root 200 + unduhan zip via :3000 tetap 200 + hosting-preview :3010 tetap 200.
    769→
    770→---
    771→Task ID: 30-a
@@ -127,7 +196,7 @@
    895→- Bukti visual: /tmp/e2e-desktop.png (dashboard CMS) · /tmp/e2e-mobile.png (hero EN 390px)
    896→
    897→---
-   898→Task ID: 30
+   898→Task ID: 32
    899→Agent: Z.ai Code (main orchestrator)
    900→Task: "Pastikan semua link bisa di klik dan hidup" — audit & hidupkan seluruh link/CTA MUHDIN + sempurnakan website
    901→
@@ -148,5 +217,4 @@
    916→- Tidak ada lagi link mati di MUHDIN: setiap ikon, kartu, tombol navigasi, dan CTA kini membawa tujuan nyata (route dalam, dialog detail, mailto/tel, Google Maps, wa.me, PDF, atau URL sosmed resmi dari CMS)
    917→- Fitur baru: deep-link `#/ekosistem/<nomor>` & `#/anggota/verifikasi`; endpoint POST /api/whatsapp/test; sosmed & kontak terpusat dari Pengaturan Situs (CMS) — admin cukup ubah URL sekali, seluruh situs ikut
    918→- Semua 15 rute + 404 + deep-link slug terverifikasi hidup; lint 0 error; dev.log bersih
-
-[showing lines 769-918 of 919; use offset=919 with limit to continue reading]
+   919→

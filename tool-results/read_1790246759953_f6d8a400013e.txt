@@ -1,3 +1,52 @@
+   720→- Branding first-in-world tertanam di 3 titik situs (badge hero, section warisan, kutipan kredibilitas) dalam 3 bahasa + jadi identitas README v1.4.0.
+   721→- README.md v1.4.0: header klaim dunia (3 bahasa) + badge PERTAMA_DI_DUNIA, section "🏛️ Warisan dan Garis Waktu" (mermaid timeline + tabel 3 era + narasi pengurus + details justifikasi klaim), versi 1.4.0; semua angka sesuai kode.
+   722→- Filter maskapai pulih (fitur user Task 24 yang hilang) — kini chip kawasan ber-counter + direktori grid scroll.
+   723→- docs/assets pulih dan TER-COMMIT git (banner.svg baru + 5 screenshot asli); README pun ter-commit — anomali kehilangan file tak akan menghapusnya lagi.
+   724→- Berkas: README.md, docs/assets/*, src/components/views/{home,about}-view.tsx, src/lib/i18n/locales/{home,about}.ts, scripts/update-management.mjs (Task 28) — commit 852e8f3.
+   725→
+   726→---
+   727→Task ID: 29
+   728→Agent: Z.ai Code (Master Polymath · Sage Universal · Ultimate Problem Solver)
+   729→Task: "bantu aku agar website ini full support di shared hosting tanpa ketergantungan node js" — MUHDIN Shared Hosting Edition v2.0.0 (frontend statis + backend PHP + SQLite).
+   730→
+   731→Work Log:
+   732→- AUDIT TOTAL: 67 file route API dibaca & dipetakan (kontrak respons, guard RBAC, pesan error persis); auth = scrypt `salt:hash` + sesi DB tabel `Session` + cookie `muhdin_session`; i18n konten via `ContentTranslation` + allowlist `SETTING_TRANSLATABLE`; rate-limit in-memory; WhatsApp 3 provider (Fonnte/Wablas/Custom); Nusuk engine (PERMIT_CATALOG, ELIGIBILITY, buildPermitNo sha256, runSync, computeMetrics); export CSV BOM; RSS.
+   733→- BACKEND PHP (shared-hosting/api): `config.php` + `lib.php` (792 baris: PDO SQLite, ok/fail identik, sesi DB identik, guard_admin/guard_role/guard_super, log_audit, rate_limit tabel SQLite, send_wa_message curl timeout 10s, apply_translations tanpa AI dengan fallback Indonesia, slugify, ticket code MHD-XXXXXX) + `nusuk.php` (243 baris: katalog, eligibility, nomor izin deterministik, ensure_connection, compute_metrics, run_sync) + `index.php` (2.832 baris: router 50+ endpoint — replika 1:1 seluruh kontrak Node).
+   734→- PENEMUAN KRITIS: Prisma 6 menyimpan DateTime SQLite sebagai INTEGER epoch-ms (bukan teks ISO). Solusi: PHP menulis epoch (`now_ms()`) dan normalisasi ke ISO-8601 saat output (`cast_row` + DATE_COLS per tabel) — paritas dua arah terverifikasi uji silang (Prisma membaca baris tulisan PHP: Session/Application/AuditLog semuanya benar).
+   735→- FRONTEND: `client-api.ts` + shim `withPort()` (XTransformPort propagation — no-op di produksi); `admin-sections.tsx` webhook test ikut dibungkus; `next.config.ts` flag `BUILD_STATIC=1` → `output: 'export'`; `layout.tsx` + `page.tsx` guard `cookies()` untuk mode statis (provider i18n klien menegaskan lang/dir dari cookie); `robots.ts` + `sitemap.ts` `dynamic = "force-static"`.
+   736→- BUILD PIPELINE (scripts/build-shared-hosting.mjs): salinan terisolasi /tmp (hardlink node_modules, dev server tak tersentuh) → hapus src/app/api → `next build` BUILD_STATIC=1 → rakit paket (frontend + api/*.php + .htaccess + data/muhdin.sqlite + INSTALL.txt) → re-hash 3 akun demo ke bcrypt (via binary php, spawnSync tanpa shell, JSON kutip-tunggal agar `$` bcrypt tak terinterpolasi) → zip.
+   737→- FIX BUG WARISAN: class `[&_div.text-\[10px\]]` di footer.tsx membuat Tailwind v4 menghasilkan CSS tidak valid → dev server 500 setelah cache bersih; diganti `.footer-brand-light` + rule CSS manual di globals.css; akar pemicu resurfacing: Tailwind memindai artefak build → tambah `/deploy/`, `/release/`, `/mini-services/`, `/shared-hosting/` ke .gitignore + eslint ignores.
+   738→- E2E BACKEND (PHP 8.3.32 statis, mini-services/hosting-preview port 3010): php -l 5/5 lolos; 20+ skenario curl — login bcrypt demo, me, stats, CRUD artikel (create/update/delete), pendaftaran publik → tiket MHD-… → track → approve (auto-create member) → verify found, audit log, nusuk public/verify/sync/connection/permits/webhook (signature benar/salah), rate-limit 429 di hit ke-6, ganti password + revoke sesi, logout, translasi EN/AR dari cache, dup subscriber {already:true}, export CSV BOM, RSS, search, DB 403, SPA fallback 200.
+   739→- E2E BROWSER (Agent Browser): edisi hosting :3010 — home styled penuh + data PHP (badge "Asosiasi Haji & Umrah Digital Pertama di Dunia" tampil), login CMS → Dashboard statistik hidup ("Integrasi Nusuk Terhubung · 32 izin aktif · 80% sukses"), modul Berita CRUD table, #/tentang, mobile 390px responsif — console 0 error; regresi :3000 (Node) home/API 200 + console 0 error.
+   740→- README v2.0.0: Opsi A "Shared Hosting PHP Edition (TANPA Node.js)" (mermaid arsitektur + tabel 7 aspek + langkah 5 menit), badge PHP, skrip hosting:build, matriks deploy diperbarui (3,2 MB vs 90 MB = 28× ramping), FAQ baru, Riwayat Versi 2.0.0; validator: 43 header, 27 link internal 0 mati, 8 mermaid. Lint 0 error. package.json → 2.0.0.
+   741→
+   742→Stage Summary:
+   743→- Artefak: `deploy/muhdin-shared-hosting-v2.0.0.zip` (3,5 MB — unggah ke public_html, extract, selesai) + folder `deploy/muhdin-shared-hosting/`; backend `shared-hosting/api/` (3.867 baris PHP); `scripts/build-shared-hosting.mjs`; `shared-hosting/{.htaccess,router.php,INSTALL.txt}`; mini service `mini-services/hosting-preview/` (php -S :3010).
+   744→- Keputusan arsitektur: dual-mode (`BUILD_STATIC` toggle) — mode Node standalone (fitur AI penuh) TETAP utuh sebagai Opsi B; sesi & password: cookie `muhdin_session` sama, hash scrypt Node tak terverifikasi PHP → akun demo di-rehash bcrypt saat build + akun lain di-reset via CMS (terdokumentasi di INSTALL.txt).
+   745→- 4 klaim branding (Pertama di Dunia, PHI & IPHI pra-Kemenag, tokoh pengurus, blueprint karya abadi) terverifikasi SUDAH tertanam lengkap sejak v1.4.0 (badge hero + section Warisan + i18n 3 bahasa + constants) — tidak ada duplikasi, hanya dilengkapi narasi deployment v2.0.
+   746→- Bukti visual: deploy/e2e-hosting-{home,admin,berita,tentang,mobile}.png + deploy/e2e-node-home.png.
+   747→
+   748→---
+   749→Task ID: 29-D (lanjutan)
+   750→Agent: Z.ai Code (Master Polymath · Sage Universal · Ultimate Problem Solver)
+   751→Task: "Download workspace failed: Failed to fetch" — gagal unduh workspace; solusikan akses ke paket shared hosting + verifikasi ulang seluruh artefak Task 29.
+   752→
+   753→Work Log:
+   754→- REDISCOVERY: Task 29 (Shared Hosting Edition v2.0.0) terbukti rampung penuh di sesi sebelumnya — backend PHP 3.867 baris (shared-hosting/api), build pipeline scripts/build-shared-hosting.mjs, E2E backend 20+ skenario, E2E browser :3010 + regresi :3000, README v2.0.0; artefak deploy/muhdin-shared-hosting-v2.0.0.zip UTUH (unzip -t: "No errors detected", 194 file, 7,3 MB terkompresi 3,7 MB).
+   755→- DIAGNOSIS DOWNLOAD GAGAL: total workspace ±1,5 GB (node_modules 1,2 GB + .next 248 MB + deploy 13 MB) → gateway unduhan workspace timeout/gagal ("Failed to fetch").
+   756→- SOLUSI SALURAN LANGSUNG: salin paket ke public/ sehingga dapat diunduh via URL preview tanpa download seluruh workspace: /muhdin-shared-hosting-v2.0.0.zip (curl -sI: 200, Content-Type application/zip, Content-Length 3.708.371) + /muhdin-shared-hosting-INSTALL.txt (200).
+   757→- PENGAMAN REBUILD: scripts/build-shared-hosting.mjs kini menghapus *.zip & salinan INSTALL dari hasil export (mencegah zip bersarang saat rebuild berikutnya); .gitignore += /public/*.zip + /public/muhdin-shared-hosting-INSTALL.txt; bersihkan /tmp/muhdin-hosting-build.
+   758→- SMOKE TEST ULANG: :3010 home 200 (55 KB), /api/members hidup (data member tampil), /api/stats ter-guard admin dengan benar (paritas kontrak), /api/auth/me 200; :3000 root 200; dev.log normal (query Prisma wajar).
+   759→- E2E BROWSER :3000 (Agent Browser): title "MUHDIN — Masyarakat Umroh Haji Digital Nusantara", 0 page error, body 18.886 char, brand + hero tampil — sehat setelah penambahan file publik.
+   760→
+   761→Stage Summary:
+   762→- User kini punya 3 jalur mendapatkan paket: (1) URL preview /muhdin-shared-hosting-v2.0.0.zip — tercepat; (2) retry Download workspace (gagalnya transien/karena ukuran); (3) rebuild mandiri: npm run hosting:build → deploy/muhdin-shared-hosting-v2.0.0.zip.
+   763→- Tidak ada perubahan perilaku aplikasi — hanya file publik tambahan, pengaman anti zip-bersarang, dan gitignore.
+   764→- Shared Hosting Edition v2.0.0 resmi TERKIRIM: frontend statis + backend PHP + SQLite, tanpa Node.js, tanpa Composer, tanpa MySQL.
+   765→
+   766→Addendum 29-F (ops):
+   767→- Server dev berulang kali ditemukan mati antar-perintah tanpa jejak kernel — pemulung proses milik sesi shell aktif; setsid/nohup tidak cukup. Fix final: daemonisasi start-stop-daemon (double-fork, PPID=1) + NODE_OPTIONS heap cap 1792 MB → next-server stabil lintas perintah (RSS hangat ±1,3 GB). PID file: /tmp/muhdin-dev.pid; log: dev-run.log.
+   768→- Verifikasi ketahanan: 2 putaran lintas perintah root 200 + unduhan zip via :3000 tetap 200 + hosting-preview :3010 tetap 200.
    769→
    770→---
    771→Task ID: 30-a
@@ -69,84 +118,5 @@
    837→
    838→---
    839→Task ID: 30-b-2
-   840→Agent: GLM (general-purpose sub-agent)
-   841→Task: Rekonstruksi routes-content.php (12 entitas konten + slug + download)
-   842→Work Log:
-   843→- Baca cepat sumber: prisma/schema.prisma (Article, Tutorial, Faq, Testimonial, Ecosystem, JourneyStep, Roadmap, Gallery, Event, Resource, Management, RegionalBranch; DateTime = INTEGER epoch-ms), src/lib/api-helpers.ts, src/lib/auth.ts (requireAdmin = sesi saja, tanpa cek role), src/lib/i18n-server.ts (localeFromRequest = ?locale=en|ar), lib.php (db_*, cast_row(s), ok/fail, guard_admin/guard_role, log_audit, slugify, apply_translations + registry $ENTITY_KEY_FIELD/$ENTITY_FIELDS), config.php, index.php (dispatcher), lalu 25 file route Node untuk 12 entitas (articles{,/[id],/slug/[slug]}, tutorials{,/[id],/slug/[slug]}, faqs{,/[id]}, testimonials{,/[id]}, ecosystems{,/[id]}, journey{,/[id]}, roadmap{,/[id]}, gallery{,/[id]}, events{,/[id]}, resources{,/[id],/[id]/download}, management{,/[id]}, branches{,/[id]}).
-   844→- Tulis SATU file /home/z/my-project/shared-hosting/api/routes-content.php (1669 baris) berisi routes_content(string $method, array $seg): bool + helper privat berprefiks _rcon_* (semantik JS: _rcon_str/String, _rcon_bool/Boolean, _rcon_int/parseInt→NaN=null, _rcon_int_or/parseInt||fb, _rcon_falsy/x||y, _rcon_date_ms/new Date().getTime()); pola CRUD difaktorkan via _rcon_find, _rcon_created, _rcon_localize (cast_rows+apply_translations), _rcon_bump_views (.catch()=>{}), _rcon_audit, _rcon_guard_content (guardRole SUPER_ADMIN|ADMIN|EDITOR) — tanpa duplikasi 12×.
-   845→- Paritas kontrak Node disalin persis: filter list (articles status/category/featured/q/limit + ORDER featured DESC, createdAt DESC; tutorials all/category/q ORDER order ASC; faqs category; testimonials all ORDER createdAt DESC; ecosystems cluster ORDER number ASC; journey/roadmap/management ORDER ASC; gallery/events/resources ?all=1 hanya bila sesi admin sah; branches all tanpa translasi), translasi hanya pada endpoint yang di Node memanggil applyEntityTranslations (list Article/Tutorial/Faq/Testimonial/Ecosystem/JourneyStep/Roadmap/Management + branches publik + detail slug; fields & keyOf identik registry/salinan route), slug route increment views TANPA mengubah nilai views respons (ambil sebelum bump), POST publik testimonials (published=false, tanpa guard), slug otomatis slugify(body.slug||title) || prefix-Date.now() + sufiks base36 saat duplikat, PUT slug slugify('') diabaikan, startsAt/endsAt validasi Invalid Date → 400 dengan pesan Node, resources/[id]/download POST = increment downloads + {ok:true,fileUrl} (Node tidak mengirim file), timestamp now_ms() + output ISO-8601 via cast_row(s), 500 "P2025" bila PUT/DELETE id tak ada.
-   846→- Verifikasi: php -l lolos ("No syntax errors", PHP 8.3 CLI). Harness /tmp/h30: SALINAN db/custom.db → data/muhdin.sqlite (asli tak tersentuh), salinan api/ + php -S 127.0.0.1:8231. 93 asersi: 88 PASS; 5 "gagal" ternyata bug harness/ekspektasi salah, masing-masing diverifikasi ulang manual dan benar: dup-slug dapat sufiks base36, counter unduhan 3→4, fallback 404 {"error":"Endpoint tidak ditemukan."}, slug?locale=en memuat judul EN, slugify('///***') → 'tutorial-<ms>'; faq POST order=0 → 99 memang perilaku Node (parseInt(0)||99); audit log terisi (userName/role sesi, CREATE/UPDATE/DELETE); RBAC 401 (tanpa sesi), 403 (role STAFF di gallery), EDITOR lolos guardRole. Harness + salinan DB dihapus setelah uji.
-   847→Stage Summary:
-   848→- routes-content.php 1669 baris, php -l "No syntax errors"; 12 entitas × (GET list, POST, PUT, DELETE) + GET by id (articles/tutorials/ecosystems) + GET by slug + increment views (articles/tutorials) + POST resources/[id]/download = 44 pasangan metode×path direplikasi.
-   849→- Guard per Node: guardAdmin (articles, tutorials, faqs, ecosystems, journey, roadmap, management; PUT/DELETE testimonials) — sesi apa pun; guardRole [SUPER_ADMIN, ADMIN, EDITOR] (gallery, events, resources, branches); PUBLIK: GET semua list/detail/slug, POST testimonials, POST resources/[id]/download.
-   850→- Deviasi terdokumentasi: (1) log_audit CREATE/UPDATE/DELETE ditambahkan untuk 11 entitas lain (Node hanya meng-audit branches) karena diminta eksplisit task; audit POST testimonials publik memakai identitas "sistem"; (2) metode tak didukung pada path domain konten → return false → 404 router ("Endpoint tidak ditemukan.") alih-alih 405 Next.js — kontrak router index.php; (3) new Date() string non-ISO mengandalkan strtotime (server TZ dipaksa UTC oleh config.php; tanggal-saja YYYY-MM-DD dihitung UTC midnight persis JS); (4) log_audit TIDAK dipanggil untuk increment download (bukan CRUD, Node pun tidak); (5) kosong-body PUT pada tabel berkolom updatedAt tetap mem-bump updatedAt (paritas @updatedAt Prisma).
-   851→- Kontrak kunci untuk router: routes_content($method,$seg) TRUE = selesai (ok/fail exit), FALSE = lanjut modul berikut; semua helper privat (_rcon_*), tanpa tabrakan nama dengan routes-auth/directory/nusuk.
-   852→
-   853→---
-   854→Task ID: 30
-   855→Agent: Z.ai Code (Master Polymath · Sage Universal · Ultimate Problem Solver — role activation FULL)
-   856→Task: "buatkan readme terbaik yang pernah ada di dunia ini sayang role activation full kan semua" — README Mahakarya v3.0.0 + restorasi backend PHP yang hilang + audit angka total.
-   857→
-   858→Work Log:
-   859→- AUDIT ANGKA TOTAL (semua diukur 2026-09-21): 27.681 baris TS (195 file · 88 komponen · 15 view), 63 berkas route API Node, 26 model Prisma, 888 kunci i18n × 3 = 2.664 string (20 file namespace), 76 maskapai / 45 negara, 16 rute hash (termasuk #/unduhan & #/lapor yang terlewat README lama), 22 modul CMS (roles.ts), DB seed: 15 anggota (PPIU 5·PIHK 4·KBIHU 3·TW 2·IPHI 1), 8 provinsi, 10 kota, 13 ekosistem, 13 journey, 4 roadmap, 13 tutorial, 10 artikel, 13 FAQ, 6 testimoni, 5 pengurus, 1 Bakorwil, 8 galeri, 5 agenda, 4 resource, 18 setting.
-   860→- TEMUAN Kritis: (1) artefak Task 29 yang di-gitignore HILANG dari disk (deploy/, shared-hosting/, mini-services/, public/*.zip, binary PHP) — link unduhan yang dijanjikan ke user jadi mati; (2) README lama penuh angka basi (klaim 1.185 anggota + scripts/import-directory.mjs + research/*.json yang tak ada lagi, 19→26 model, 33→63 endpoint, 825→888 kunci, "db:seed"/"airlines:fetch" tak ada di package.json, cookie "muhdin-session"→"muhdin_session"); (3) inkonsistensi IPHI: README tabel "Ikatan Penyelenggara Perjalanan Ibadah" vs kode "Ikatan Persaudaraan Haji Indonesia" (kode BENAR); (4) "46 negara" masih nyangkut (harusnya 45).
-   861→- RESTORASI PHP: unduh ulang PHP statis 8.3.32 → /home/z/tools/php/bin/php (path yang dibaca build script; pdo_sqlite+curl+mbstring+openssl). Rekonstruksi backend via subagent: 30-a (config 118 + lib 1.016 + nusuk 388 baris — 44/44 smoke, vektor silang buildPermitNo Node⇄PHP identik) + 30-b-1..4 (routes-auth 971, routes-content 1.669, routes-directory 1.394, routes-nusuk 552) + index.php dispatcher 80 baris + router.php + .htaccess + INSTALL.txt ditulis orchestrator. Total API PHP 6.188 baris (8 berkas), php -l 8/8 lolos, harness uji ±245 asersi PASS (login bcrypt, CRUD 12 entitas, tiket MHD→track→approve→Member auto, webhook HMAC 4 jalur, rate-limit 429, CSV BOM, RSS, export, search).
-   862→- BENCHMARK DUAL-MESIN (best of 3, localhost): Node / 42,6 ms · /api/members 5,4 ms · /api/articles 6,2 ms; PHP / 0,08 ms · /api/members 0,10 ms.
-   863→- README v3.0.0 MAHAKARYA (1.064 baris · 10 mermaid · 6 gambar OK · 16 anchor): header 4 Pilar Identitas (klaim pertama-dunia + PHI/IPHI pra-1946 + pengurus tokoh + blueprint karya abadi, 3 bahasa), Peta Kilat (TOC), Warisan + timeline, Galeri, Mengapa, MUHDIN dalam Angka (semua terukur + perintah verifikasi), Untuk Siapa (personas), Tur 60 Detik, Tentang, Arsitektur dual-mesin, Alur (auth + verifikasi), Model Data ERD 26 model, Fitur, Mulai Cepat (FIX: seed = bun prisma/seed.ts, tanpa import-directory), Kredensial demo (FIX password editor2026/verifikator2026), Skrip akurat, Peta Rute 16, API 63 endpoint, i18n 888, Maskapai, Keamanan RBAC (matriks 22 modul), Design System, PWA, Deployment (Opsi A PHP v3.0 / Opsi B Node / VPS / matriks), Mutu & Performa (benchmark + gerbang), Glosarium BARU, Troubleshooting (+3 baris PHP), FAQ (FIX pertanyaan 1.185), Roadmap, Riwayat Versi +3.0.0, Kontribusi (aturan sinkron PHP), Kredit, Disclaimer, Lisensi.
-   864→- BUILD & DISTRIBUSI: package.json 2.0.0→3.0.0; hosting:build ulang → deploy/muhdin-shared-hosting-v3.0.0.zip (3.339.114 B, unzip -t "No errors detected", rehash 3 akun bcrypt); salin ke public/muhdin-shared-hosting-v3.0.0.zip + INSTALL (unduh via :3000 → 200).
-   865→- OPS: daemonisasi php -S :3010 via start-stop-daemon (pidfile /tmp/muhdin-php.pid) — nohup saja dipangkas reaper; dev server :3000 tetap daemon (pidfile /tmp/muhdin-dev.pid).
-   866→- PROTEKSI MASA DEPAN: .gitignore — un-ignore /shared-hosting/ & /mini-services/ (sumber PHP kini TER-COMMIT, tak akan hilang lagi); hapus scripts/tmp-*.mjs + tool-results/.
-   867→- VERIFIKASI E2E (Agent Browser): :3000 — title, badge dunia, 18.886 char, SW 0 registrasi (dev), 0 error, #/tentang (warisan/IPHI/Kemenag/blueprint/pengurus) ✓; :3010 — beranda identik 18.886 char, CMS login admin@muhdin.web.id/muhdin2026 → dashboard 22 modul + "15 Anggota" hidup dari PHP, mobile 390px overflowX pas, 0 error; 3 login demo bcrypt (admin/editor/verifikator) via curl ✓; lint 0 error.
-   868→- Commit git: README + shared-hosting/ (8 PHP + htaccess + router + INSTALL) + package.json + .gitignore + worklog.
-   869→
-   870→Stage Summary:
-   871→- README v3.0.0 "Mahakarya" TERBIT: 1.064 baris dokumentasi 100% berbasis fakta terukur, 4 klaim branding tertanam, dual-mesin didokumentasikan penuh, seluruh angka basi diburu & diganti.
-   872→- Backend PHP edisi shared hosting TERPULIHKAN (6.188 baris, paritas 1:1 63 endpoint, ±245 asersi uji) dan KINI TER-COMMIT git — kebal penghapusan workspace.
-   873→- Paket distribusi v3.0.0: public/muhdin-shared-hosting-v3.0.0.zip (3,2 MB) — unduh via URL preview; deploy/muhdin-shared-hosting-v3.0.0.zip master.
-   874→- Kredensial demo FINAL: admin@muhdin.web.id/muhdin2026 · editor@muhdin.web.id/editor2026 · verifikator@muhdin.web.id/verifikator2026 (scrypt di Node, bcrypt di edisi PHP).
-   875→
-   876→---
-   877→Task ID: 31
-   878→Agent: Z.ai Code (main orchestrator)
-   879→Task: Laporan user "banyak yang tidak terbaca, aku jadinya pakai Vercel" → diagnosis akar masalah + perbaikan Vercel-readiness penuh + penulisan ulang README 100% Markdown murni (Readability Edition)
-   880→
-   881→Work Log:
-   882→- Diagnosis 4 akar masalah: (1) README lama (1065 baris) penuh HTML mentah (<table>/<div>/<details>) yang tampil sebagai tag mentah di banyak penampil; (2) README justru mencantumkan Vercel "⚠️ kurang cocok"; (3) build Vercel pasti gagal — tidak ada `prisma generate` saat install dan `scripts/post-build.mjs` `exit(1)` bila `.next/standalone` tidak ada; (4) runtime Vercel pasti gagal — `.env` ter-commit berisi `DATABASE_URL=file:/home/z/my-project/db/custom.db` (path absolut lokal, tidak ada di Vercel) + file DB tidak di-bundle
-   883→- Fix 1 — `src/lib/db.ts` self-healing: di Vercel salin `db/custom.db` ter-bundle → `/tmp/muhdin.db` (SQLite butuh akses tulis meski hanya baca); hormati `DATABASE_URL` eksplisit SELAMA file-nya ada (path warisan mati diabaikan anggun); fallback absolut cwd; log query Prisma hanya di development
-   884→- Fix 2 — `next.config.ts` tri-mode: default standalone · `VERCEL=1` → tanpa standalone (Vercel packaging sendiri) · `BUILD_STATIC=1` → export; `outputFileTracingIncludes` kini membawa `./db/custom.db` + `./node_modules/.prisma/**`
-   885→- Fix 3 — `scripts/post-build.mjs`: graceful exit(0) bila `VERCEL=1` dan standalone tidak ada
-   886→- Fix 4 — `package.json` v3.1.0: `build` = `prisma generate && next build && post-build` + `postinstall: prisma generate` → Prisma Client selalu ter-generate di platform mana pun
-   887→- README.md ditulis ulang dari nol: 906 baris, **0 tag HTML** (bismillah jadi blockquote, galeri jadi tabel markdown, FAQ jadi Q/A bernomor), 19 anchor internal diverifikasi cocok slug GitHub (tanpa VS16), struktur baru: Isi → 30 Detik → Pilar Identitas (4 klaim) → Warisan + tabel Pengurus Pusat (Pembina Prof. Dr. Anwar Sanusi … BEMDUM) → Galeri → Angka → Tur → Jalankan Lokal → **Deployment Vercel Opsi 1 ⭐ (3 klik + CLI + tabel otomatisasi build/runtime + catatan jujur ephemeral)** → PHP Opsi 2 → Node Opsi 3 → VPS Opsi 4 → matriks (baris Vercel diubah dari "⚠️ kurang cocok" menjadi "⭐ termudah") → Arsitektur/Alur/Model/Fitur/API/i18n/Maskapai/RBAC/Design/PWA/Skrip/Rute/Mutu/Glosarium/Troubleshooting (+5 baris Vercel)/FAQ (+1 soal Vercel)/Roadmap/Changelog 3.1.0/Kontribusi/Kredit/Disclaimer/Lisensi
-   888→- Verifikasi: `bun run lint` 0 error; curl `/api/health` ok · `/api/members` ok · home 200; E2E Agent Browser: buka `/` 0 page error 0 console error, badge first-in-world + maskapai + ekosistem + footer tampil (18.886 char), switcher bahasa → English (cookie `muhdin-locale=en`, nav berubah), login CMS `#/admin` admin@muhdin.web.id sukses → dashboard + statistik (10 artikel · 15 anggota · 16.586 views), screenshot desktop 1280px + mobile 390px mulus, footer mobile terdorong alami di halaman panjang
-   889→- Commit git "Task 31: Vercel-Ready v3.1.0 …" (README.md, package.json, next.config.ts, src/lib/db.ts, scripts/post-build.mjs, worklog.md)
-   890→
-   891→Stage Summary:
-   892→- Vercel kini target deploy kelas satu: push GitHub → vercel.com/new → Import → Deploy, TANPA env var sama sekali (postinstall generate + DB ter-bundle + /tmp self-healing + log senyap)
-   893→- Catatan jujur terdokumentasi: data tulis di Vercel ephemeral (cocok portal publik/demo/preview); data permanen → PHP shared hosting / Node cPanel / VPS
-   894→- README v3.1.0 100% Markdown murni — terbaca rapi di GitHub, VS Code, dashboard Vercel, HP, dan editor teks polos
-   895→- Bukti visual: /tmp/e2e-desktop.png (dashboard CMS) · /tmp/e2e-mobile.png (hero EN 390px)
-   896→
-   897→---
-   898→Task ID: 30
-   899→Agent: Z.ai Code (main orchestrator)
-   900→Task: "Pastikan semua link bisa di klik dan hidup" — audit & hidupkan seluruh link/CTA MUHDIN + sempurnakan website
-   901→
-   902→Work Log:
-   903→- Audit menyeluruh via Explore agent: memetakan 16 route hash + semua <a>/button di views/site/admin; temuan utama: (1) tombol "Kirim Pesan Uji" WhatsApp di CMS menembak endpoint yang TIDAK ADA (405), (2) 4-5 ikon sosmed footer semuanya placeholder `#/kontak` padahal URL asli sudah ada di tabel SiteSetting, (3) footer "Cek Verifikasi" tidak bisa deep-link ke tab, (4) 6 link "Layanan Ekosistem" footer semua menuju halaman generik sama, (5) kartu ekosistem Beranda tidak membuka detail spesifik, (6) email/telepon/alamat/Kanal Prioritas di kontak & footer tidak klikable (tanpa mailto/tel/maps), (7) shortcut PWA manifest pakai format hash tak konsisten `/#nusuk`
-   904→- FIX HIGH #1: endpoint baru `POST /api/whatsapp/test` (guard ADMIN+) — memanggil sendWhatsAppMessage() via provider tersimpan (FONNTE/WABLAS/CUSTOM), mencatat lastTestAt/lastTestStatus, membalas {sent, detail} untuk toast CMS
-   905→- FIX HIGH #2: footer sosmed kini membaca URL asli dari `GET /api/settings` (instagram/facebook/twitter/youtube + ikon WhatsApp baru via wa.me) dengan fallback `#/kontak`; URL dari CMS jadi sumber kebenaran tunggal
-   906→- FIX MEDIUM #3: deep-link `#/anggota/verifikasi` — MembersView terima initialTab + key-remount di muhdin-app; footer "Cek Verifikasi" langsung membuka tab verifikasi
-   907→- FIX MEDIUM #4: deep-link `#/ekosistem/<nomor>` — dialog detail auto-terbuka via derived state (picked ?? deepLinked, tanpa setState-in-effect); kartu 13 ekosistem di Beranda kini navigate ke detail masing-masing; 6 link layanan footer dipetakan ke nomor ekosistem (visa→1, handling→2, akomodasi→6, raudah→9, retail→11, command→13); menutup dialog membersihkan hash ke `#/ekosistem`
-   908→- FIX MEDIUM #5: 4 kartu kontak kini tautan hidup utuh (mailto:, tel:, Google Maps, #/lapor) dengan hover state; footer email/telepon/website juga klikable (mailto/tel/https); sumber email+phone dari settings dengan fallback
-   909→- FIX LOW #6: manifest.webmanifest shortcut diperbaiki ke `/#/nusuk`, `/#/anggota`, `/#/tutorial`
-   910→- Lint fix: pola setState-in-effect dihapus → derived state (useMemo) + key-remount; `bun run lint` 0 error
-   911→- README v3.1.0 diverifikasi: semua anchor TOC valid, 4 klaim branding lengkap (pertama di dunia · PHI/IPHI pra-1946 · pengurus tokoh nasional/internasional · blueprint karya abadi), susunan pengurus Prof. Dr. Anwar Sanusi dkk., panduan Vercel Opsi 1 — dipertahankan
-   912→- E2E Agent Browser (semua LOLOS): kartu ekosistem beranda → #/ekosistem/1 + dialog "Visa Umroh & Haji"; tutup dialog → hash bersih; 5 sosmed footer ber-URL eksternal asli + mailto + tel; footer "Cek Verifikasi" → #/anggota/verifikasi tab aktif; footer "Command Center 24/7" → #/ekosistem/13 dialog terbuka; 4 kartu kontak klikable (mailto/tel/maps/#/lapor) + kartu lapor → halaman Pengaduan; CMS login → aktifkan WA → POST /api/whatsapp/test = 200 dengan respons gateway nyata {"sent":false,"detail":"invalid token"} + lastTestStatus tercatat (pipeline ujung-ke-ujung hidup); 4 PDF unduhan 200; 15 rute publik render h1 benar; deep-link berita/tutorial per slug; halaman 404 OK; mobile 390px menu sheet 22 item + footer ada; 0 error console/runtime
-   913→- Konfigurasi WA dikembalikan (enabled=false) setelah uji; browser ditutup bersih
-   914→
-   915→Stage Summary:
-   916→- Tidak ada lagi link mati di MUHDIN: setiap ikon, kartu, tombol navigasi, dan CTA kini membawa tujuan nyata (route dalam, dialog detail, mailto/tel, Google Maps, wa.me, PDF, atau URL sosmed resmi dari CMS)
-   917→- Fitur baru: deep-link `#/ekosistem/<nomor>` & `#/anggota/verifikasi`; endpoint POST /api/whatsapp/test; sosmed & kontak terpusat dari Pengaturan Situs (CMS) — admin cukup ubah URL sekali, seluruh situs ikut
-   918→- Semua 15 rute + 404 + deep-link slug terverifikasi hidup; lint 0 error; dev.log bersih
 
-[showing lines 769-918 of 919; use offset=919 with limit to continue reading]
+[showing lines 720-839 of 919; use offset=840 with limit to continue reading]

@@ -22,6 +22,9 @@ import { agendaDict } from "@/lib/i18n/locales/agenda";
 import { downloadsDict } from "@/lib/i18n/locales/downloads";
 import { reportDict } from "@/lib/i18n/locales/report";
 import { branchesDict } from "@/lib/i18n/locales/branches";
+import { nusHomeDict } from "@/lib/i18n/locales/nusantara-home";
+import { nusTrustDict } from "@/lib/i18n/locales/nusantara-trust";
+import { nusJoinDict } from "@/lib/i18n/locales/nusantara-join";
 
 const dicts = [
   commonDict,
@@ -44,6 +47,10 @@ const dicts = [
   downloadsDict,
   reportDict,
   branchesDict,
+  // Task 33 — MUHDIN NUSANTARA (Trusted Pilgrim Ecosystem)
+  nusHomeDict,
+  nusTrustDict,
+  nusJoinDict,
 ];
 
 export const dictionaries: Record<"id" | "en" | "ar", Record<string, unknown>> = {

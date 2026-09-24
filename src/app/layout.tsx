@@ -35,13 +35,15 @@ const kufi = Noto_Kufi_Arabic({
 
 export const metadata: Metadata = {
   title: {
-    default: "MUHDIN — Masyarakat Umroh Haji Digital Nusantara",
-    template: "%s | MUHDIN",
+    default: "MUHDIN NUSANTARA — Trusted Pilgrim Ecosystem",
+    template: "%s | MUHDIN NUSANTARA",
   },
   description:
-    "Portal resmi MUHDIN (Masyarakat Umroh Haji Digital Nusantara) — Asosiasi di Atas Asosiasi Penyelenggara Ibadah, Operator Nusuk Indonesia. 13 Ekosistem layanan umroh-haji terintegrasi menuju Transformasi Digitalisasi 2030. Bersama Melayani Tamu Allah.",
+    "MUHDIN NUSANTARA (Masyarakat Umroh Haji Digital Nusantara) — Trusted Pilgrim Ecosystem. Jaringan ekosistem haji & umrah: keanggotaan, verifikasi anggota, direktori penyelenggara & penyedia layanan, akademi, dan kolaborasi industri. Satu Ekosistem. Satu Standar. Satu Kepercayaan. Satu Perjalanan.",
   keywords: [
     "MUHDIN",
+    "MUHDIN Nusantara",
+    "Trusted Pilgrim Ecosystem",
     "umroh",
     "haji",
     "Nusuk",
@@ -50,8 +52,9 @@ export const metadata: Metadata = {
     "KBIHU",
     "IPHI",
     "travel umroh terpercaya",
-    "operator nusuk indonesia",
-    "13 ekosistem MUHDIN",
+    "ekosistem umroh digital",
+    "verifikasi penyelenggara umroh",
+    "muhdin verified",
     "transformasi digital umroh",
   ],
   authors: [{ name: "MUHDIN" }],
@@ -69,18 +72,18 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
   openGraph: {
-    title: "MUHDIN — Bersama Melayani Tamu Allah",
+    title: "MUHDIN NUSANTARA — Trusted Pilgrim Ecosystem",
     description:
-      "Asosiasi di Atas Asosiasi Penyelenggara Ibadah — Operator Nusuk Indonesia. 13 Ekosistem layanan umroh-haji terintegrasi menuju 2030.",
-    siteName: "MUHDIN",
+      "Jaringan ekosistem haji & umrah Indonesia: keanggotaan, verifikasi, direktori penyelenggara & penyedia, akademi, dan kolaborasi industri. One Ecosystem. One Standard. One Trust. One Journey.",
+    siteName: "MUHDIN NUSANTARA",
     type: "website",
     locale: "id_ID",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MUHDIN — Masyarakat Umroh Haji Digital Nusantara",
+    title: "MUHDIN NUSANTARA — Trusted Pilgrim Ecosystem",
     description:
-      "13 Ekosistem layanan umroh-haji terintegrasi. Bersama Melayani Tamu Allah.",
+      "Satu Ekosistem. Satu Standar. Satu Kepercayaan. Satu Perjalanan.",
   },
 };
 

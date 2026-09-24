@@ -1,323 +1,701 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+/* Task 33-b — Rebuild homepage MUHDIN NUSANTARA (11 section + news strip).
+   SPA hash-routing publik; animasi via Reveal/Stagger + CSS murni di
+   nusantara.css (reduced-motion aman). Tanpa API fetch kecuali news strip. */
+import "@/components/site/nusantara.css";
+
+import { Fragment, useEffect, useRef, useState } from "react";
 import { apiGet } from "@/lib/client-api";
 import { navigate } from "@/hooks/use-hash-route";
 import { Icon } from "@/components/site/icon";
-import { Reveal, SectionHeading, Stagger, StaggerItem, CountUp } from "@/components/site/reveal";
+import { Reveal, SectionHeading, Stagger, StaggerItem } from "@/components/site/reveal";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { PARTNERS, CORE_VALUES, TECH_PILLARS, CLUSTERS, BRAND } from "@/lib/constants";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BRAND } from "@/lib/constants";
 import {
-  AIRLINES_INDONESIA,
-  AIRLINES_GCC,
-  AIRLINES_ASIA,
-  AIRLINES_AFRICA_EUROPE,
-  AIRLINES_ALL,
-  AIRLINES_COUNT,
-  AIRLINE_COUNTRIES,
-  airlineLogo,
-  type Airline,
-} from "@/lib/airlines";
-import { useT, formatDateL10n, formatNumberL10n, type Locale } from "@/lib/i18n";
-import type { Ecosystem, JourneyStep, Roadmap, Testimonial, Article, NusukPublicData } from "@/lib/types";
+  HERO_FLOW,
+  PILLARS,
+  ECOSYSTEM_CATEGORIES,
+  ONBOARDING_STEPS,
+  NETWORK_NODES,
+  MEMBERSHIP_TIERS,
+  ACADEMY_TOPICS,
+} from "@/lib/nusantara";
+import { useT, formatDateL10n } from "@/lib/i18n";
+import type { Article } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-/* Pemetaan ikon/urutan (dari lib/constants.ts) → key kamus. Ikon & warna tetap di kode. */
-/* Task 21 — statistik hero: angka nyata untuk animasi CountUp (24/7 tetap teks) */
-const HERO_STATS: { k: string; icon: string; num?: number; suffix?: string }[] = [
-  { k: "jamaah", icon: "users", num: 1_000_000, suffix: "+" },
-  { k: "mitra", icon: "handshake", num: 1_000, suffix: "+" },
-  { k: "sdm", icon: "badge-check", num: 10_000 },
-  { k: "command", icon: "shield-check" },
-];
+/* ---------- Pemetaan konstanta nusantara.ts → ikon & key kamus ---------- */
 
-/* Task 21 — kurva easing premium untuk koreografi hero */
-const EASE: [number, number, number, number] = [0.21, 0.47, 0.32, 0.98];
-const CLUSTER_KEYS = ["akses", "ibadah", "mutu"] as const;
-const PARTNER_KEYS = ["ppiu", "pihk", "kbihu", "iphi", "tw"] as const;
-const VALUE_KEYS = ["amanah", "profesional", "terintegrasi", "transparan", "tepercaya"] as const;
-const PILLAR_KEYS = ["app", "gps", "ai", "nusuk", "dashboard", "multiBahasa"] as const;
-const PRIVACY_KEYS = ["priv1", "priv2", "priv3", "priv4"] as const;
-const BENEFIT_KEYS = ["b1", "b2", "b3", "b4", "b5", "b6", "b7"] as const;
-const NUSUK_BAR_KEYS = ["p1", "p2", "p3", "p4", "p5", "p6"] as const;
+const FLOW_META: Record<string, { icon: string; key: string }> = {
+  INDONESIA: { icon: "map-pin", key: "indonesia" },
+  MUHDIN: { icon: "hexagon", key: "muhdin" },
+  PPIU_PIHK: { icon: "plane-takeoff", key: "ppiuPihk" },
+  SAUDI: { icon: "building-2", key: "saudi" },
+  JAMAAH: { icon: "heart-handshake", key: "jamaah" },
+};
 
-/* Task 23 — statistik jaringan penerbangan global */
-const AIRLINE_STATS: { k: string; icon: string; num?: number; suffix?: string }[] = [
-  { k: "statAirlines", icon: "plane", num: AIRLINES_COUNT, suffix: "+" },
-  { k: "statCountries", icon: "globe", num: AIRLINE_COUNTRIES, suffix: "+" },
-  { k: "statAirports", icon: "map-pin", num: 4 },
-  { k: "statOps", icon: "clock" },
-];
+const PILLAR_META: Record<string, { icon: string; key: string }> = {
+  CONNECT: { icon: "network", key: "connect" },
+  VERIFY: { icon: "shield-check", key: "verify" },
+  COLLABORATE: { icon: "handshake", key: "collaborate" },
+  INTEGRATE: { icon: "workflow", key: "integrate" },
+};
 
-/* timeAgo versi i18n (label & satuan lewat kamus, angka via formatNumberL10n). */
-function timeAgoL10n(
-  iso: string | null | undefined,
-  t: (key: string, vars?: Record<string, string | number>) => string,
-  locale: Locale
-) {
-  if (!iso) return t("home.nusukLive.belumSinkron");
-  try {
-    const diff = Date.now() - new Date(iso).getTime();
-    const s = Math.max(1, Math.floor(diff / 1000));
-    if (s < 60) return t("home.nusukLive.detik", { n: formatNumberL10n(s, locale) });
-    const m = Math.floor(s / 60);
-    if (m < 60) return t("home.nusukLive.menit", { n: formatNumberL10n(m, locale) });
-    const h = Math.floor(m / 60);
-    if (h < 24) return t("home.nusukLive.jam", { n: formatNumberL10n(h, locale) });
-    const d = Math.floor(h / 24);
-    return t("home.nusukLive.hari", { n: formatNumberL10n(d, locale) });
-  } catch {
-    return iso;
-  }
+const ECO_KEY: Record<string, string> = {
+  PPIU: "ppiu",
+  PIHK: "pihk",
+  KBIHU: "kbihu",
+  TRAVEL: "travel",
+  SAUDI_PROVIDER: "saudiProvider",
+  HOTEL: "hotel",
+  TICKETING: "ticketing",
+  VISA_DOC: "visaDoc",
+  TRANSPORT: "transport",
+  INSURANCE: "insurance",
+  HEALTH: "health",
+  PROFESSIONAL: "professional",
+  TECHNOLOGY: "technology",
+  STRATEGIC_PARTNER: "strategicPartner",
+};
+
+const STEP_META: Record<string, { icon: string; key: string }> = {
+  REGISTER: { icon: "user-plus", key: "register" },
+  COMPLETE_PROFILE: { icon: "clipboard-list", key: "completeProfile" },
+  DOCUMENT_REVIEW: { icon: "file-text", key: "documentReview" },
+  VERIFICATION: { icon: "shield-check", key: "verification" },
+  MUHDIN_ID: { icon: "fingerprint", key: "muhdinId" },
+  CONNECT: { icon: "network", key: "connect" },
+  COLLABORATE: { icon: "handshake", key: "collaborate" },
+};
+
+const NODE_META: Record<string, string> = {
+  PPIU: "plane-takeoff",
+  PIHK: "landmark",
+  KBIHU: "users",
+  SUPPLIER: "boxes",
+  SAUDI: "building-2",
+  PROFESSIONAL: "graduation-cap",
+  TECHNOLOGY: "brain-circuit",
+  PARTNER: "handshake",
+  JAMAAH: "heart-handshake",
+};
+
+const NODE_KEY: Record<string, string> = {
+  PPIU: "ppiu",
+  PIHK: "pihk",
+  KBIHU: "kbihu",
+  SUPPLIER: "supplier",
+  SAUDI: "saudi",
+  PROFESSIONAL: "professional",
+  TECHNOLOGY: "technology",
+  PARTNER: "partner",
+  JAMAAH: "jamaah",
+};
+
+const TIER_KEY: Record<string, string> = {
+  INDIVIDUAL: "individual",
+  PROFESSIONAL: "professional",
+  ORGANIZATION: "organization",
+  PPIU_PIHK: "ppiuPihk",
+  STRATEGIC_PARTNER: "strategicPartner",
+};
+
+const TOPIC_META: Record<string, { icon: string; key: string }> = {
+  DIGITAL_UMRAH: { icon: "book-open", key: "digitalUmrah" },
+  PPIU_OPERATIONS: { icon: "graduation-cap", key: "ppiuOps" },
+  SAUDI_OPERATIONS: { icon: "landmark", key: "saudiOps" },
+  COMPLIANCE: { icon: "scale", key: "compliance" },
+  TECHNOLOGY: { icon: "brain-circuit", key: "technology" },
+  PROFESSIONAL_DEVELOPMENT: { icon: "trending-up", key: "professionalDev" },
+};
+
+const NOT_KEYS = ["govt", "accredit", "departure", "visa", "transaction"] as const;
+
+/* Posisi radial 9 node jaringan (dihitung sekali, aman SSR). */
+const NODE_POS = NETWORK_NODES.map((code, i) => {
+  const angle = (i / NETWORK_NODES.length) * Math.PI * 2 - Math.PI / 2;
+  return { code, x: 50 + 41 * Math.cos(angle), y: 50 + 39 * Math.sin(angle) };
+});
+
+/* ---------- Hook ringan: viewport sekali (pemicu kelas .is-inview) ---------- */
+function useInViewOnce<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      // Fallback env tanpa IO: tampilkan animasi via rAF (hindari setState sinkron).
+      const raf = requestAnimationFrame(() => setInView(true));
+      return () => cancelAnimationFrame(raf);
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "-40px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return { ref, inView };
 }
 
-/* ================= HERO — Task 21 sinematik ala McKinsey ================= */
-function Hero() {
-  const { t, locale } = useT();
-  const ref = useRef<HTMLElement | null>(null);
-
-  /* Parallax: konten naik & memudar, latar bergeser lebih lambat saat digulir */
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, 90]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "16%"]);
-
-  /* Marquee MUDAH. MURAH. AMANAH. — dua paritan identik utk loop mulus */
-  const MOTTO_KEYS = ["motto1", "motto2", "motto3"] as const;
-  const marqueeSeq = Array.from({ length: 3 }, () => MOTTO_KEYS).flat();
-
+/* ================= S01 — HERO ================= */
+function HeroSection() {
+  const { t } = useT();
   return (
-    <section ref={ref} className="relative overflow-hidden">
-      {/* Latar: Ken Burns sinematik + parallax lembut */}
-      <motion.div className="absolute inset-0" style={{ y: bgY }}>
+    <section
+      aria-label={t("nusHome.aria.hero")}
+      className="relative overflow-hidden bg-gradient-to-br from-forest-deep via-forest-deep to-forest"
+    >
+      {/* Latar foto Kaaba + overlay forest gelap → transparan (gradient jadi fallback) */}
+      <div className="absolute inset-0">
         <img
           src="/images/hero-kaaba.jpg"
-          alt={t("home.hero.imgAlt")}
-          className="animate-ken-burns h-full w-full object-cover bg-gradient-to-br from-forest-deep to-forest"
+          alt={t("nusHome.hero.imgAlt")}
+          className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/90 via-forest-deep/75 to-forest-deep/95" />
-        <div className="absolute inset-0 bg-islamic-pattern-gold opacity-60" />
-      </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/95 via-forest-deep/70 to-forest-deep/90" aria-hidden />
+        <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" aria-hidden />
+      </div>
 
-      <motion.div
-        style={{ y: contentY, opacity: contentOpacity }}
-        className="relative mx-auto max-w-7xl px-4 sm:px-6 py-24 sm:py-32 lg:py-36"
-      >
-        <div className="max-w-3xl">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: EASE }}
-          >
-            <Badge className="mb-5 bg-gold/20 text-gold-soft border border-gold/40 hover:bg-gold/30 hover:text-gold-soft px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-semibold tracking-wide max-w-full">
-              <Icon name="sparkles" className="h-3.5 w-3.5 mr-1.5 shrink-0" />
-              <span className="truncate">{t("home.hero.badge")}</span>
-            </Badge>
-          </motion.div>
+      <div className="relative mx-auto max-w-5xl px-4 py-20 text-center sm:px-6 sm:py-28">
+        <Reveal>
+          <Badge className="border border-gold/40 bg-gold/15 px-4 py-1.5 text-[10px] font-bold tracking-[0.25em] text-gold-soft sm:text-xs">
+            {BRAND.positioning.toUpperCase()}
+          </Badge>
+        </Reveal>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 44, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.9, delay: 0.12, ease: EASE }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-white"
-          >
-            {t("home.hero.title1")}{" "}
-            <span className="text-gold-gradient">{t("home.hero.titleGold")}</span>{" "}
-            {t("home.hero.title2")}
-          </motion.h1>
+        <Reveal delay={0.08}>
+          <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-white sm:text-6xl">
+            {BRAND.fullName}
+          </h1>
+        </Reveal>
 
-          {/* Task 21 — SYURGA TRAVEL · PELAYAN TAMU ALLAH (menggantikan kalimat motto) */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.34, ease: EASE }}
-            className="mt-7"
-          >
-            <p className="text-2xl sm:text-3xl lg:text-[2.6rem] font-black leading-tight tracking-[0.02em] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
-              {t("home.hero.brandName")}
-            </p>
-            <p className="mt-2 flex items-center gap-3 text-lg sm:text-xl lg:text-2xl font-extrabold">
-              <span
-                aria-hidden
-                className="h-px w-10 shrink-0 bg-gradient-to-r from-gold to-transparent rtl:bg-gradient-to-l"
-              />
-              <span className="text-gold-gradient">{t("home.hero.brandTag")}</span>
-            </p>
-          </motion.div>
+        <Reveal delay={0.14}>
+          <p className="mt-4 text-base font-semibold italic text-gold sm:text-lg">
+            {BRAND.taglineEn}
+          </p>
+        </Reveal>
 
-          {/* Task 21 — MUDAH. MURAH. AMANAH. teks berjalan agar mudah dibaca */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.46, ease: EASE }}
-            className="mt-7 max-w-xl"
-          >
-            <p className="sr-only">{t("home.hero.mottoAria")}</p>
-            <div
-              aria-hidden="true"
-              dir="ltr"
-              className="marquee-hover-pause marquee-mask relative overflow-hidden rounded-2xl border border-gold/25 bg-forest-deep/50 py-3.5 backdrop-blur-md"
-            >
-              <div
-                className="animate-marquee flex w-max items-center"
-                style={{ "--marquee-duration": "22s" } as React.CSSProperties}
-              >
-                {[0, 1].map((copy) => (
-                  <div key={copy} className="flex items-center">
-                    {marqueeSeq.map((k, i) => (
-                      <span key={`${copy}-${i}`} className="flex items-center whitespace-nowrap">
-                        <span className="px-5 text-base sm:text-lg font-extrabold tracking-[0.16em] text-white">
-                          {t(`home.hero.${k}`)}
-                        </span>
-                        <span className="text-sm text-gold">✦</span>
-                      </span>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+        <Reveal delay={0.2}>
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-emerald-100/85 sm:text-base">
+            {t("nusHome.hero.subtitle")}
+          </p>
+        </Reveal>
 
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.56, ease: EASE }}
-            className="mt-6 text-lg text-emerald-50/85 leading-relaxed max-w-2xl"
-          >
-            {t("home.hero.subtitle")}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.66, ease: EASE }}
-            className="mt-8 flex flex-wrap gap-3"
-          >
+        <Reveal delay={0.26}>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
               size="lg"
-              onClick={() => navigate("ekosistem")}
-              className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold shadow-xl hover:brightness-105 h-12 px-7 text-base"
+              onClick={() => navigate("daftar")}
+              className="h-12 w-full bg-gold px-8 text-sm font-extrabold tracking-widest text-forest-deep hover:bg-gold-soft sm:w-auto"
             >
-              {t("home.hero.ctaEcosystems")}
-              <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
+              {t("nusHome.hero.ctaPrimary")}
+              <Icon name="arrow-right" className="ms-2 h-4 w-4 icon-flip" />
             </Button>
             <Button
               size="lg"
               variant="outline"
-              onClick={() => navigate("anggota")}
-              className="bg-transparent border-emerald-100/40 text-white hover:bg-white/10 hover:text-white h-12 px-7 text-base"
+              onClick={() => navigate("ekosistem")}
+              className="h-12 w-full border-gold/50 bg-white/5 px-8 text-sm font-bold tracking-widest text-white hover:border-gold hover:bg-white/10 hover:text-gold sm:w-auto"
             >
-              <Icon name="shield-check" className="h-4 w-4 me-2" />
-              {t("home.hero.ctaVerify")}
+              {t("nusHome.hero.ctaSecondary")}
             </Button>
-          </motion.div>
-        </div>
+          </div>
+        </Reveal>
 
-        {/* Floating stats — CountUp sinematik dgn cascade premium */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8, ease: EASE }}
-          className="mt-14"
-        >
-          <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" stagger={0.1}>
-            {HERO_STATS.map((s) => (
-              <StaggerItem key={s.k}>
-                <div className="h-full rounded-2xl border border-white/15 bg-forest-deep/40 backdrop-blur-md p-4 sm:p-5 flex items-center gap-3.5">
-                  <div className="h-11 w-11 shrink-0 rounded-xl bg-gold/20 grid place-items-center text-gold">
-                    <Icon name={s.icon} className="h-5.5 w-5.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xl sm:text-2xl font-extrabold text-white leading-none whitespace-nowrap">
-                      {s.num != null ? (
-                        <CountUp value={s.num} suffix={s.suffix ?? ""} locale={locale} />
-                      ) : (
-                        t(`home.stats.${s.k}.value`)
+        {/* Alur ekosistem animasi: 5 node + konektor "pulse mengalir" */}
+        <div className="mt-14 sm:mt-16">
+          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-soft/80">
+            {t("nusHome.hero.flowTitle")}
+          </p>
+          <div className="mx-auto mt-5 flex max-w-3xl flex-col items-center gap-1 md:flex-row md:justify-between md:gap-0">
+            {HERO_FLOW.map((code, i) => {
+              const meta = FLOW_META[code];
+              const isHub = code === "MUHDIN";
+              return (
+                <Fragment key={code}>
+                  <div className="flex flex-col items-center gap-2">
+                    <div
+                      className={cn(
+                        "nus-float flex h-14 w-14 items-center justify-center border backdrop-blur-sm sm:h-16 sm:w-16",
+                        isHub
+                          ? "nus-glow rounded-full border-gold/60 bg-gold/15 text-gold"
+                          : "rounded-2xl border-white/15 bg-white/5 text-emerald-100"
                       )}
+                      style={{ animationDelay: `${i * 0.4}s` }}
+                    >
+                      <Icon name={meta.icon} className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} />
                     </div>
-                    <div className="text-[11px] sm:text-xs text-emerald-100/70 mt-1.5">
-                      {t(`home.stats.${s.k}.label`)}
-                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-100/80 sm:text-[11px]">
+                      {t(`nusHome.hero.flow.${meta.key}`)}
+                    </span>
                   </div>
-                </div>
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </motion.div>
-      </motion.div>
-
-      {/* Petunjuk gulir — chevron menetes lembut */}
-      <div
-        aria-hidden
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 hidden md:block text-gold/80"
-      >
-        <Icon name="chevron-down" className="animate-scroll-hint h-6 w-6" />
+                  {i < HERO_FLOW.length - 1 && (
+                    <span
+                      aria-hidden
+                      className="nus-connector block h-8 w-[2px] shrink-0 md:h-[2px] md:w-12 lg:w-16"
+                    />
+                  )}
+                </Fragment>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-/* ================= NUSUK LIVE STRIP ================= */
-function NusukLiveStrip() {
-  const { t, locale } = useT();
-  const [data, setData] = useState<NusukPublicData | null>(null);
-
-  useEffect(() => {
-    apiGet<NusukPublicData>(`/api/nusuk/public?locale=${locale}`).then(setData).catch(() => {});
-  }, [locale]);
-
-  if (!data) return null;
-
+/* ================= S02 — THE IDEA ================= */
+function IdeaSection() {
+  const { t } = useT();
   return (
-    <section aria-label={t("home.nusukLive.aria")} className="border-b bg-mint/30 dark:bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5">
-        <Reveal>
-          <div className="glass rounded-2xl border border-border/60 shadow-sm p-4 sm:px-5 flex flex-col lg:flex-row lg:items-center gap-3.5">
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="relative flex h-3 w-3" aria-hidden="true">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
-              </span>
-              <div className="leading-tight">
-                <p className="font-bold text-sm">{t("home.nusukLive.label")}</p>
-                <p className="text-[11px] text-muted-foreground">{t("home.nusukLive.sub")}</p>
+    <section aria-label={t("nusHome.aria.idea")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("nusHome.idea.eyebrow")}
+          title={t("nusHome.idea.title")}
+          subtitle={t("nusHome.idea.sub")}
+        />
+        <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>
+          {PILLARS.map((code) => {
+            const meta = PILLAR_META[code];
+            return (
+              <StaggerItem key={code} className="h-full">
+                <div className="nus-pillar group h-full rounded-2xl border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/50 hover:shadow-xl">
+                  <div className="nus-pillar-icon flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-gold/15 group-hover:text-gold-deep">
+                    <Icon name={meta.icon} className="h-5 w-5" strokeWidth={1.8} />
+                  </div>
+                  <h3 className="mt-4 text-sm font-extrabold uppercase tracking-[0.18em] text-foreground">
+                    {t(`nusHome.idea.pillars.${meta.key}.label`)}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {t(`nusHome.idea.pillars.${meta.key}.desc`)}
+                  </p>
+                </div>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S03 — ECOSYSTEM (14 kategori keanggotaan) ================= */
+function EcosystemSection() {
+  const { t } = useT();
+  return (
+    <section
+      aria-label={t("nusHome.aria.ecosystem")}
+      className="bg-mint/30 py-16 sm:py-24 dark:bg-muted/30"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("nusHome.eco.eyebrow")}
+          title={t("nusHome.eco.title")}
+          subtitle={t("nusHome.eco.sub")}
+        />
+        <Stagger
+          className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5"
+          stagger={0.045}
+        >
+          {ECOSYSTEM_CATEGORIES.map((cat) => {
+            const key = ECO_KEY[cat.code];
+            return (
+              <StaggerItem key={cat.code} className="h-full">
+                <div className="group flex h-full flex-col rounded-2xl border bg-card p-4 transition-all duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-lg">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-gold/15 group-hover:text-gold-deep">
+                    <Icon name={cat.icon} className="h-5 w-5" strokeWidth={1.8} />
+                  </div>
+                  <h3 className="mt-3 text-xs font-extrabold uppercase tracking-wide text-foreground sm:text-sm">
+                    {t(`nusHome.eco.items.${key}.name`)}
+                  </h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {t(`nusHome.eco.items.${key}.desc`)}
+                  </p>
+                  <button
+                    onClick={() => navigate("daftar")}
+                    className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-bold text-gold-deep transition-colors hover:text-primary"
+                    aria-label={`${t("nusHome.eco.cta")} — ${t(`nusHome.eco.items.${key}.name`)}`}
+                  >
+                    {t("nusHome.eco.cta")}
+                    <Icon name="arrow-right" className="h-3.5 w-3.5 icon-flip" />
+                  </button>
+                </div>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S04 — MUHDIN VERIFIED ================= */
+function VerifiedSection() {
+  const { t } = useT();
+  const { ref, inView } = useInViewOnce<HTMLDivElement>();
+  return (
+    <section aria-label={t("nusHome.aria.verified")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("nusHome.verified.eyebrow")}
+          title={t("nusHome.verified.title")}
+        />
+        <div className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+          {/* Badge animasi: cincin pulse + centang stroke-draw */}
+          <Reveal className="flex justify-center">
+            <div ref={ref} className={cn("nus-verified flex flex-col items-center", inView && "is-inview")}>
+              <div className="relative flex h-44 w-44 items-center justify-center">
+                <span aria-hidden className="nus-ring absolute inset-0 rounded-full border-2 border-gold/50" />
+                <span aria-hidden className="nus-ring nus-ring-2 absolute inset-0 rounded-full border-2 border-gold/30" />
+                <div className="nus-glow flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-gold-soft via-gold to-gold-deep shadow-xl">
+                  <Icon name="shield-check" className="h-14 w-14 text-forest-deep" strokeWidth={1.6} />
+                </div>
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                  className="absolute bottom-0 end-0 h-11 w-11 rounded-full bg-forest-deep p-2 shadow-lg"
+                  fill="none"
+                  stroke="oklch(0.84 0.09 90)"
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path className="nus-check-path" d="M4 12.5l5 5L20 7" />
+                </svg>
               </div>
+              <p className="mt-5 text-lg font-extrabold tracking-[0.18em] text-foreground">
+                {t("nusHome.verified.badge")}
+              </p>
             </div>
-            <div className="hidden lg:block h-9 w-px bg-border shrink-0" aria-hidden="true" />
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold",
-                  data.connection.environment === "SANDBOX"
-                    ? "border-gold/50 bg-gold/10 text-gold-deep"
-                    : "border-primary/40 bg-primary/10 text-primary"
-                )}
+          </Reveal>
+
+          {/* Penjelasan + panel BUKAN + disclaimer */}
+          <Reveal delay={0.1}>
+            <div>
+              <p className="text-base leading-relaxed text-foreground/85 sm:text-lg">
+                {t("nusHome.verified.meaning")}
+              </p>
+              <Button
+                onClick={() => navigate("anggota/verifikasi")}
+                className="mt-5 h-11 bg-primary px-6 font-bold text-primary-foreground hover:bg-primary/90"
               >
-                <Icon name="keyround" className="h-3 w-3 shrink-0" />
-                {data.connection.environment}
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 text-[11px] font-semibold text-primary">
-                <Icon name="shield-check" className="h-3 w-3 shrink-0" />
-                {t("home.nusukLive.izinAktif", { n: formatNumberL10n(data.metrics.permitsActive, locale) })}
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                <Icon name="timer" className="h-3 w-3 shrink-0 text-gold-deep" />
-                {t("home.nusukLive.sinkronTerakhir", {
-                  time: timeAgoL10n(data.connection.lastSyncAt, t, locale),
-                })}
-              </span>
+                <Icon name="search" className="me-2 h-4 w-4" />
+                {t("nusHome.verified.cta")}
+              </Button>
+
+              <div className="mt-7 rounded-2xl border border-destructive/20 bg-destructive/5 p-5">
+                <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.2em] text-destructive">
+                  <Icon name="ban" className="h-4 w-4" />
+                  {t("nusHome.verified.notTitle")}
+                </p>
+                <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                  {NOT_KEYS.map((k) => (
+                    <li key={k} className="flex items-start gap-2 text-sm text-foreground/85">
+                      <Icon name="ban" className="mt-0.5 h-4 w-4 shrink-0 text-destructive/80" />
+                      {t(`nusHome.verified.not.${k}`)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                {t("nusHome.verified.disclaimer")}
+              </p>
             </div>
-            <Button
-              size="sm"
-              onClick={() => navigate("nusuk")}
-              aria-label={t("home.nusukLive.btnAria")}
-              className="lg:ms-auto shrink-0 bg-gradient-to-r from-primary to-forest text-white"
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S05 — HOW IT WORKS (timeline 7 langkah) ================= */
+function HowItWorksSection() {
+  const { t } = useT();
+  const { ref, inView } = useInViewOnce<HTMLDivElement>();
+  return (
+    <section
+      aria-label={t("nusHome.aria.how")}
+      className="bg-mint/30 py-16 sm:py-24 dark:bg-muted/30"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("nusHome.how.eyebrow")}
+          title={t("nusHome.how.title")}
+          subtitle={t("nusHome.how.sub")}
+        />
+        <div ref={ref} className={cn("relative mt-12 md:pb-12", inView && "nus-inview")}>
+          {/* Garis dasar + garis progres (vertikal HP, horizontal desktop) */}
+          <span
+            aria-hidden
+            className="absolute bottom-2 start-[27px] top-2 w-[2px] rounded-full bg-border md:bottom-auto md:start-0 md:top-7 md:h-[2px] md:w-full"
+          />
+          <span
+            aria-hidden
+            className="nus-vprogress absolute bottom-2 start-[27px] top-2 w-[2px] rounded-full bg-gradient-to-b from-gold via-gold-soft to-gold md:bottom-auto md:start-0 md:top-7 md:h-[2px] md:w-full md:bg-gradient-to-r md:from-gold md:via-gold-soft md:to-gold rtl:md:bg-gradient-to-l"
+          />
+          <ol className="relative space-y-10 md:grid md:grid-cols-7 md:gap-4 md:space-y-0">
+            {ONBOARDING_STEPS.map((code, i) => {
+              const meta = STEP_META[code];
+              return (
+                <li key={code} className="relative flex gap-4 md:flex-col md:items-center md:gap-0 md:text-center">
+                  <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-gold/50 bg-card shadow-sm">
+                    <span className="text-sm font-extrabold text-gold-deep">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <div className={cn("flex-1 pt-1 md:pt-5", i % 2 === 1 && "md:translate-y-8")}>
+                    <div className="flex items-center gap-2 md:flex-col md:items-center md:gap-1.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary md:bg-gold/10 md:text-gold-deep">
+                        <Icon name={meta.icon} className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <h3 className="text-sm font-bold text-foreground">
+                        {t(`nusHome.how.steps.${meta.key}.title`)}
+                      </h3>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      {t(`nusHome.how.steps.${meta.key}.desc`)}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S06 — MUHDIN NETWORK ================= */
+function NetworkSection() {
+  const { t } = useT();
+  return (
+    <section
+      aria-label={t("nusHome.aria.network")}
+      className="relative overflow-hidden bg-forest-deep py-16 sm:py-24"
+    >
+      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" aria-hidden />
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          light
+          eyebrow={t("nusHome.network.eyebrow")}
+          title={t("nusHome.network.title")}
+          subtitle={t("nusHome.network.sub")}
+        />
+
+        {/* Desktop ≥md: radial absolut — node pusat + 9 node + garis SVG "data mengalir" */}
+        <div className="relative mx-auto mt-14 hidden h-[440px] w-full max-w-2xl md:block lg:h-[480px]">
+          <svg
+            className="absolute inset-0 h-full w-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden
+          >
+            {NODE_POS.map(({ code, x, y }) => (
+              <line
+                key={code}
+                x1="50"
+                y1="50"
+                x2={x}
+                y2={y}
+                className="nus-netline"
+                stroke="oklch(0.72 0.135 85 / 0.55)"
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+            ))}
+          </svg>
+
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="nus-glow flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-gold-soft via-gold to-gold-deep shadow-2xl">
+              <Icon name="hexagon" className="h-10 w-10 text-forest-deep" strokeWidth={1.8} />
+            </div>
+            <p className="mt-2 text-center text-xs font-extrabold tracking-[0.25em] text-gold">
+              {t("nusHome.network.center")}
+            </p>
+          </div>
+
+          {NODE_POS.map(({ code, x, y }, i) => (
+            <div
+              key={code}
+              className="absolute w-20 -translate-x-1/2 -translate-y-1/2"
+              style={{ left: `${x}%`, top: `${y}%` }}
             >
-              {t("home.nusukLive.btn")}
-              <Icon name="arrow-right" className="h-4 w-4 ms-1.5 icon-flip" />
+              <div
+                className="nus-float mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-gold/30 bg-white/5 text-gold-soft backdrop-blur-sm"
+                style={{ animationDelay: `${i * 0.45}s` }}
+              >
+                <Icon name={NODE_META[code]} className="h-6 w-6" strokeWidth={1.7} />
+              </div>
+              <p className="mt-1.5 text-center text-[10px] font-bold tracking-wider text-emerald-100/75">
+                {t(`nusHome.network.nodes.${NODE_KEY[code]}`)}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile <md: MUHDIN di atas + grid 3x3 dengan garis konektor dekoratif */}
+        <div className="mt-10 md:hidden">
+          <div className="flex flex-col items-center">
+            <div className="nus-glow flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-gold-soft via-gold to-gold-deep shadow-xl">
+              <Icon name="hexagon" className="h-9 w-9 text-forest-deep" strokeWidth={1.8} />
+            </div>
+            <p className="mt-2 text-xs font-extrabold tracking-[0.25em] text-gold">
+              {t("nusHome.network.center")}
+            </p>
+            <span aria-hidden className="nus-connector mt-3 block h-8 w-[2px]" />
+          </div>
+          <div className="relative mt-3">
+            <span
+              aria-hidden
+              className="absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 bg-gradient-to-b from-transparent via-gold/25 to-transparent"
+            />
+            <span
+              aria-hidden
+              className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-gradient-to-r from-transparent via-gold/25 to-transparent"
+            />
+            <ul className="relative grid grid-cols-3 gap-3">
+              {NETWORK_NODES.map((code) => (
+                <li
+                  key={code}
+                  className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-center backdrop-blur-sm"
+                >
+                  <Icon name={NODE_META[code]} className="h-5 w-5 text-gold-soft" strokeWidth={1.7} />
+                  <span className="text-[10px] font-bold tracking-wide text-emerald-100/75">
+                    {t(`nusHome.network.nodes.${NODE_KEY[code]}`)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S07 — FOUNDING ECOSYSTEM 2026 ================= */
+function FoundingSection() {
+  const { t } = useT();
+  return (
+    <section aria-label={t("nusHome.aria.founding")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <Reveal>
+          <div className="relative overflow-hidden rounded-3xl border border-gold/50 bg-gradient-to-br from-forest-deep via-forest-deep to-forest p-8 text-center shadow-[0_0_80px_-20px_oklch(0.72_0.135_85/0.45)] sm:p-14">
+            <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" aria-hidden />
+            <div className="relative">
+              <Badge className="border border-gold/40 bg-gold/15 px-4 py-1.5 text-[10px] font-bold tracking-[0.3em] text-gold-soft sm:text-xs">
+                {t("nusHome.founding.badge")}
+              </Badge>
+              <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                {t("nusHome.founding.title")}
+              </h2>
+              <div className="gold-divider mx-auto mt-6 w-40" aria-hidden />
+              <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-emerald-100/85 sm:text-base">
+                {t("nusHome.founding.message")}
+              </p>
+              <Button
+                size="lg"
+                onClick={() => navigate("daftar")}
+                className="mt-8 h-12 bg-gold px-8 text-sm font-extrabold tracking-widest text-forest-deep hover:bg-gold-soft"
+              >
+                {t("nusHome.founding.cta")}
+                <Icon name="arrow-right" className="ms-2 h-4 w-4 icon-flip" />
+              </Button>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S08 — MEMBERSHIP ================= */
+function MembershipSection() {
+  const { t } = useT();
+  return (
+    <section aria-label={t("nusHome.aria.membership")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("nusHome.membership.eyebrow")}
+          title={t("nusHome.membership.title")}
+          subtitle={t("nusHome.membership.sub")}
+        />
+        <Stagger
+          className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+          stagger={0.07}
+        >
+          {MEMBERSHIP_TIERS.map((tier) => {
+            const key = TIER_KEY[tier.code];
+            const popular = tier.code === "PPIU_PIHK";
+            return (
+              <StaggerItem key={tier.code} className="h-full">
+                <div
+                  className={cn(
+                    "relative flex h-full flex-col rounded-2xl border bg-card p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl",
+                    popular ? "border-gold shadow-[0_0_30px_-10px_oklch(0.72_0.135_85/0.5)] ring-2 ring-gold/60" : "hover:border-gold/40"
+                  )}
+                >
+                  {popular && (
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap border-none bg-gold px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-forest-deep">
+                      {t("nusHome.membership.popular")}
+                    </Badge>
+                  )}
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Icon name={tier.icon} className="h-5 w-5" strokeWidth={1.8} />
+                  </div>
+                  <h3 className="mt-4 text-sm font-extrabold uppercase tracking-wide text-foreground">
+                    {t(`nusHome.membership.tiers.${key}`)}
+                  </h3>
+                  <p className="mt-2">
+                    <span className="text-2xl font-extrabold tracking-tight text-foreground">
+                      {tier.price === "By Agreement" ? t("nusHome.membership.byAgreement") : tier.price}
+                    </span>
+                    {tier.period && (
+                      <span className="ms-1 text-xs text-muted-foreground">
+                        {t("nusHome.membership.perYear")}
+                      </span>
+                    )}
+                  </p>
+                  <ul className="mt-4 space-y-2 border-t pt-4">
+                    {["benefit1", "benefit2", "benefit3"].map((b) => (
+                      <li key={b} className="flex items-start gap-2 text-xs text-muted-foreground">
+                        <Icon name="check-circle-2" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-deep" />
+                        {t(`nusHome.membership.${b}`)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
+
+        {/* Footer wajib (ROLE 25) — klarifikasi iuran keanggotaan */}
+        <Reveal className="mt-10">
+          <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 rounded-2xl border bg-card p-5 text-start sm:flex-row sm:justify-between">
+            <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+              <Icon name="info" className="mt-0.5 h-4 w-4 shrink-0 text-gold-deep" />
+              {t("nusHome.membership.footer")}
+            </p>
+            <Button
+              onClick={() => navigate("daftar")}
+              className="shrink-0 bg-primary font-bold text-primary-foreground hover:bg-primary/90"
+            >
+              {t("nusHome.membership.cta")}
             </Button>
           </div>
         </Reveal>
@@ -326,139 +704,45 @@ function NusukLiveStrip() {
   );
 }
 
-/* ================= NUSUK BAR ================= */
-function NusukBar() {
+/* ================= S09 — ACADEMY ================= */
+function AcademySection() {
   const { t } = useT();
   return (
-    <section className="bg-primary text-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
-        <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="h-10 w-10 rounded-xl bg-gold grid place-items-center">
-              <Icon name="landmark" className="h-5 w-5 text-forest-deep" strokeWidth={2.4} />
-            </div>
-            <div className="leading-tight">
-              <p className="font-bold text-sm">{t("home.nusukBar.title")}</p>
-              <p className="text-[11px] text-emerald-50/90">{t("home.nusukBar.sub")}</p>
-            </div>
-          </div>
-          <div className="hidden lg:block h-10 w-px bg-white/20" />
-          <div className="flex flex-wrap justify-center gap-2">
-            {NUSUK_BAR_KEYS.map((k) => (
-              <span
-                key={k}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium"
-              >
-                <Icon name="check-circle-2" className="h-3.5 w-3.5 text-gold-soft" />
-                {t(`home.nusukBar.${k}`)}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ================= EKOSISTEM ================= */
-function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
-  const { t } = useT();
-  return (
-    <section className="py-20 bg-mint/30 dark:bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section
+      aria-label={t("nusHome.aria.academy")}
+      className="bg-mint/30 py-16 sm:py-24 dark:bg-muted/30"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow={t("home.ekosistem.eyebrow")}
-          title={t("home.ekosistem.title")}
-          subtitle={t("home.ekosistem.subtitle")}
+          eyebrow={t("nusHome.academy.eyebrow")}
+          title={t("nusHome.academy.title")}
+          subtitle={t("nusHome.academy.sub")}
         />
-        <div className="mt-14 space-y-10">
-          {CLUSTERS.map((cluster, ci) => {
-            const k = CLUSTER_KEYS[ci];
-            const items = ecosystems.filter((e) => e.cluster === cluster.name);
+        <Stagger className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-3 md:grid-cols-3" stagger={0.06}>
+          {ACADEMY_TOPICS.map((code) => {
+            const meta = TOPIC_META[code];
             return (
-              <div key={cluster.name}>
-                <Reveal className="flex items-center gap-3 mb-5">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
-                    <Icon name={cluster.icon} className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg leading-tight">{t(`home.klaster.${k}.name`)}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {t(`home.klaster.${k}.range`)} — {t(`home.klaster.${k}.desc`)}
-                    </p>
-                  </div>
-                </Reveal>
-                <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" stagger={0.06}>
-                  {items.map((e) => (
-                    <StaggerItem key={e.id}>
-                      <button
-                        onClick={() => navigate(`ekosistem/${e.number}`)}
-                        aria-label={`${e.name} — ${t("home.umum.selengkapnya")}`}
-                        className="group h-full w-full text-start rounded-2xl border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-forest grid place-items-center text-gold-soft shadow-md">
-                            <Icon name={e.icon} className="h-5 w-5" />
-                          </div>
-                          <span className="text-3xl font-extrabold text-primary/10 group-hover:text-gold/40 transition-colors">
-                            {String(e.number).padStart(2, "0")}
-                          </span>
-                        </div>
-                        <h4 className="mt-4 font-bold text-sm leading-snug">{e.name}</h4>
-                        <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2">{e.scope}</p>
-                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                          {t("home.umum.selengkapnya")} <Icon name="chevron-right" className="h-3 w-3 icon-flip" />
-                        </span>
-                      </button>
-                    </StaggerItem>
-                  ))}
-                </Stagger>
-              </div>
+              <StaggerItem key={code}>
+                <div className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-md">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 text-gold-deep transition-colors group-hover:bg-gold/20">
+                    <Icon name={meta.icon} className="h-4 w-4" strokeWidth={1.8} />
+                  </span>
+                  <span className="text-xs font-bold leading-snug text-foreground sm:text-sm">
+                    {t(`nusHome.academy.topics.${meta.key}`)}
+                  </span>
+                </div>
+              </StaggerItem>
             );
           })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ================= ALUR PERJALANAN PREVIEW ================= */
-function JourneySection({ steps }: { steps: JourneyStep[] }) {
-  const { t } = useT();
-  return (
-    <section className="py-20 bg-forest-deep text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          light
-          eyebrow={t("home.alur.eyebrow")}
-          title={t("home.alur.title")}
-          subtitle={t("home.alur.subtitle")}
-        />
-        <Stagger className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" stagger={0.05}>
-          {steps.slice(0, 8).map((s) => (
-            <StaggerItem key={s.id}>
-              <div className="h-full rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm hover:bg-white/10 hover:border-gold/40 transition-all">
-                <div className="flex items-center gap-3">
-                  <span className="h-9 w-9 shrink-0 rounded-full bg-gold text-forest-deep grid place-items-center font-extrabold text-sm">
-                    {s.step}
-                  </span>
-                  <Icon name={s.icon} className="h-4 w-4 text-gold" />
-                  <h4 className="font-semibold text-sm">{s.title}</h4>
-                </div>
-                <p className="mt-2.5 text-xs text-emerald-100/65 leading-relaxed line-clamp-2">{s.activity}</p>
-              </div>
-            </StaggerItem>
-          ))}
         </Stagger>
-        <Reveal className="mt-8 text-center">
+        <Reveal className="mt-9 text-center">
           <Button
             variant="outline"
-            onClick={() => navigate("alur")}
-            className="border-gold/50 text-gold hover:bg-gold hover:text-forest-deep"
+            onClick={() => navigate("tutorial")}
+            className="h-11 border-primary px-6 font-bold text-primary hover:bg-primary hover:text-primary-foreground"
           >
-            {t("home.alur.cta")}
-            <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
+            {t("nusHome.academy.cta")}
+            <Icon name="arrow-right" className="ms-2 h-4 w-4 icon-flip" />
           </Button>
         </Reveal>
       </div>
@@ -466,638 +750,186 @@ function JourneySection({ steps }: { steps: JourneyStep[] }) {
   );
 }
 
-/* ================= MITRA ================= */
-function PartnersSection() {
+/* ================= S10 — PARTNERSHIP ================= */
+function PartnershipSection() {
   const { t } = useT();
   return (
-    <section className="py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section
+      aria-label={t("nusHome.aria.partnership")}
+      className="relative overflow-hidden bg-forest-deep py-16 sm:py-24"
+    >
+      <div className="absolute inset-0 bg-islamic-pattern opacity-70" aria-hidden />
+      <div
+        className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/10 blur-3xl"
+        aria-hidden
+      />
+      <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
         <SectionHeading
-          eyebrow={t("home.mitra.eyebrow")}
-          title={t("home.mitra.title")}
-          subtitle={t("home.mitra.subtitle")}
+          light
+          eyebrow={t("nusHome.partnership.eyebrow")}
+          title={t("nusHome.partnership.title")}
+          subtitle={t("nusHome.partnership.sub")}
         />
-        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" stagger={0.08}>
-          {PARTNERS.map((p, i) => {
-            const k = PARTNER_KEYS[i];
-            return (
-              <StaggerItem key={p.code}>
-                <div className="group h-full rounded-2xl border bg-card p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-gold/50">
-                  <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold-soft shadow-md group-hover:scale-110 transition-transform">
-                    <Icon name={p.icon} className="h-7 w-7" />
-                  </div>
-                  <h3 className="mt-4 font-extrabold text-primary tracking-wide">{t(`home.mitra.${k}.name`)}</h3>
-                  <p className="mt-1 text-[11px] font-semibold text-foreground/80 uppercase tracking-wide">
-                    {t(`home.mitra.${k}.fullName`)}
-                  </p>
-                  <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{t(`home.mitra.${k}.role`)}</p>
-                </div>
-              </StaggerItem>
-            );
-          })}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-/* ================= NILAI UTAMA ================= */
-function ValuesSection() {
-  const { t } = useT();
-  return (
-    <section className="py-20 bg-mint/30 dark:bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          eyebrow={t("home.nilai.eyebrow")}
-          title={t("home.nilai.title")}
-          subtitle={t("home.nilai.subtitle")}
-        />
-        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" stagger={0.08}>
-          {CORE_VALUES.map((v, i) => {
-            const k = VALUE_KEYS[i];
-            return (
-              <StaggerItem key={k}>
-                <div className="h-full rounded-2xl border bg-card p-6 shadow-sm hover:shadow-lg transition-shadow">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold-deep">
-                      <Icon name={v.icon} className="h-5 w-5" />
-                    </div>
-                    <h3 className="font-extrabold">{t(`home.nilai.${k}.name`)}</h3>
-                  </div>
-                  <p className="mt-3.5 text-xs text-muted-foreground leading-relaxed">
-                    {t(`home.nilai.${k}.meaning`)}
-                  </p>
-                </div>
-              </StaggerItem>
-            );
-          })}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-/* ================= TEKNOLOGI ================= */
-function TechSection() {
-  const { t } = useT();
-  return (
-    <section className="py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <SectionHeading
-            align="left"
-            eyebrow={t("home.teknologi.eyebrow")}
-            title={t("home.teknologi.title")}
-            subtitle={t("home.teknologi.subtitle")}
-          />
-          <Reveal delay={0.15} className="mt-6 flex flex-wrap gap-2">
-            {PRIVACY_KEYS.map((k) => (
-              <Badge key={k} variant="secondary" className="text-xs">
-                <Icon name="shield-check" className="h-3 w-3 mr-1 text-primary" />
-                {t(`home.teknologi.${k}`)}
-              </Badge>
-            ))}
-          </Reveal>
-        </div>
-        <Stagger className="grid gap-3.5 sm:grid-cols-2" stagger={0.07}>
-          {TECH_PILLARS.map((p, i) => {
-            const k = PILLAR_KEYS[i];
-            return (
-              <StaggerItem key={k}>
-                <div className="h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
-                    <Icon name={p.icon} className="h-5 w-5" />
-                  </div>
-                  <h4 className="mt-3 font-bold text-sm">{t(`home.teknologi.${k}.name`)}</h4>
-                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                    {t(`home.teknologi.${k}.desc`)}
-                  </p>
-                </div>
-              </StaggerItem>
-            );
-          })}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-/* ================= ROADMAP ================= */
-function RoadmapSection({ roadmap }: { roadmap: Roadmap[] }) {
-  const { t } = useT();
-  return (
-    <section className="py-20 bg-mint/30 dark:bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          eyebrow={t("home.roadmap.eyebrow")}
-          title={t("home.roadmap.title")}
-          subtitle={t("home.roadmap.subtitle")}
-        />
-        <Stagger className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4" stagger={0.09}>
-          {roadmap.map((r, i) => (
-            <StaggerItem key={r.id}>
-              <div className="relative h-full rounded-2xl border bg-card p-6 shadow-sm overflow-hidden">
-                <span aria-hidden className="absolute -right-3 -top-4 text-7xl font-extrabold text-primary/5 select-none">
-                  {i + 1}
-                </span>
-                <Badge className="bg-gold/15 text-gold-deep border-gold/30 hover:bg-gold/25">{r.period}</Badge>
-                <h3 className="mt-3 font-extrabold text-primary">{r.phase}</h3>
-                <p className="mt-1 text-xs font-semibold text-foreground/70">{r.focus}</p>
-                <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{r.deliverables}</p>
-              </div>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-/* ================= MANFAAT ================= */
-function BenefitsSection() {
-  const { t } = useT();
-  return (
-    <section className="py-16 bg-primary text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" />
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl font-extrabold">{t("home.manfaat.title")}</h2>
-          <div className="gold-divider w-40 mx-auto mt-4" />
-        </div>
-        <Stagger className="mt-8 flex flex-wrap justify-center gap-2.5" stagger={0.04}>
-          {BENEFIT_KEYS.map((k) => (
-            <StaggerItem key={k}>
-              <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-white/5 px-4 py-2 text-sm font-medium backdrop-blur-sm">
-                <Icon name="check-circle-2" className="h-4 w-4 text-gold-soft" />
-                {t(`home.manfaat.${k}`)}
-              </span>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-/* ================= TESTIMONI ================= */
-function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
-  const { t } = useT();
-  if (!testimonials.length) return null;
-  return (
-    <section className="py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          eyebrow={t("home.testimoni.eyebrow")}
-          title={t("home.testimoni.title")}
-          subtitle={t("home.testimoni.subtitle")}
-        />
-        <Stagger className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3" stagger={0.08}>
-          {testimonials.slice(0, 6).map((item) => (
-            <StaggerItem key={item.id}>
-              <div className="h-full rounded-2xl border bg-card p-6 shadow-sm flex flex-col">
-                <Icon name="quote" className="h-7 w-7 text-gold/60" />
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{item.content}&rdquo;</p>
-                <div className="mt-5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-forest grid place-items-center text-white font-bold text-sm">
-                      {item.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.role}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: item.rating }).map((_, s) => (
-                      <Icon key={s} name="star" className="h-3.5 w-3.5 fill-gold-deep text-gold-deep" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-/* ================= BERITA TERBARU ================= */
-function LatestNews({ articles }: { articles: Article[] }) {
-  const { t, locale } = useT();
-  if (!articles.length) return null;
-  return (
-    <section className="py-20 bg-mint/30 dark:bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex items-end justify-between gap-4">
-          <SectionHeading
-            align="left"
-            eyebrow={t("home.berita.eyebrow")}
-            title={t("home.berita.title")}
-          />
-          <Reveal>
-            <Button variant="ghost" onClick={() => navigate("berita")} className="hidden sm:inline-flex text-primary">
-              {t("home.berita.semua")} <Icon name="arrow-right" className="h-4 w-4 ms-1 icon-flip" />
-            </Button>
-          </Reveal>
-        </div>
-        <Stagger className="mt-10 grid gap-5 md:grid-cols-3" stagger={0.09}>
-          {articles.map((a) => (
-            <StaggerItem key={a.id}>
-              <button
-                onClick={() => navigate(`berita/${a.slug}`)}
-                className="group h-full w-full text-start rounded-2xl border bg-card overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
-                <div className="relative h-44 overflow-hidden">
-                  { }
-                  <img
-                    src={a.cover || "/images/hero-kaaba.jpg"}
-                    alt={a.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <Badge className="absolute top-3 start-3 bg-forest-deep text-gold-soft border-none">
-                    {a.category}
-                  </Badge>
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Icon name="calendar" className="h-3.5 w-3.5" />
-                    {formatDateL10n(a.createdAt, locale)}
-                  </div>
-                  <h3 className="mt-2 font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                    {a.title}
-                  </h3>
-                  <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{a.excerpt}</p>
-                </div>
-              </button>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-/* ================= CTA ================= */
-function JoinCTA() {
-  const { t } = useT();
-  return (
-    <section className="py-20">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <Reveal>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-forest-deep via-forest-deep to-forest p-10 sm:p-14 text-center shadow-2xl">
-            <div className="absolute inset-0 bg-islamic-pattern-gold opacity-50" />
-            <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-gold/20 blur-3xl animate-float-soft" />
-            <div className="relative">
-              <p className="font-arabic text-2xl text-gold" dir="rtl">{BRAND.arabic}</p>
-              <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-white leading-tight">
-                {t("home.cta.title1")}<br />
-                <span className="text-gold-gradient">{t("home.cta.titleGold")}</span>
-              </h2>
-              <p className="mt-4 text-emerald-50/85 max-w-2xl mx-auto">
-                {t("home.cta.body")}
-              </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button
-                  size="lg"
-                  onClick={() => navigate("gabung")}
-                  className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold h-12 px-8 hover:brightness-105"
-                >
-                  <Icon name="handshake" className="h-5 w-5 me-2" />
-                  {t("home.cta.btnDaftar")}
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => navigate("kontak")}
-                  className="border-white/30 text-white hover:bg-white/10 h-12 px-8"
-                >
-                  {t("home.cta.btnKontak")}
-                </Button>
-              </div>
-            </div>
-          </div>
+        <Reveal className="mt-9">
+          <Button
+            size="lg"
+            onClick={() => navigate("daftar")}
+            className="h-12 bg-gold px-8 text-sm font-extrabold tracking-widest text-forest-deep hover:bg-gold-soft"
+          >
+            {t("nusHome.partnership.cta")}
+            <Icon name="handshake" className="ms-2 h-4 w-4" />
+          </Button>
         </Reveal>
       </div>
     </section>
   );
 }
 
-/* ================= AIRLINES GLOBAL — Task 23 ================= */
-function AirlineChip({ a }: { a: Airline }) {
-  return (
-    <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card py-2 ps-2 pe-3.5 shadow-sm">
-      <img
-        src={airlineLogo(a.code)}
-        alt={a.name}
-        width={36}
-        height={36}
-        loading="lazy"
-        className="h-9 w-9 shrink-0 rounded-lg bg-white object-contain p-0.5"
-      />
-      <div className="leading-tight">
-        <p className="whitespace-nowrap text-xs font-bold text-foreground">{a.name}</p>
-        <p className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold tracking-[0.12em] text-muted-foreground">
-          <Icon name="plane" className="h-2.5 w-2.5 text-gold-deep" />
-          {a.code} · SAUDI
-        </p>
-      </div>
-    </div>
-  );
-}
+/* ================= NEWS STRIP (sebelum S11) ================= */
+function NewsSection() {
+  const { t, locale } = useT();
+  const [articles, setArticles] = useState<Article[] | null>(null);
 
-function AirlineRow({
-  airlines,
-  regionKey,
-  duration,
-  reverse,
-}: {
-  airlines: Airline[];
-  regionKey: string;
-  duration: number;
-  reverse?: boolean;
-}) {
-  const { t } = useT();
+  useEffect(() => {
+    let alive = true;
+    apiGet<Article[]>("/api/articles?limit=3")
+      .then((data) => {
+        if (alive) setArticles(data);
+      })
+      .catch(() => {
+        if (alive) setArticles([]);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  /* Gagal / kosong → section hilang dengan anggun */
+  if (articles !== null && articles.length === 0) return null;
+
   return (
-    <div dir="ltr" className="marquee-hover-pause marquee-mask relative overflow-hidden">
-      <div
-        className={cn("animate-marquee flex w-max items-stretch", reverse && "animate-marquee-reverse")}
-        style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
-      >
-        {[0, 1].map((copy) => (
-          <div
-            key={copy}
-            aria-hidden={copy === 1}
-            className="flex items-stretch gap-3 pe-3"
-          >
-            <span className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-gold to-gold-soft px-4 text-[11px] font-extrabold uppercase tracking-[0.14em] text-forest-deep shadow-sm">
-              <Icon name="plane-takeoff" className="h-3.5 w-3.5" />
-              {t(`home.airlines.${regionKey}`)}
-            </span>
-            {airlines.map((a) => (
-              <AirlineChip key={`${copy}-${a.code}`} a={a} />
+    <section aria-label={t("nusHome.aria.news")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading eyebrow={t("nusHome.news.eyebrow")} title={t("nusHome.news.title")} />
+        {articles === null ? (
+          <div className="mt-10 grid gap-5 md:grid-cols-3" aria-hidden>
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="overflow-hidden rounded-2xl border bg-card">
+                <Skeleton className="h-40 w-full rounded-none" />
+                <div className="space-y-2 p-5">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              </div>
             ))}
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ================= DIREKTORI FILTER KAWASAN — pulihan Task 29 ================= */
-type RegionKey = "all" | "gcc" | "asia" | "africaEurope";
-
-function AirlinesDirectory() {
-  const { t } = useT();
-  const [region, setRegion] = useState<RegionKey>("all");
-
-  const regions: { key: RegionKey; label: string; list: Airline[] }[] = [
-    { key: "all", label: t("home.airlines.regionAll"), list: AIRLINES_ALL },
-    { key: "gcc", label: t("home.airlines.regionGcc"), list: AIRLINES_GCC },
-    { key: "asia", label: t("home.airlines.regionAsia"), list: AIRLINES_ASIA },
-    { key: "africaEurope", label: t("home.airlines.regionAfricaEurope"), list: AIRLINES_AFRICA_EUROPE },
-  ];
-  const active = regions.find((r) => r.key === region) ?? regions[0];
-
-  return (
-    <Reveal className="mt-12">
-      <div className="rounded-3xl border bg-card p-5 sm:p-7 shadow-sm">
-        <div className="flex flex-col items-start gap-1">
-          <h3 className="text-lg font-extrabold leading-tight">{t("home.airlines.filterTitle")}</h3>
-          <p className="text-xs text-muted-foreground">{t("home.airlines.filterSub")}</p>
-        </div>
-
-        {/* Chip filter kawasan ber-counter */}
-        <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t("home.airlines.filterTitle")}>
-          {regions.map((r) => {
-            const isActive = region === r.key;
-            return (
-              <button
-                key={r.key}
-                type="button"
-                onClick={() => setRegion(r.key)}
-                aria-pressed={isActive}
-                className={cn(
-                  "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition-all",
-                  isActive
-                    ? "border-transparent bg-gradient-to-r from-gold to-gold-soft text-forest-deep shadow-md"
-                    : "border-border bg-muted/40 text-foreground/75 hover:border-gold/40 hover:bg-gold/10 hover:text-gold-deep"
-                )}
-              >
-                {r.label}
-                <span
-                  className={cn(
-                    "grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-extrabold",
-                    isActive ? "bg-forest-deep/15 text-forest-deep" : "bg-primary/10 text-primary"
-                  )}
+        ) : (
+          <Stagger className="mt-10 grid gap-5 md:grid-cols-3" stagger={0.09}>
+            {articles.map((a) => (
+              <StaggerItem key={a.id} className="h-full">
+                <button
+                  onClick={() => navigate(`berita/${a.slug}`)}
+                  className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-card text-start shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gold/40 hover:shadow-xl"
                 >
-                  {r.list.length}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Grid hasil direktori — scroll vertikal */}
-        <p className="mt-5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground" aria-live="polite">
-          {t("home.airlines.resultCount", { n: active.list.length })}
-        </p>
-        <div
-          key={active.key}
-          className="mt-3 max-h-96 overflow-y-auto pe-1 scrollbar-thin"
-        >
-          <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" stagger={0.03}>
-            {active.list.map((a) => (
-              <StaggerItem key={a.code}>
-                <AirlineChip a={a} />
+                  <div className="relative h-40 overflow-hidden">
+                    <img
+                      src={a.cover || "/images/hero-kaaba.jpg"}
+                      alt={a.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <Badge className="absolute start-3 top-3 border-none bg-forest-deep/90 text-gold-soft">
+                      {a.category}
+                    </Badge>
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Icon name="calendar" className="h-3.5 w-3.5" />
+                      {formatDateL10n(a.createdAt, locale)}
+                    </div>
+                    <h3 className="mt-2 line-clamp-2 font-bold leading-snug transition-colors group-hover:text-primary">
+                      {a.title}
+                    </h3>
+                    <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{a.excerpt}</p>
+                    <span className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-bold text-gold-deep">
+                      {t("nusHome.news.readMore")}
+                      <Icon name="arrow-right" className="h-3.5 w-3.5 icon-flip" />
+                    </span>
+                  </div>
+                </button>
               </StaggerItem>
             ))}
           </Stagger>
-        </div>
+        )}
       </div>
-    </Reveal>
+    </section>
   );
 }
 
-function AirlinesSection() {
-  const { t, locale } = useT();
+/* ================= S11 — FINAL CTA ================= */
+function FinalCtaSection() {
+  const { t } = useT();
+  const buttons = [
+    { label: "b1", primary: true },
+    { label: "b2", primary: false },
+    { label: "b3", primary: false },
+    { label: "b4", primary: false },
+  ] as const;
   return (
-    <section aria-label={t("home.airlines.aria")} className="py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          eyebrow={t("home.airlines.eyebrow")}
-          title={t("home.airlines.title")}
-          subtitle={t("home.airlines.subtitle")}
-        />
-
-        {/* Statistik jaringan — CountUp sinematik */}
-        <Reveal className="mt-10">
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {AIRLINE_STATS.map((s) => (
-              <div
-                key={s.k}
-                className="flex items-center gap-3.5 rounded-2xl border bg-card p-4 shadow-sm"
+    <section
+      aria-label={t("nusHome.aria.final")}
+      className="relative overflow-hidden bg-gradient-to-b from-forest-deep to-forest py-16 sm:py-24"
+    >
+      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" aria-hidden />
+      <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
+        <Reveal>
+          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+            {t("nusHome.final.title")}
+          </h2>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <p className="mt-3 text-sm text-emerald-100/80 sm:text-base">{t("nusHome.final.sub")}</p>
+        </Reveal>
+        <Reveal delay={0.14}>
+          <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3">
+            {buttons.map(({ label, primary }) => (
+              <Button
+                key={label}
+                size="lg"
+                onClick={() => navigate("daftar")}
+                className={cn(
+                  "h-12 px-4 text-xs font-extrabold tracking-wider sm:text-sm",
+                  primary
+                    ? "bg-gold text-forest-deep hover:bg-gold-soft"
+                    : "border-white/30 bg-white/5 text-white hover:border-gold/60 hover:bg-white/10 hover:text-gold"
+                )}
               >
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold-deep">
-                  <Icon name={s.icon} className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <div className="whitespace-nowrap text-xl font-extrabold leading-none text-foreground sm:text-2xl">
-                    {s.num != null ? (
-                      <CountUp value={s.num} suffix={s.suffix ?? ""} locale={locale} />
-                    ) : (
-                      t(`home.airlines.${s.k}Value`)
-                    )}
-                  </div>
-                  <div className="mt-1.5 text-[11px] text-muted-foreground sm:text-xs">
-                    {t(`home.airlines.${s.k}`)}
-                  </div>
-                </div>
-              </div>
+                {t(`nusHome.final.${label}`)}
+              </Button>
             ))}
           </div>
-        </Reveal>
-
-        {/* Kartu unggulan — maskapai Indonesia */}
-        <Reveal className="mb-5 mt-12">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold-deep">
-              <Icon name="plane-takeoff" className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-extrabold leading-tight">{t("home.airlines.indonesiaTitle")}</h3>
-              <p className="text-xs text-muted-foreground">{t("home.airlines.indonesiaSub")}</p>
-            </div>
-          </div>
-        </Reveal>
-        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>
-          {AIRLINES_INDONESIA.map((a) => (
-            <StaggerItem key={a.code}>
-              <div className="group relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br from-forest-deep to-forest p-5 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <div aria-hidden className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
-                <div className="relative flex items-center gap-3.5">
-                  <img
-                    src={airlineLogo(a.code)}
-                    alt={a.name}
-                    width={56}
-                    height={56}
-                    loading="lazy"
-                    className="h-14 w-14 shrink-0 rounded-xl bg-white object-contain p-1 shadow-md transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate font-extrabold leading-tight">{a.name}</p>
-                    <span className="mt-1.5 inline-flex items-center rounded-full border border-gold/30 bg-gold/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.14em] text-gold-soft">
-                      IATA {a.code}
-                    </span>
-                  </div>
-                </div>
-                <p className="relative mt-3.5 flex items-center gap-1.5 text-[11px] text-emerald-100/80">
-                  <Icon name="map-pin" className="h-3 w-3 shrink-0 text-gold" />
-                  {t("home.airlines.routes")}
-                </p>
-              </div>
-            </StaggerItem>
-          ))}
-        </Stagger>
-
-        {/* Marquee tiga kawasan — arah berselang-seling, hover jeda */}
-        <div className="mt-12 space-y-4">
-          <AirlineRow airlines={AIRLINES_GCC} regionKey="regionGcc" duration={52} />
-          <AirlineRow airlines={AIRLINES_ASIA} regionKey="regionAsia" duration={64} reverse />
-          <AirlineRow airlines={AIRLINES_AFRICA_EUROPE} regionKey="regionAfricaEurope" duration={56} />
-        </div>
-
-        {/* Direktori filter kawasan — pulihan Task 29 */}
-        <AirlinesDirectory />
-
-        <Reveal className="mt-8">
-          <p className="flex items-start justify-center gap-2 text-center text-[11px] leading-relaxed text-muted-foreground">
-            <Icon name="info" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-deep" />
-            <span className="max-w-2xl">{t("home.airlines.note")}</span>
-          </p>
         </Reveal>
       </div>
     </section>
   );
 }
 
-/* ================= MAIN ================= */
+/* ================= HOME VIEW (dipakai muhdin-app.tsx) ================= */
 export function HomeView() {
-  const { t, locale } = useT();
-  const [data, setData] = useState<{
-    ecosystems: Ecosystem[];
-    steps: JourneyStep[];
-    roadmap: Roadmap[];
-    testimonials: Testimonial[];
-    articles: Article[];
-  } | null>(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    Promise.all([
-      apiGet<Ecosystem[]>(`/api/ecosystems?locale=${locale}`),
-      apiGet<JourneyStep[]>(`/api/journey?locale=${locale}`),
-      apiGet<Roadmap[]>(`/api/roadmap?locale=${locale}`),
-      apiGet<Testimonial[]>(`/api/testimonials?locale=${locale}`),
-      apiGet<Article[]>(`/api/articles?limit=3&locale=${locale}`),
-    ])
-      .then(([ecosystems, steps, roadmap, testimonials, articles]) =>
-        setData({ ecosystems, steps, roadmap, testimonials, articles })
-      )
-      .catch((e) => setError(e.message));
-  }, [locale]);
-
-  if (error) {
-    return (
-      <div className="py-24 text-center">
-        <Icon name="alert-triangle" className="h-10 w-10 mx-auto text-destructive" />
-        <p className="mt-3 text-muted-foreground">{error}</p>
-        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-          <Icon name="rotate" className="h-4 w-4 me-2" /> {t("home.umum.muatUlang")}
-        </Button>
-      </div>
-    );
-  }
-
-  if (!data) return <LoadingSkeleton />;
-
   return (
-    <div className={cn("flex flex-col")}>
-      <Hero />
-      <NusukLiveStrip />
-      <NusukBar />
-      <AirlinesSection />
-      <EcosystemSection ecosystems={data.ecosystems} />
-      <JourneySection steps={data.steps} />
-      <PartnersSection />
-      <ValuesSection />
-      <TechSection />
-      <RoadmapSection roadmap={data.roadmap} />
-      <BenefitsSection />
-      <TestimonialSection testimonials={data.testimonials} />
-      <LatestNews articles={data.articles} />
-      <JoinCTA />
-    </div>
-  );
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-6 pb-10">
-      <div className="h-[520px] w-full bg-forest-deep/90" />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-10">
-        <Skeleton className="h-8 w-72 mx-auto" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-40 rounded-2xl" />
-          ))}
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-2xl" />
-          ))}
-        </div>
-      </div>
+    <div>
+      <HeroSection />
+      <IdeaSection />
+      <EcosystemSection />
+      <VerifiedSection />
+      <HowItWorksSection />
+      <NetworkSection />
+      <FoundingSection />
+      <MembershipSection />
+      <AcademySection />
+      <PartnershipSection />
+      <NewsSection />
+      <FinalCtaSection />
     </div>
   );
 }

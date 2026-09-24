@@ -135,7 +135,7 @@ export function AdminDashboard({ onNavigate }: { onNavigate: (s: string) => void
                   outerRadius={85}
                   paddingAngle={3}
                 >
-                  {stats.memberByType.map((_, i) => (
+                  {(stats.memberByType ?? []).map((_, i) => (
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
@@ -144,7 +144,7 @@ export function AdminDashboard({ onNavigate }: { onNavigate: (s: string) => void
             </ResponsiveContainer>
           </div>
           <div className="flex flex-wrap justify-center gap-3 mt-1">
-            {stats.memberByType.map((m, i) => (
+            {(stats.memberByType ?? []).map((m, i) => (
               <span key={m.type} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
                 {m.type} ({m.count})

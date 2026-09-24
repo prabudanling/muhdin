@@ -45,9 +45,15 @@ export async function POST(req: NextRequest) {
   }
   try {
     const body = await req.json();
-    const required = ["orgName", "type", "contactName", "email", "phone", "city", "licenseNo"];
+    // Task 33 (ROLE 08) — No. izin hanya wajib untuk jenis berizin (PPIU/PIHK/KBIHU);
+    // peran individu/penyedia/teknologi/partner boleh tanpa nomor izin.
+    const LICENSED_TYPES = ["PPIU", "PIHK", "KBIHU"];
+    const required = ["orgName", "type", "contactName", "email", "phone", "city"];
     for (const f of required) {
       if (!String(body[f] || "").trim()) return fail(`Kolom ${f} wajib diisi.`);
+    }
+    if (LICENSED_TYPES.includes(String(body.type)) && !String(body.licenseNo || "").trim()) {
+      return fail("Kolom licenseNo wajib diisi untuk jenis PPIU/PIHK/KBIHU.");
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(body.email))) return fail("Format email tidak valid.");
     const ticketCode = await generateTicketCode();

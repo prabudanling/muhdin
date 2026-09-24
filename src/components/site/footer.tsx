@@ -483,6 +483,25 @@ export function Footer() {
       {/* 4 — Bar bawah */}
       <div className="relative border-t border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          {/* Task 33 — tautan legal & verifikasi (ROLE 21) */}
+          <nav
+            aria-label="Legal"
+            className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs sm:justify-start"
+          >
+            {[
+              ["anggota/verifikasi", "Verifikasi Mitra"],
+              ["privasi", "Kebijakan Privasi"],
+              ["syarat", "Syarat & Ketentuan"],
+            ].map(([path, label]) => (
+              <button
+                key={path}
+                onClick={() => go(path)}
+                className="text-emerald-100/60 outline-none transition-colors hover:text-gold focus-visible:text-gold"
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
           <div className="flex flex-col items-center justify-between gap-3 text-xs text-emerald-100/60 sm:flex-row">
             <p className="text-center sm:text-start">
               {t("footer.copyright", { year: new Date().getFullYear(), brand: BRAND.fullName })}

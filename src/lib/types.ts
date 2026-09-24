@@ -167,6 +167,7 @@ export interface AdminStats {
   testimonials: number;
   faqs: number;
   byCategory: { category: string; count: number }[];
+  memberByType?: { type: string; count: number }[]; // Task 33 — grup keanggotaan per jenis
   recentMessages: ContactMessage[];
   recentApplications: MembershipApplication[];
 }

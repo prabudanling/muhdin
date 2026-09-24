@@ -2,13 +2,18 @@
 
 export const BRAND = {
   name: "MUHDIN",
-  fullName: "Masyarakat Umroh Haji Digital Nusantara",
+  fullName: "MUHDIN NUSANTARA",
+  legalName: "Masyarakat Umroh Haji Digital Nusantara",
+  positioning: "Trusted Pilgrim Ecosystem",
   tagline: "Bersama Melayani Tamu Allah",
-  arabic: "لبيك اللهم لبيك",
+  taglineEn: "One Ecosystem. One Standard. One Trust. One Journey.",
+  taglineId: "Satu Ekosistem. Satu Standar. Satu Kepercayaan. Satu Perjalanan.",
+  arabic: "\u0644\u0628\u064a\u0643 \u0627\u0644\u0644\u0647\u0645 \u0644\u0628\u064a\u0643",
   arabicMeaning: "Labbaik Allahumma Labbaik",
   motto: "Melayani dengan Amanah, Profesional, Terstandar dan Penuh Keberkahan",
   connecting: "Connecting Indonesia to The Holy Journey",
-  edition: "Asosiasi di Atas Asosiasi Penyelenggara Ibadah — Operator Nusuk Indonesia",
+  // ROLE 25 (Compliance): tanpa klaim "Operator Nusuk"/endorsement pemerintah.
+  edition: "Ekosistem Penyelenggaraan Ibadah Terpercaya — Terhubung dengan jalur resmi Nusuk",
 };
 
 export interface PartnerDef {

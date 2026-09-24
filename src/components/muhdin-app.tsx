@@ -21,6 +21,12 @@ import { AgendaView } from "@/components/views/agenda-view";
 import { DownloadsView } from "@/components/views/downloads-view";
 import { ReportView } from "@/components/views/report-view";
 import { AdminView } from "@/components/admin/admin-view";
+// Task 33 — MUHDIN NUSANTARA (Trusted Pilgrim Ecosystem)
+import { DaftarView } from "@/components/views/daftar-view";
+import { VerifyView } from "@/components/views/verify-view";
+import { PrivacyView } from "@/components/views/privacy-view";
+import { TermsView } from "@/components/views/terms-view";
+import { DashboardView } from "@/components/views/dashboard-view";
 import { LocaleProvider, useT } from "@/lib/i18n";
 import { RegisterSW } from "@/components/pwa/register-sw";
 
@@ -118,6 +124,25 @@ export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en
       break;
     case "gabung":
       content = <JoinView />;
+      break;
+    // Task 33 — engine pendaftaran cerdas multi-step (17 peran)
+    case "daftar":
+      content = <DaftarView />;
+      break;
+    // Task 33 — halaman verifikasi publik + QR (ROLE 13)
+    case "verifikasi":
+      content = <VerifyView key={route[1] ?? "search"} query={route[1]} />;
+      break;
+    // Task 33 — portal anggota sederhana (ROLE 16)
+    case "dashboard":
+      content = <DashboardView />;
+      break;
+    // Task 33 — privasi & ketentuan (ROLE 21)
+    case "privasi":
+      content = <PrivacyView />;
+      break;
+    case "syarat":
+      content = <TermsView />;
       break;
     case "nusuk":
       content = <NusukView />;

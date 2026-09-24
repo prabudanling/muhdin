@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 export interface FieldDef {
   key: string;
   label: string;
-  type: "text" | "textarea" | "number" | "select" | "switch" | "markdown";
+  type: "text" | "textarea" | "number" | "select" | "switch" | "markdown" | "checkbox";
   options?: { value: string; label: string }[];
   required?: boolean;
   full?: boolean;
