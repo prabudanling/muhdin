@@ -22,19 +22,19 @@
     {
       "name": "Nusuk Hub",
       "short_name": "Nusuk",
-      "url": "/#nusuk",
+      "url": "/#/nusuk",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Direktori Anggota",
       "short_name": "Anggota",
-      "url": "/#anggota",
+      "url": "/#/anggota",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Tutorial",
       "short_name": "Tutorial",
-      "url": "/#tutorial",
+      "url": "/#/tutorial",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

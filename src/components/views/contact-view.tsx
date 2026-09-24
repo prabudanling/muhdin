@@ -16,11 +16,44 @@ import { useT } from "@/lib/i18n";
 import { BranchesSection } from "@/components/site/branches-section";
 import type { Faq } from "@/lib/types";
 
-const CONTACT_CARDS = [
-  { icon: "mail", value: "info@muhdin.web.id", titleKey: "contact.cardEmailTitle", descKey: "contact.cardEmailDesc" },
-  { icon: "phone", value: "+62 21 1234 5678", titleKey: "contact.cardPhoneTitle", descKey: "contact.cardPhoneDesc" },
-  { icon: "map-pin", value: "Gedung Asosiasi MUHDIN", titleKey: "contact.cardAddressTitle", descKey: "contact.cardAddressDesc" },
-  { icon: "shield-check", value: "Kanal Prioritas 24/7", titleKey: "contact.cardFraudTitle", descKey: "contact.cardFraudDesc" },
+/** Task 30 — setiap kartu kini BENAR-BENAR KLIKABLE: mailto, tel, Google Maps, dan kanal pengaduan #/lapor. */
+const CONTACT_CARDS: {
+  icon: string;
+  value: string;
+  titleKey: string;
+  descKey: string;
+  href: string;
+  external?: boolean;
+}[] = [
+  {
+    icon: "mail",
+    value: "info@muhdin.web.id",
+    titleKey: "contact.cardEmailTitle",
+    descKey: "contact.cardEmailDesc",
+    href: "mailto:info@muhdin.web.id",
+  },
+  {
+    icon: "phone",
+    value: "+62 21 1234 5678",
+    titleKey: "contact.cardPhoneTitle",
+    descKey: "contact.cardPhoneDesc",
+    href: "tel:+622112345678",
+  },
+  {
+    icon: "map-pin",
+    value: "Gedung Asosiasi MUHDIN",
+    titleKey: "contact.cardAddressTitle",
+    descKey: "contact.cardAddressDesc",
+    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Gedung Asosiasi MUHDIN Jakarta Pusat")}`,
+    external: true,
+  },
+  {
+    icon: "shield-check",
+    value: "Kanal Prioritas 24/7",
+    titleKey: "contact.cardFraudTitle",
+    descKey: "contact.cardFraudDesc",
+    href: "#/lapor",
+  },
 ];
 
 export function ContactView() {
@@ -43,18 +76,30 @@ export function ContactView() {
 
       <section className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          {/* Contact cards */}
+          {/* Contact cards — Task 30: seluruh kartu adalah tautan hidup */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-12">
             {CONTACT_CARDS.map((c, i) => (
               <Reveal key={c.titleKey} delay={i * 0.06}>
-                <div className="h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg transition-shadow">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
-                    <Icon name={c.icon} className="h-5 w-5" />
+                <a
+                  href={c.href}
+                  target={c.external ? "_blank" : undefined}
+                  rel={c.external ? "noopener noreferrer" : undefined}
+                  aria-label={`${t(c.titleKey)}: ${c.value}`}
+                  className="group block h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                      <Icon name={c.icon} className="h-5 w-5" />
+                    </div>
+                    <Icon
+                      name="chevron-right"
+                      className="h-4 w-4 text-muted-foreground/40 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all icon-flip"
+                    />
                   </div>
                   <p className="mt-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">{t(c.titleKey)}</p>
-                  <p className="mt-1 font-bold text-sm break-words">{c.value}</p>
+                  <p className="mt-1 font-bold text-sm break-words text-primary group-hover:text-primary/80">{c.value}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{t(c.descKey)}</p>
-                </div>
+                </a>
               </Reveal>
             ))}
           </div>

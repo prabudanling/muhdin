@@ -20,8 +20,11 @@ function memberTypeLabel(ty: string, t: (k: string) => string): string {
   return val === `members.type.${ty}` ? ty : val;
 }
 
-export function MembersView() {
+export function MembersView({ initialTab = "direktori" }: { initialTab?: string }) {
   const { t } = useT();
+  // Task 30 — deep-link #/anggota/verifikasi membuka tab Verifikasi.
+  // Dihidupkan lewat key-remount di muhdin-app (key berubah saat hash berubah).
+  const [tab, setTab] = useState(initialTab === "verifikasi" ? "verifikasi" : "direktori");
   return (
     <div className="flex flex-col">
       <section className="relative bg-forest-deep text-white overflow-hidden">
@@ -40,7 +43,7 @@ export function MembersView() {
 
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <Tabs defaultValue="direktori" className="w-full">
+          <Tabs value={tab} onValueChange={setTab} className="w-full">
             <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
               <TabsTrigger value="direktori" className="gap-2">
                 <Icon name="grid-3x3" className="h-4 w-4" /> {t("members.tabDirectory")}

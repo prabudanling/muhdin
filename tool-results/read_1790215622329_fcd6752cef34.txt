@@ -1,0 +1,1103 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useRef, useState } from "react";
+     4→import { motion, useScroll, useTransform } from "framer-motion";
+     5→import { apiGet } from "@/lib/client-api";
+     6→import { navigate } from "@/hooks/use-hash-route";
+     7→import { Icon } from "@/components/site/icon";
+     8→import { Reveal, SectionHeading, Stagger, StaggerItem, CountUp } from "@/components/site/reveal";
+     9→import { Badge } from "@/components/ui/badge";
+    10→import { Skeleton } from "@/components/ui/skeleton";
+    11→import { Button } from "@/components/ui/button";
+    12→import { PARTNERS, CORE_VALUES, TECH_PILLARS, CLUSTERS, BRAND } from "@/lib/constants";
+    13→import {
+    14→  AIRLINES_INDONESIA,
+    15→  AIRLINES_GCC,
+    16→  AIRLINES_ASIA,
+    17→  AIRLINES_AFRICA_EUROPE,
+    18→  AIRLINES_ALL,
+    19→  AIRLINES_COUNT,
+    20→  AIRLINE_COUNTRIES,
+    21→  airlineLogo,
+    22→  type Airline,
+    23→} from "@/lib/airlines";
+    24→import { useT, formatDateL10n, formatNumberL10n, type Locale } from "@/lib/i18n";
+    25→import type { Ecosystem, JourneyStep, Roadmap, Testimonial, Article, NusukPublicData } from "@/lib/types";
+    26→import { cn } from "@/lib/utils";
+    27→
+    28→/* Pemetaan ikon/urutan (dari lib/constants.ts) → key kamus. Ikon & warna tetap di kode. */
+    29→/* Task 21 — statistik hero: angka nyata untuk animasi CountUp (24/7 tetap teks) */
+    30→const HERO_STATS: { k: string; icon: string; num?: number; suffix?: string }[] = [
+    31→  { k: "jamaah", icon: "users", num: 1_000_000, suffix: "+" },
+    32→  { k: "mitra", icon: "handshake", num: 1_000, suffix: "+" },
+    33→  { k: "sdm", icon: "badge-check", num: 10_000 },
+    34→  { k: "command", icon: "shield-check" },
+    35→];
+    36→
+    37→/* Task 21 — kurva easing premium untuk koreografi hero */
+    38→const EASE: [number, number, number, number] = [0.21, 0.47, 0.32, 0.98];
+    39→const CLUSTER_KEYS = ["akses", "ibadah", "mutu"] as const;
+    40→const PARTNER_KEYS = ["ppiu", "pihk", "kbihu", "iphi", "tw"] as const;
+    41→const VALUE_KEYS = ["amanah", "profesional", "terintegrasi", "transparan", "tepercaya"] as const;
+    42→const PILLAR_KEYS = ["app", "gps", "ai", "nusuk", "dashboard", "multiBahasa"] as const;
+    43→const PRIVACY_KEYS = ["priv1", "priv2", "priv3", "priv4"] as const;
+    44→const BENEFIT_KEYS = ["b1", "b2", "b3", "b4", "b5", "b6", "b7"] as const;
+    45→const NUSUK_BAR_KEYS = ["p1", "p2", "p3", "p4", "p5", "p6"] as const;
+    46→
+    47→/* Task 23 — statistik jaringan penerbangan global */
+    48→const AIRLINE_STATS: { k: string; icon: string; num?: number; suffix?: string }[] = [
+    49→  { k: "statAirlines", icon: "plane", num: AIRLINES_COUNT, suffix: "+" },
+    50→  { k: "statCountries", icon: "globe", num: AIRLINE_COUNTRIES, suffix: "+" },
+    51→  { k: "statAirports", icon: "map-pin", num: 4 },
+    52→  { k: "statOps", icon: "clock" },
+    53→];
+    54→
+    55→/* timeAgo versi i18n (label & satuan lewat kamus, angka via formatNumberL10n). */
+    56→function timeAgoL10n(
+    57→  iso: string | null | undefined,
+    58→  t: (key: string, vars?: Record<string, string | number>) => string,
+    59→  locale: Locale
+    60→) {
+    61→  if (!iso) return t("home.nusukLive.belumSinkron");
+    62→  try {
+    63→    const diff = Date.now() - new Date(iso).getTime();
+    64→    const s = Math.max(1, Math.floor(diff / 1000));
+    65→    if (s < 60) return t("home.nusukLive.detik", { n: formatNumberL10n(s, locale) });
+    66→    const m = Math.floor(s / 60);
+    67→    if (m < 60) return t("home.nusukLive.menit", { n: formatNumberL10n(m, locale) });
+    68→    const h = Math.floor(m / 60);
+    69→    if (h < 24) return t("home.nusukLive.jam", { n: formatNumberL10n(h, locale) });
+    70→    const d = Math.floor(h / 24);
+    71→    return t("home.nusukLive.hari", { n: formatNumberL10n(d, locale) });
+    72→  } catch {
+    73→    return iso;
+    74→  }
+    75→}
+    76→
+    77→/* ================= HERO — Task 21 sinematik ala McKinsey ================= */
+    78→function Hero() {
+    79→  const { t, locale } = useT();
+    80→  const ref = useRef<HTMLElement | null>(null);
+    81→
+    82→  /* Parallax: konten naik & memudar, latar bergeser lebih lambat saat digulir */
+    83→  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+    84→  const contentY = useTransform(scrollYProgress, [0, 1], [0, 90]);
+    85→  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+    86→  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "16%"]);
+    87→
+    88→  /* Marquee MUDAH. MURAH. AMANAH. — dua paritan identik utk loop mulus */
+    89→  const MOTTO_KEYS = ["motto1", "motto2", "motto3"] as const;
+    90→  const marqueeSeq = Array.from({ length: 3 }, () => MOTTO_KEYS).flat();
+    91→
+    92→  return (
+    93→    <section ref={ref} className="relative overflow-hidden">
+    94→      {/* Latar: Ken Burns sinematik + parallax lembut */}
+    95→      <motion.div className="absolute inset-0" style={{ y: bgY }}>
+    96→        <img
+    97→          src="/images/hero-kaaba.jpg"
+    98→          alt={t("home.hero.imgAlt")}
+    99→          className="animate-ken-burns h-full w-full object-cover bg-gradient-to-br from-forest-deep to-forest"
+   100→        />
+   101→        <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/90 via-forest-deep/75 to-forest-deep/95" />
+   102→        <div className="absolute inset-0 bg-islamic-pattern-gold opacity-60" />
+   103→      </motion.div>
+   104→
+   105→      <motion.div
+   106→        style={{ y: contentY, opacity: contentOpacity }}
+   107→        className="relative mx-auto max-w-7xl px-4 sm:px-6 py-24 sm:py-32 lg:py-36"
+   108→      >
+   109→        <div className="max-w-3xl">
+   110→          <motion.div
+   111→            initial={{ opacity: 0, y: 18 }}
+   112→            animate={{ opacity: 1, y: 0 }}
+   113→            transition={{ duration: 0.6, ease: EASE }}
+   114→          >
+   115→            <Badge className="mb-5 bg-gold/20 text-gold-soft border border-gold/40 hover:bg-gold/30 hover:text-gold-soft px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-semibold tracking-wide max-w-full">
+   116→              <Icon name="sparkles" className="h-3.5 w-3.5 mr-1.5 shrink-0" />
+   117→              <span className="truncate">{t("home.hero.badge")}</span>
+   118→            </Badge>
+   119→          </motion.div>
+   120→
+   121→          <motion.h1
+   122→            initial={{ opacity: 0, y: 44, filter: "blur(10px)" }}
+   123→            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+   124→            transition={{ duration: 0.9, delay: 0.12, ease: EASE }}
+   125→            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-white"
+   126→          >
+   127→            {t("home.hero.title1")}{" "}
+   128→            <span className="text-gold-gradient">{t("home.hero.titleGold")}</span>{" "}
+   129→            {t("home.hero.title2")}
+   130→          </motion.h1>
+   131→
+   132→          {/* Task 21 — SYURGA TRAVEL · PELAYAN TAMU ALLAH (menggantikan kalimat motto) */}
+   133→          <motion.div
+   134→            initial={{ opacity: 0, y: 30 }}
+   135→            animate={{ opacity: 1, y: 0 }}
+   136→            transition={{ duration: 0.75, delay: 0.34, ease: EASE }}
+   137→            className="mt-7"
+   138→          >
+   139→            <p className="text-2xl sm:text-3xl lg:text-[2.6rem] font-black leading-tight tracking-[0.02em] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
+   140→              {t("home.hero.brandName")}
+   141→            </p>
+   142→            <p className="mt-2 flex items-center gap-3 text-lg sm:text-xl lg:text-2xl font-extrabold">
+   143→              <span
+   144→                aria-hidden
+   145→                className="h-px w-10 shrink-0 bg-gradient-to-r from-gold to-transparent rtl:bg-gradient-to-l"
+   146→              />
+   147→              <span className="text-gold-gradient">{t("home.hero.brandTag")}</span>
+   148→            </p>
+   149→          </motion.div>
+   150→
+   151→          {/* Task 21 — MUDAH. MURAH. AMANAH. teks berjalan agar mudah dibaca */}
+   152→          <motion.div
+   153→            initial={{ opacity: 0, y: 24 }}
+   154→            animate={{ opacity: 1, y: 0 }}
+   155→            transition={{ duration: 0.75, delay: 0.46, ease: EASE }}
+   156→            className="mt-7 max-w-xl"
+   157→          >
+   158→            <p className="sr-only">{t("home.hero.mottoAria")}</p>
+   159→            <div
+   160→              aria-hidden="true"
+   161→              dir="ltr"
+   162→              className="marquee-hover-pause marquee-mask relative overflow-hidden rounded-2xl border border-gold/25 bg-forest-deep/50 py-3.5 backdrop-blur-md"
+   163→            >
+   164→              <div
+   165→                className="animate-marquee flex w-max items-center"
+   166→                style={{ "--marquee-duration": "22s" } as React.CSSProperties}
+   167→              >
+   168→                {[0, 1].map((copy) => (
+   169→                  <div key={copy} className="flex items-center">
+   170→                    {marqueeSeq.map((k, i) => (
+   171→                      <span key={`${copy}-${i}`} className="flex items-center whitespace-nowrap">
+   172→                        <span className="px-5 text-base sm:text-lg font-extrabold tracking-[0.16em] text-white">
+   173→                          {t(`home.hero.${k}`)}
+   174→                        </span>
+   175→                        <span className="text-sm text-gold">✦</span>
+   176→                      </span>
+   177→                    ))}
+   178→                  </div>
+   179→                ))}
+   180→              </div>
+   181→            </div>
+   182→          </motion.div>
+   183→
+   184→          <motion.p
+   185→            initial={{ opacity: 0, y: 24 }}
+   186→            animate={{ opacity: 1, y: 0 }}
+   187→            transition={{ duration: 0.75, delay: 0.56, ease: EASE }}
+   188→            className="mt-6 text-lg text-emerald-50/85 leading-relaxed max-w-2xl"
+   189→          >
+   190→            {t("home.hero.subtitle")}
+   191→          </motion.p>
+   192→
+   193→          <motion.div
+   194→            initial={{ opacity: 0, y: 24 }}
+   195→            animate={{ opacity: 1, y: 0 }}
+   196→            transition={{ duration: 0.75, delay: 0.66, ease: EASE }}
+   197→            className="mt-8 flex flex-wrap gap-3"
+   198→          >
+   199→            <Button
+   200→              size="lg"
+   201→              onClick={() => navigate("ekosistem")}
+   202→              className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold shadow-xl hover:brightness-105 h-12 px-7 text-base"
+   203→            >
+   204→              {t("home.hero.ctaEcosystems")}
+   205→              <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
+   206→            </Button>
+   207→            <Button
+   208→              size="lg"
+   209→              variant="outline"
+   210→              onClick={() => navigate("anggota")}
+   211→              className="bg-transparent border-emerald-100/40 text-white hover:bg-white/10 hover:text-white h-12 px-7 text-base"
+   212→            >
+   213→              <Icon name="shield-check" className="h-4 w-4 me-2" />
+   214→              {t("home.hero.ctaVerify")}
+   215→            </Button>
+   216→          </motion.div>
+   217→        </div>
+   218→
+   219→        {/* Floating stats — CountUp sinematik dgn cascade premium */}
+   220→        <motion.div
+   221→          initial={{ opacity: 0, y: 30 }}
+   222→          animate={{ opacity: 1, y: 0 }}
+   223→          transition={{ duration: 0.8, delay: 0.8, ease: EASE }}
+   224→          className="mt-14"
+   225→        >
+   226→          <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" stagger={0.1}>
+   227→            {HERO_STATS.map((s) => (
+   228→              <StaggerItem key={s.k}>
+   229→                <div className="h-full rounded-2xl border border-white/15 bg-forest-deep/40 backdrop-blur-md p-4 sm:p-5 flex items-center gap-3.5">
+   230→                  <div className="h-11 w-11 shrink-0 rounded-xl bg-gold/20 grid place-items-center text-gold">
+   231→                    <Icon name={s.icon} className="h-5.5 w-5.5" />
+   232→                  </div>
+   233→                  <div className="min-w-0">
+   234→                    <div className="text-xl sm:text-2xl font-extrabold text-white leading-none whitespace-nowrap">
+   235→                      {s.num != null ? (
+   236→                        <CountUp value={s.num} suffix={s.suffix ?? ""} locale={locale} />
+   237→                      ) : (
+   238→                        t(`home.stats.${s.k}.value`)
+   239→                      )}
+   240→                    </div>
+   241→                    <div className="text-[11px] sm:text-xs text-emerald-100/70 mt-1.5">
+   242→                      {t(`home.stats.${s.k}.label`)}
+   243→                    </div>
+   244→                  </div>
+   245→                </div>
+   246→              </StaggerItem>
+   247→            ))}
+   248→          </Stagger>
+   249→        </motion.div>
+   250→      </motion.div>
+   251→
+   252→      {/* Petunjuk gulir — chevron menetes lembut */}
+   253→      <div
+   254→        aria-hidden
+   255→        className="absolute bottom-5 left-1/2 -translate-x-1/2 hidden md:block text-gold/80"
+   256→      >
+   257→        <Icon name="chevron-down" className="animate-scroll-hint h-6 w-6" />
+   258→      </div>
+   259→    </section>
+   260→  );
+   261→}
+   262→
+   263→/* ================= NUSUK LIVE STRIP ================= */
+   264→function NusukLiveStrip() {
+   265→  const { t, locale } = useT();
+   266→  const [data, setData] = useState<NusukPublicData | null>(null);
+   267→
+   268→  useEffect(() => {
+   269→    apiGet<NusukPublicData>(`/api/nusuk/public?locale=${locale}`).then(setData).catch(() => {});
+   270→  }, [locale]);
+   271→
+   272→  if (!data) return null;
+   273→
+   274→  return (
+   275→    <section aria-label={t("home.nusukLive.aria")} className="border-b bg-mint/30 dark:bg-muted/30">
+   276→      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5">
+   277→        <Reveal>
+   278→          <div className="glass rounded-2xl border border-border/60 shadow-sm p-4 sm:px-5 flex flex-col lg:flex-row lg:items-center gap-3.5">
+   279→            <div className="flex items-center gap-3 shrink-0">
+   280→              <span className="relative flex h-3 w-3" aria-hidden="true">
+   281→                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
+   282→                <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
+   283→              </span>
+   284→              <div className="leading-tight">
+   285→                <p className="font-bold text-sm">{t("home.nusukLive.label")}</p>
+   286→                <p className="text-[11px] text-muted-foreground">{t("home.nusukLive.sub")}</p>
+   287→              </div>
+   288→            </div>
+   289→            <div className="hidden lg:block h-9 w-px bg-border shrink-0" aria-hidden="true" />
+   290→            <div className="flex flex-wrap items-center gap-2">
+   291→              <span
+   292→                className={cn(
+   293→                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold",
+   294→                  data.connection.environment === "SANDBOX"
+   295→                    ? "border-gold/50 bg-gold/10 text-gold-deep"
+   296→                    : "border-primary/40 bg-primary/10 text-primary"
+   297→                )}
+   298→              >
+   299→                <Icon name="keyround" className="h-3 w-3 shrink-0" />
+   300→                {data.connection.environment}
+   301→              </span>
+   302→              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 text-[11px] font-semibold text-primary">
+   303→                <Icon name="shield-check" className="h-3 w-3 shrink-0" />
+   304→                {t("home.nusukLive.izinAktif", { n: formatNumberL10n(data.metrics.permitsActive, locale) })}
+   305→              </span>
+   306→              <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+   307→                <Icon name="timer" className="h-3 w-3 shrink-0 text-gold-deep" />
+   308→                {t("home.nusukLive.sinkronTerakhir", {
+   309→                  time: timeAgoL10n(data.connection.lastSyncAt, t, locale),
+   310→                })}
+   311→              </span>
+   312→            </div>
+   313→            <Button
+   314→              size="sm"
+   315→              onClick={() => navigate("nusuk")}
+   316→              aria-label={t("home.nusukLive.btnAria")}
+   317→              className="lg:ms-auto shrink-0 bg-gradient-to-r from-primary to-forest text-white"
+   318→            >
+   319→              {t("home.nusukLive.btn")}
+   320→              <Icon name="arrow-right" className="h-4 w-4 ms-1.5 icon-flip" />
+   321→            </Button>
+   322→          </div>
+   323→        </Reveal>
+   324→      </div>
+   325→    </section>
+   326→  );
+   327→}
+   328→
+   329→/* ================= NUSUK BAR ================= */
+   330→function NusukBar() {
+   331→  const { t } = useT();
+   332→  return (
+   333→    <section className="bg-primary text-white">
+   334→      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
+   335→        <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
+   336→          <div className="flex items-center gap-3 shrink-0">
+   337→            <div className="h-10 w-10 rounded-xl bg-gold grid place-items-center">
+   338→              <Icon name="landmark" className="h-5 w-5 text-forest-deep" strokeWidth={2.4} />
+   339→            </div>
+   340→            <div className="leading-tight">
+   341→              <p className="font-bold text-sm">{t("home.nusukBar.title")}</p>
+   342→              <p className="text-[11px] text-emerald-50/90">{t("home.nusukBar.sub")}</p>
+   343→            </div>
+   344→          </div>
+   345→          <div className="hidden lg:block h-10 w-px bg-white/20" />
+   346→          <div className="flex flex-wrap justify-center gap-2">
+   347→            {NUSUK_BAR_KEYS.map((k) => (
+   348→              <span
+   349→                key={k}
+   350→                className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium"
+   351→              >
+   352→                <Icon name="check-circle-2" className="h-3.5 w-3.5 text-gold-soft" />
+   353→                {t(`home.nusukBar.${k}`)}
+   354→              </span>
+   355→            ))}
+   356→          </div>
+   357→        </div>
+   358→      </div>
+   359→    </section>
+   360→  );
+   361→}
+   362→
+   363→/* ================= EKOSISTEM ================= */
+   364→function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
+   365→  const { t } = useT();
+   366→  return (
+   367→    <section className="py-20 bg-mint/30 dark:bg-muted/30">
+   368→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   369→        <SectionHeading
+   370→          eyebrow={t("home.ekosistem.eyebrow")}
+   371→          title={t("home.ekosistem.title")}
+   372→          subtitle={t("home.ekosistem.subtitle")}
+   373→        />
+   374→        <div className="mt-14 space-y-10">
+   375→          {CLUSTERS.map((cluster, ci) => {
+   376→            const k = CLUSTER_KEYS[ci];
+   377→            const items = ecosystems.filter((e) => e.cluster === cluster.name);
+   378→            return (
+   379→              <div key={cluster.name}>
+   380→                <Reveal className="flex items-center gap-3 mb-5">
+   381→                  <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
+   382→                    <Icon name={cluster.icon} className="h-5 w-5" />
+   383→                  </div>
+   384→                  <div>
+   385→                    <h3 className="font-bold text-lg leading-tight">{t(`home.klaster.${k}.name`)}</h3>
+   386→                    <p className="text-xs text-muted-foreground">
+   387→                      {t(`home.klaster.${k}.range`)} — {t(`home.klaster.${k}.desc`)}
+   388→                    </p>
+   389→                  </div>
+   390→                </Reveal>
+   391→                <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" stagger={0.06}>
+   392→                  {items.map((e) => (
+   393→                    <StaggerItem key={e.id}>
+   394→                      <button
+   395→                        onClick={() => navigate("ekosistem")}
+   396→                        className="group h-full w-full text-start rounded-2xl border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
+   397→                      >
+   398→                        <div className="flex items-start justify-between">
+   399→                          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-forest grid place-items-center text-gold-soft shadow-md">
+   400→                            <Icon name={e.icon} className="h-5 w-5" />
+   401→                          </div>
+   402→                          <span className="text-3xl font-extrabold text-primary/10 group-hover:text-gold/40 transition-colors">
+   403→                            {String(e.number).padStart(2, "0")}
+   404→                          </span>
+   405→                        </div>
+   406→                        <h4 className="mt-4 font-bold text-sm leading-snug">{e.name}</h4>
+   407→                        <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2">{e.scope}</p>
+   408→                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+   409→                          {t("home.umum.selengkapnya")} <Icon name="chevron-right" className="h-3 w-3 icon-flip" />
+   410→                        </span>
+   411→                      </button>
+   412→                    </StaggerItem>
+   413→                  ))}
+   414→                </Stagger>
+   415→              </div>
+   416→            );
+   417→          })}
+   418→        </div>
+   419→      </div>
+   420→    </section>
+   421→  );
+   422→}
+   423→
+   424→/* ================= ALUR PERJALANAN PREVIEW ================= */
+   425→function JourneySection({ steps }: { steps: JourneyStep[] }) {
+   426→  const { t } = useT();
+   427→  return (
+   428→    <section className="py-20 bg-forest-deep text-white relative overflow-hidden">
+   429→      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
+   430→      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+   431→        <SectionHeading
+   432→          light
+   433→          eyebrow={t("home.alur.eyebrow")}
+   434→          title={t("home.alur.title")}
+   435→          subtitle={t("home.alur.subtitle")}
+   436→        />
+   437→        <Stagger className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" stagger={0.05}>
+   438→          {steps.slice(0, 8).map((s) => (
+   439→            <StaggerItem key={s.id}>
+   440→              <div className="h-full rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm hover:bg-white/10 hover:border-gold/40 transition-all">
+   441→                <div className="flex items-center gap-3">
+   442→                  <span className="h-9 w-9 shrink-0 rounded-full bg-gold text-forest-deep grid place-items-center font-extrabold text-sm">
+   443→                    {s.step}
+   444→                  </span>
+   445→                  <Icon name={s.icon} className="h-4 w-4 text-gold" />
+   446→                  <h4 className="font-semibold text-sm">{s.title}</h4>
+   447→                </div>
+   448→                <p className="mt-2.5 text-xs text-emerald-100/65 leading-relaxed line-clamp-2">{s.activity}</p>
+   449→              </div>
+   450→            </StaggerItem>
+   451→          ))}
+   452→        </Stagger>
+   453→        <Reveal className="mt-8 text-center">
+   454→          <Button
+   455→            variant="outline"
+   456→            onClick={() => navigate("alur")}
+   457→            className="border-gold/50 text-gold hover:bg-gold hover:text-forest-deep"
+   458→          >
+   459→            {t("home.alur.cta")}
+   460→            <Icon name="arrow-right" className="h-4 w-4 ms-2 icon-flip" />
+   461→          </Button>
+   462→        </Reveal>
+   463→      </div>
+   464→    </section>
+   465→  );
+   466→}
+   467→
+   468→/* ================= MITRA ================= */
+   469→function PartnersSection() {
+   470→  const { t } = useT();
+   471→  return (
+   472→    <section className="py-20">
+   473→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   474→        <SectionHeading
+   475→          eyebrow={t("home.mitra.eyebrow")}
+   476→          title={t("home.mitra.title")}
+   477→          subtitle={t("home.mitra.subtitle")}
+   478→        />
+   479→        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" stagger={0.08}>
+   480→          {PARTNERS.map((p, i) => {
+   481→            const k = PARTNER_KEYS[i];
+   482→            return (
+   483→              <StaggerItem key={p.code}>
+   484→                <div className="group h-full rounded-2xl border bg-card p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-gold/50">
+   485→                  <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold-soft shadow-md group-hover:scale-110 transition-transform">
+   486→                    <Icon name={p.icon} className="h-7 w-7" />
+   487→                  </div>
+   488→                  <h3 className="mt-4 font-extrabold text-primary tracking-wide">{t(`home.mitra.${k}.name`)}</h3>
+   489→                  <p className="mt-1 text-[11px] font-semibold text-foreground/80 uppercase tracking-wide">
+   490→                    {t(`home.mitra.${k}.fullName`)}
+   491→                  </p>
+   492→                  <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{t(`home.mitra.${k}.role`)}</p>
+   493→                </div>
+   494→              </StaggerItem>
+   495→            );
+   496→          })}
+   497→        </Stagger>
+   498→      </div>
+   499→    </section>
+   500→  );
+   501→}
+   502→
+   503→/* ================= NILAI UTAMA ================= */
+   504→function ValuesSection() {
+   505→  const { t } = useT();
+   506→  return (
+   507→    <section className="py-20 bg-mint/30 dark:bg-muted/30">
+   508→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   509→        <SectionHeading
+   510→          eyebrow={t("home.nilai.eyebrow")}
+   511→          title={t("home.nilai.title")}
+   512→          subtitle={t("home.nilai.subtitle")}
+   513→        />
+   514→        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" stagger={0.08}>
+   515→          {CORE_VALUES.map((v, i) => {
+   516→            const k = VALUE_KEYS[i];
+   517→            return (
+   518→              <StaggerItem key={k}>
+   519→                <div className="h-full rounded-2xl border bg-card p-6 shadow-sm hover:shadow-lg transition-shadow">
+   520→                  <div className="flex items-center gap-3">
+   521→                    <div className="h-10 w-10 rounded-xl bg-gold/15 grid place-items-center text-gold-deep">
+   522→                      <Icon name={v.icon} className="h-5 w-5" />
+   523→                    </div>
+   524→                    <h3 className="font-extrabold">{t(`home.nilai.${k}.name`)}</h3>
+   525→                  </div>
+   526→                  <p className="mt-3.5 text-xs text-muted-foreground leading-relaxed">
+   527→                    {t(`home.nilai.${k}.meaning`)}
+   528→                  </p>
+   529→                </div>
+   530→              </StaggerItem>
+   531→            );
+   532→          })}
+   533→        </Stagger>
+   534→      </div>
+   535→    </section>
+   536→  );
+   537→}
+   538→
+   539→/* ================= TEKNOLOGI ================= */
+   540→function TechSection() {
+   541→  const { t } = useT();
+   542→  return (
+   543→    <section className="py-20">
+   544→      <div className="mx-auto max-w-7xl px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
+   545→        <div>
+   546→          <SectionHeading
+   547→            align="left"
+   548→            eyebrow={t("home.teknologi.eyebrow")}
+   549→            title={t("home.teknologi.title")}
+   550→            subtitle={t("home.teknologi.subtitle")}
+   551→          />
+   552→          <Reveal delay={0.15} className="mt-6 flex flex-wrap gap-2">
+   553→            {PRIVACY_KEYS.map((k) => (
+   554→              <Badge key={k} variant="secondary" className="text-xs">
+   555→                <Icon name="shield-check" className="h-3 w-3 mr-1 text-primary" />
+   556→                {t(`home.teknologi.${k}`)}
+   557→              </Badge>
+   558→            ))}
+   559→          </Reveal>
+   560→        </div>
+   561→        <Stagger className="grid gap-3.5 sm:grid-cols-2" stagger={0.07}>
+   562→          {TECH_PILLARS.map((p, i) => {
+   563→            const k = PILLAR_KEYS[i];
+   564→            return (
+   565→              <StaggerItem key={k}>
+   566→                <div className="h-full rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all">
+   567→                  <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
+   568→                    <Icon name={p.icon} className="h-5 w-5" />
+   569→                  </div>
+   570→                  <h4 className="mt-3 font-bold text-sm">{t(`home.teknologi.${k}.name`)}</h4>
+   571→                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+   572→                    {t(`home.teknologi.${k}.desc`)}
+   573→                  </p>
+   574→                </div>
+   575→              </StaggerItem>
+   576→            );
+   577→          })}
+   578→        </Stagger>
+   579→      </div>
+   580→    </section>
+   581→  );
+   582→}
+   583→
+   584→/* ================= ROADMAP ================= */
+   585→function RoadmapSection({ roadmap }: { roadmap: Roadmap[] }) {
+   586→  const { t } = useT();
+   587→  return (
+   588→    <section className="py-20 bg-mint/30 dark:bg-muted/30">
+   589→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   590→        <SectionHeading
+   591→          eyebrow={t("home.roadmap.eyebrow")}
+   592→          title={t("home.roadmap.title")}
+   593→          subtitle={t("home.roadmap.subtitle")}
+   594→        />
+   595→        <Stagger className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4" stagger={0.09}>
+   596→          {roadmap.map((r, i) => (
+   597→            <StaggerItem key={r.id}>
+   598→              <div className="relative h-full rounded-2xl border bg-card p-6 shadow-sm overflow-hidden">
+   599→                <span aria-hidden className="absolute -right-3 -top-4 text-7xl font-extrabold text-primary/5 select-none">
+   600→                  {i + 1}
+   601→                </span>
+   602→                <Badge className="bg-gold/15 text-gold-deep border-gold/30 hover:bg-gold/25">{r.period}</Badge>
+   603→                <h3 className="mt-3 font-extrabold text-primary">{r.phase}</h3>
+   604→                <p className="mt-1 text-xs font-semibold text-foreground/70">{r.focus}</p>
+   605→                <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{r.deliverables}</p>
+   606→              </div>
+   607→            </StaggerItem>
+   608→          ))}
+   609→        </Stagger>
+   610→      </div>
+   611→    </section>
+   612→  );
+   613→}
+   614→
+   615→/* ================= MANFAAT ================= */
+   616→function BenefitsSection() {
+   617→  const { t } = useT();
+   618→  return (
+   619→    <section className="py-16 bg-primary text-white relative overflow-hidden">
+   620→      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" />
+   621→      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+   622→        <div className="text-center">
+   623→          <h2 className="text-2xl sm:text-3xl font-extrabold">{t("home.manfaat.title")}</h2>
+   624→          <div className="gold-divider w-40 mx-auto mt-4" />
+   625→        </div>
+   626→        <Stagger className="mt-8 flex flex-wrap justify-center gap-2.5" stagger={0.04}>
+   627→          {BENEFIT_KEYS.map((k) => (
+   628→            <StaggerItem key={k}>
+   629→              <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-white/5 px-4 py-2 text-sm font-medium backdrop-blur-sm">
+   630→                <Icon name="check-circle-2" className="h-4 w-4 text-gold-soft" />
+   631→                {t(`home.manfaat.${k}`)}
+   632→              </span>
+   633→            </StaggerItem>
+   634→          ))}
+   635→        </Stagger>
+   636→      </div>
+   637→    </section>
+   638→  );
+   639→}
+   640→
+   641→/* ================= TESTIMONI ================= */
+   642→function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
+   643→  const { t } = useT();
+   644→  if (!testimonials.length) return null;
+   645→  return (
+   646→    <section className="py-20">
+   647→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   648→        <SectionHeading
+   649→          eyebrow={t("home.testimoni.eyebrow")}
+   650→          title={t("home.testimoni.title")}
+   651→          subtitle={t("home.testimoni.subtitle")}
+   652→        />
+   653→        <Stagger className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3" stagger={0.08}>
+   654→          {testimonials.slice(0, 6).map((item) => (
+   655→            <StaggerItem key={item.id}>
+   656→              <div className="h-full rounded-2xl border bg-card p-6 shadow-sm flex flex-col">
+   657→                <Icon name="quote" className="h-7 w-7 text-gold/60" />
+   658→                <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{item.content}&rdquo;</p>
+   659→                <div className="mt-5 flex items-center justify-between">
+   660→                  <div className="flex items-center gap-3">
+   661→                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-forest grid place-items-center text-white font-bold text-sm">
+   662→                      {item.name.charAt(0)}
+   663→                    </div>
+   664→                    <div>
+   665→                      <p className="text-sm font-bold">{item.name}</p>
+   666→                      <p className="text-xs text-muted-foreground">{item.role}</p>
+   667→                    </div>
+   668→                  </div>
+   669→                  <div className="flex gap-0.5">
+   670→                    {Array.from({ length: item.rating }).map((_, s) => (
+   671→                      <Icon key={s} name="star" className="h-3.5 w-3.5 fill-gold-deep text-gold-deep" />
+   672→                    ))}
+   673→                  </div>
+   674→                </div>
+   675→              </div>
+   676→            </StaggerItem>
+   677→          ))}
+   678→        </Stagger>
+   679→      </div>
+   680→    </section>
+   681→  );
+   682→}
+   683→
+   684→/* ================= BERITA TERBARU ================= */
+   685→function LatestNews({ articles }: { articles: Article[] }) {
+   686→  const { t, locale } = useT();
+   687→  if (!articles.length) return null;
+   688→  return (
+   689→    <section className="py-20 bg-mint/30 dark:bg-muted/30">
+   690→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   691→        <div className="flex items-end justify-between gap-4">
+   692→          <SectionHeading
+   693→            align="left"
+   694→            eyebrow={t("home.berita.eyebrow")}
+   695→            title={t("home.berita.title")}
+   696→          />
+   697→          <Reveal>
+   698→            <Button variant="ghost" onClick={() => navigate("berita")} className="hidden sm:inline-flex text-primary">
+   699→              {t("home.berita.semua")} <Icon name="arrow-right" className="h-4 w-4 ms-1 icon-flip" />
+   700→            </Button>
+   701→          </Reveal>
+   702→        </div>
+   703→        <Stagger className="mt-10 grid gap-5 md:grid-cols-3" stagger={0.09}>
+   704→          {articles.map((a) => (
+   705→            <StaggerItem key={a.id}>
+   706→              <button
+   707→                onClick={() => navigate(`berita/${a.slug}`)}
+   708→                className="group h-full w-full text-start rounded-2xl border bg-card overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+   709→              >
+   710→                <div className="relative h-44 overflow-hidden">
+   711→                  { }
+   712→                  <img
+   713→                    src={a.cover || "/images/hero-kaaba.jpg"}
+   714→                    alt={a.title}
+   715→                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+   716→                  />
+   717→                  <Badge className="absolute top-3 start-3 bg-forest-deep text-gold-soft border-none">
+   718→                    {a.category}
+   719→                  </Badge>
+   720→                </div>
+   721→                <div className="p-5">
+   722→                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+   723→                    <Icon name="calendar" className="h-3.5 w-3.5" />
+   724→                    {formatDateL10n(a.createdAt, locale)}
+   725→                  </div>
+   726→                  <h3 className="mt-2 font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+   727→                    {a.title}
+   728→                  </h3>
+   729→                  <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{a.excerpt}</p>
+   730→                </div>
+   731→              </button>
+   732→            </StaggerItem>
+   733→          ))}
+   734→        </Stagger>
+   735→      </div>
+   736→    </section>
+   737→  );
+   738→}
+   739→
+   740→/* ================= CTA ================= */
+   741→function JoinCTA() {
+   742→  const { t } = useT();
+   743→  return (
+   744→    <section className="py-20">
+   745→      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+   746→        <Reveal>
+   747→          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-forest-deep via-forest-deep to-forest p-10 sm:p-14 text-center shadow-2xl">
+   748→            <div className="absolute inset-0 bg-islamic-pattern-gold opacity-50" />
+   749→            <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-gold/20 blur-3xl animate-float-soft" />
+   750→            <div className="relative">
+   751→              <p className="font-arabic text-2xl text-gold" dir="rtl">{BRAND.arabic}</p>
+   752→              <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+   753→                {t("home.cta.title1")}<br />
+   754→                <span className="text-gold-gradient">{t("home.cta.titleGold")}</span>
+   755→              </h2>
+   756→              <p className="mt-4 text-emerald-50/85 max-w-2xl mx-auto">
+   757→                {t("home.cta.body")}
+   758→              </p>
+   759→              <div className="mt-8 flex flex-wrap justify-center gap-3">
+   760→                <Button
+   761→                  size="lg"
+   762→                  onClick={() => navigate("gabung")}
+   763→                  className="bg-gradient-to-r from-gold to-gold-soft text-forest-deep font-bold h-12 px-8 hover:brightness-105"
+   764→                >
+   765→                  <Icon name="handshake" className="h-5 w-5 me-2" />
+   766→                  {t("home.cta.btnDaftar")}
+   767→                </Button>
+   768→                <Button
+   769→                  size="lg"
+   770→                  variant="outline"
+   771→                  onClick={() => navigate("kontak")}
+   772→                  className="border-white/30 text-white hover:bg-white/10 h-12 px-8"
+   773→                >
+   774→                  {t("home.cta.btnKontak")}
+   775→                </Button>
+   776→              </div>
+   777→            </div>
+   778→          </div>
+   779→        </Reveal>
+   780→      </div>
+   781→    </section>
+   782→  );
+   783→}
+   784→
+   785→/* ================= AIRLINES GLOBAL — Task 23 ================= */
+   786→function AirlineChip({ a }: { a: Airline }) {
+   787→  return (
+   788→    <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card py-2 ps-2 pe-3.5 shadow-sm">
+   789→      <img
+   790→        src={airlineLogo(a.code)}
+   791→        alt={a.name}
+   792→        width={36}
+   793→        height={36}
+   794→        loading="lazy"
+   795→        className="h-9 w-9 shrink-0 rounded-lg bg-white object-contain p-0.5"
+   796→      />
+   797→      <div className="leading-tight">
+   798→        <p className="whitespace-nowrap text-xs font-bold text-foreground">{a.name}</p>
+   799→        <p className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold tracking-[0.12em] text-muted-foreground">
+   800→          <Icon name="plane" className="h-2.5 w-2.5 text-gold-deep" />
+   801→          {a.code} · SAUDI
+   802→        </p>
+   803→      </div>
+   804→    </div>
+   805→  );
+   806→}
+   807→
+   808→function AirlineRow({
+   809→  airlines,
+   810→  regionKey,
+   811→  duration,
+   812→  reverse,
+   813→}: {
+   814→  airlines: Airline[];
+   815→  regionKey: string;
+   816→  duration: number;
+   817→  reverse?: boolean;
+   818→}) {
+   819→  const { t } = useT();
+   820→  return (
+   821→    <div dir="ltr" className="marquee-hover-pause marquee-mask relative overflow-hidden">
+   822→      <div
+   823→        className={cn("animate-marquee flex w-max items-stretch", reverse && "animate-marquee-reverse")}
+   824→        style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
+   825→      >
+   826→        {[0, 1].map((copy) => (
+   827→          <div
+   828→            key={copy}
+   829→            aria-hidden={copy === 1}
+   830→            className="flex items-stretch gap-3 pe-3"
+   831→          >
+   832→            <span className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-gold to-gold-soft px-4 text-[11px] font-extrabold uppercase tracking-[0.14em] text-forest-deep shadow-sm">
+   833→              <Icon name="plane-takeoff" className="h-3.5 w-3.5" />
+   834→              {t(`home.airlines.${regionKey}`)}
+   835→            </span>
+   836→            {airlines.map((a) => (
+   837→              <AirlineChip key={`${copy}-${a.code}`} a={a} />
+   838→            ))}
+   839→          </div>
+   840→        ))}
+   841→      </div>
+   842→    </div>
+   843→  );
+   844→}
+   845→
+   846→/* ================= DIREKTORI FILTER KAWASAN — pulihan Task 29 ================= */
+   847→type RegionKey = "all" | "gcc" | "asia" | "africaEurope";
+   848→
+   849→function AirlinesDirectory() {
+   850→  const { t } = useT();
+   851→  const [region, setRegion] = useState<RegionKey>("all");
+   852→
+   853→  const regions: { key: RegionKey; label: string; list: Airline[] }[] = [
+   854→    { key: "all", label: t("home.airlines.regionAll"), list: AIRLINES_ALL },
+   855→    { key: "gcc", label: t("home.airlines.regionGcc"), list: AIRLINES_GCC },
+   856→    { key: "asia", label: t("home.airlines.regionAsia"), list: AIRLINES_ASIA },
+   857→    { key: "africaEurope", label: t("home.airlines.regionAfricaEurope"), list: AIRLINES_AFRICA_EUROPE },
+   858→  ];
+   859→  const active = regions.find((r) => r.key === region) ?? regions[0];
+   860→
+   861→  return (
+   862→    <Reveal className="mt-12">
+   863→      <div className="rounded-3xl border bg-card p-5 sm:p-7 shadow-sm">
+   864→        <div className="flex flex-col items-start gap-1">
+   865→          <h3 className="text-lg font-extrabold leading-tight">{t("home.airlines.filterTitle")}</h3>
+   866→          <p className="text-xs text-muted-foreground">{t("home.airlines.filterSub")}</p>
+   867→        </div>
+   868→
+   869→        {/* Chip filter kawasan ber-counter */}
+   870→        <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t("home.airlines.filterTitle")}>
+   871→          {regions.map((r) => {
+   872→            const isActive = region === r.key;
+   873→            return (
+   874→              <button
+   875→                key={r.key}
+   876→                type="button"
+   877→                onClick={() => setRegion(r.key)}
+   878→                aria-pressed={isActive}
+   879→                className={cn(
+   880→                  "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition-all",
+   881→                  isActive
+   882→                    ? "border-transparent bg-gradient-to-r from-gold to-gold-soft text-forest-deep shadow-md"
+   883→                    : "border-border bg-muted/40 text-foreground/75 hover:border-gold/40 hover:bg-gold/10 hover:text-gold-deep"
+   884→                )}
+   885→              >
+   886→                {r.label}
+   887→                <span
+   888→                  className={cn(
+   889→                    "grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-extrabold",
+   890→                    isActive ? "bg-forest-deep/15 text-forest-deep" : "bg-primary/10 text-primary"
+   891→                  )}
+   892→                >
+   893→                  {r.list.length}
+   894→                </span>
+   895→              </button>
+   896→            );
+   897→          })}
+   898→        </div>
+   899→
+   900→        {/* Grid hasil direktori — scroll vertikal */}
+   901→        <p className="mt-5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground" aria-live="polite">
+   902→          {t("home.airlines.resultCount", { n: active.list.length })}
+   903→        </p>
+   904→        <div
+   905→          key={active.key}
+   906→          className="mt-3 max-h-96 overflow-y-auto pe-1 scrollbar-thin"
+   907→        >
+   908→          <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" stagger={0.03}>
+   909→            {active.list.map((a) => (
+   910→              <StaggerItem key={a.code}>
+   911→                <AirlineChip a={a} />
+   912→              </StaggerItem>
+   913→            ))}
+   914→          </Stagger>
+   915→        </div>
+   916→      </div>
+   917→    </Reveal>
+   918→  );
+   919→}
+   920→
+   921→function AirlinesSection() {
+   922→  const { t, locale } = useT();
+   923→  return (
+   924→    <section aria-label={t("home.airlines.aria")} className="py-20">
+   925→      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+   926→        <SectionHeading
+   927→          eyebrow={t("home.airlines.eyebrow")}
+   928→          title={t("home.airlines.title")}
+   929→          subtitle={t("home.airlines.subtitle")}
+   930→        />
+   931→
+   932→        {/* Statistik jaringan — CountUp sinematik */}
+   933→        <Reveal className="mt-10">
+   934→          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+   935→            {AIRLINE_STATS.map((s) => (
+   936→              <div
+   937→                key={s.k}
+   938→                className="flex items-center gap-3.5 rounded-2xl border bg-card p-4 shadow-sm"
+   939→              >
+   940→                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold-deep">
+   941→                  <Icon name={s.icon} className="h-5 w-5" />
+   942→                </div>
+   943→                <div className="min-w-0">
+   944→                  <div className="whitespace-nowrap text-xl font-extrabold leading-none text-foreground sm:text-2xl">
+   945→                    {s.num != null ? (
+   946→                      <CountUp value={s.num} suffix={s.suffix ?? ""} locale={locale} />
+   947→                    ) : (
+   948→                      t(`home.airlines.${s.k}Value`)
+   949→                    )}
+   950→                  </div>
+   951→                  <div className="mt-1.5 text-[11px] text-muted-foreground sm:text-xs">
+   952→                    {t(`home.airlines.${s.k}`)}
+   953→                  </div>
+   954→                </div>
+   955→              </div>
+   956→            ))}
+   957→          </div>
+   958→        </Reveal>
+   959→
+   960→        {/* Kartu unggulan — maskapai Indonesia */}
+   961→        <Reveal className="mb-5 mt-12">
+   962→          <div className="flex items-center gap-3">
+   963→            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold-deep">
+   964→              <Icon name="plane-takeoff" className="h-5 w-5" />
+   965→            </div>
+   966→            <div>
+   967→              <h3 className="text-lg font-extrabold leading-tight">{t("home.airlines.indonesiaTitle")}</h3>
+   968→              <p className="text-xs text-muted-foreground">{t("home.airlines.indonesiaSub")}</p>
+   969→            </div>
+   970→          </div>
+   971→        </Reveal>
+   972→        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>
+   973→          {AIRLINES_INDONESIA.map((a) => (
+   974→            <StaggerItem key={a.code}>
+   975→              <div className="group relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br from-forest-deep to-forest p-5 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+   976→                <div aria-hidden className="absolute inset-0 bg-islamic-pattern-gold opacity-40" />
+   977→                <div className="relative flex items-center gap-3.5">
+   978→                  <img
+   979→                    src={airlineLogo(a.code)}
+   980→                    alt={a.name}
+   981→                    width={56}
+   982→                    height={56}
+   983→                    loading="lazy"
+   984→                    className="h-14 w-14 shrink-0 rounded-xl bg-white object-contain p-1 shadow-md transition-transform duration-300 group-hover:scale-105"
+   985→                  />
+   986→                  <div className="min-w-0">
+   987→                    <p className="truncate font-extrabold leading-tight">{a.name}</p>
+   988→                    <span className="mt-1.5 inline-flex items-center rounded-full border border-gold/30 bg-gold/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.14em] text-gold-soft">
+   989→                      IATA {a.code}
+   990→                    </span>
+   991→                  </div>
+   992→                </div>
+   993→                <p className="relative mt-3.5 flex items-center gap-1.5 text-[11px] text-emerald-100/80">
+   994→                  <Icon name="map-pin" className="h-3 w-3 shrink-0 text-gold" />
+   995→                  {t("home.airlines.routes")}
+   996→                </p>
+   997→              </div>
+   998→            </StaggerItem>
+   999→          ))}
+  1000→        </Stagger>
+  1001→
+  1002→        {/* Marquee tiga kawasan — arah berselang-seling, hover jeda */}
+  1003→        <div className="mt-12 space-y-4">
+  1004→          <AirlineRow airlines={AIRLINES_GCC} regionKey="regionGcc" duration={52} />
+  1005→          <AirlineRow airlines={AIRLINES_ASIA} regionKey="regionAsia" duration={64} reverse />
+  1006→          <AirlineRow airlines={AIRLINES_AFRICA_EUROPE} regionKey="regionAfricaEurope" duration={56} />
+  1007→        </div>
+  1008→
+  1009→        {/* Direktori filter kawasan — pulihan Task 29 */}
+  1010→        <AirlinesDirectory />
+  1011→
+  1012→        <Reveal className="mt-8">
+  1013→          <p className="flex items-start justify-center gap-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+  1014→            <Icon name="info" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-deep" />
+  1015→            <span className="max-w-2xl">{t("home.airlines.note")}</span>
+  1016→          </p>
+  1017→        </Reveal>
+  1018→      </div>
+  1019→    </section>
+  1020→  );
+  1021→}
+  1022→
+  1023→/* ================= MAIN ================= */
+  1024→export function HomeView() {
+  1025→  const { t, locale } = useT();
+  1026→  const [data, setData] = useState<{
+  1027→    ecosystems: Ecosystem[];
+  1028→    steps: JourneyStep[];
+  1029→    roadmap: Roadmap[];
+  1030→    testimonials: Testimonial[];
+  1031→    articles: Article[];
+  1032→  } | null>(null);
+  1033→  const [error, setError] = useState("");
+  1034→
+  1035→  useEffect(() => {
+  1036→    Promise.all([
+  1037→      apiGet<Ecosystem[]>(`/api/ecosystems?locale=${locale}`),
+  1038→      apiGet<JourneyStep[]>(`/api/journey?locale=${locale}`),
+  1039→      apiGet<Roadmap[]>(`/api/roadmap?locale=${locale}`),
+  1040→      apiGet<Testimonial[]>(`/api/testimonials?locale=${locale}`),
+  1041→      apiGet<Article[]>(`/api/articles?limit=3&locale=${locale}`),
+  1042→    ])
+  1043→      .then(([ecosystems, steps, roadmap, testimonials, articles]) =>
+  1044→        setData({ ecosystems, steps, roadmap, testimonials, articles })
+  1045→      )
+  1046→      .catch((e) => setError(e.message));
+  1047→  }, [locale]);
+  1048→
+  1049→  if (error) {
+  1050→    return (
+  1051→      <div className="py-24 text-center">
+  1052→        <Icon name="alert-triangle" className="h-10 w-10 mx-auto text-destructive" />
+  1053→        <p className="mt-3 text-muted-foreground">{error}</p>
+  1054→        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+  1055→          <Icon name="rotate" className="h-4 w-4 me-2" /> {t("home.umum.muatUlang")}
+  1056→        </Button>
+  1057→      </div>
+  1058→    );
+  1059→  }
+  1060→
+  1061→  if (!data) return <LoadingSkeleton />;
+  1062→
+  1063→  return (
+  1064→    <div className={cn("flex flex-col")}>
+  1065→      <Hero />
+  1066→      <NusukLiveStrip />
+  1067→      <NusukBar />
+  1068→      <AirlinesSection />
+  1069→      <EcosystemSection ecosystems={data.ecosystems} />
+  1070→      <JourneySection steps={data.steps} />
+  1071→      <PartnersSection />
+  1072→      <ValuesSection />
+  1073→      <TechSection />
+  1074→      <RoadmapSection roadmap={data.roadmap} />
+  1075→      <BenefitsSection />
+  1076→      <TestimonialSection testimonials={data.testimonials} />
+  1077→      <LatestNews articles={data.articles} />
+  1078→      <JoinCTA />
+  1079→    </div>
+  1080→  );
+  1081→}
+  1082→
+  1083→function LoadingSkeleton() {
+  1084→  return (
+  1085→    <div className="space-y-6 pb-10">
+  1086→      <div className="h-[520px] w-full bg-forest-deep/90" />
+  1087→      <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-10">
+  1088→        <Skeleton className="h-8 w-72 mx-auto" />
+  1089→        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+  1090→          {Array.from({ length: 5 }).map((_, i) => (
+  1091→            <Skeleton key={i} className="h-40 rounded-2xl" />
+  1092→          ))}
+  1093→        </div>
+  1094→        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  1095→          {Array.from({ length: 8 }).map((_, i) => (
+  1096→            <Skeleton key={i} className="h-28 rounded-2xl" />
+  1097→          ))}
+  1098→        </div>
+  1099→      </div>
+  1100→    </div>
+  1101→  );
+  1102→}
+  1103→

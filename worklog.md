@@ -893,3 +893,26 @@ Stage Summary:
 - Catatan jujur terdokumentasi: data tulis di Vercel ephemeral (cocok portal publik/demo/preview); data permanen → PHP shared hosting / Node cPanel / VPS
 - README v3.1.0 100% Markdown murni — terbaca rapi di GitHub, VS Code, dashboard Vercel, HP, dan editor teks polos
 - Bukti visual: /tmp/e2e-desktop.png (dashboard CMS) · /tmp/e2e-mobile.png (hero EN 390px)
+
+---
+Task ID: 32
+Agent: Z.ai Code (main orchestrator)
+Task: "Pastikan semua link bisa di klik dan hidup" — audit & hidupkan seluruh link/CTA MUHDIN + sempurnakan website
+
+Work Log:
+- Audit menyeluruh via Explore agent: memetakan 16 route hash + semua <a>/button di views/site/admin; temuan utama: (1) tombol "Kirim Pesan Uji" WhatsApp di CMS menembak endpoint yang TIDAK ADA (405), (2) 4-5 ikon sosmed footer semuanya placeholder `#/kontak` padahal URL asli sudah ada di tabel SiteSetting, (3) footer "Cek Verifikasi" tidak bisa deep-link ke tab, (4) 6 link "Layanan Ekosistem" footer semua menuju halaman generik sama, (5) kartu ekosistem Beranda tidak membuka detail spesifik, (6) email/telepon/alamat/Kanal Prioritas di kontak & footer tidak klikable (tanpa mailto/tel/maps), (7) shortcut PWA manifest pakai format hash tak konsisten `/#nusuk`
+- FIX HIGH #1: endpoint baru `POST /api/whatsapp/test` (guard ADMIN+) — memanggil sendWhatsAppMessage() via provider tersimpan (FONNTE/WABLAS/CUSTOM), mencatat lastTestAt/lastTestStatus, membalas {sent, detail} untuk toast CMS
+- FIX HIGH #2: footer sosmed kini membaca URL asli dari `GET /api/settings` (instagram/facebook/twitter/youtube + ikon WhatsApp baru via wa.me) dengan fallback `#/kontak`; URL dari CMS jadi sumber kebenaran tunggal
+- FIX MEDIUM #3: deep-link `#/anggota/verifikasi` — MembersView terima initialTab + key-remount di muhdin-app; footer "Cek Verifikasi" langsung membuka tab verifikasi
+- FIX MEDIUM #4: deep-link `#/ekosistem/<nomor>` — dialog detail auto-terbuka via derived state (picked ?? deepLinked, tanpa setState-in-effect); kartu 13 ekosistem di Beranda kini navigate ke detail masing-masing; 6 link layanan footer dipetakan ke nomor ekosistem (visa→1, handling→2, akomodasi→6, raudah→9, retail→11, command→13); menutup dialog membersihkan hash ke `#/ekosistem`
+- FIX MEDIUM #5: 4 kartu kontak kini tautan hidup utuh (mailto:, tel:, Google Maps, #/lapor) dengan hover state; footer email/telepon/website juga klikable (mailto/tel/https); sumber email+phone dari settings dengan fallback
+- FIX LOW #6: manifest.webmanifest shortcut diperbaiki ke `/#/nusuk`, `/#/anggota`, `/#/tutorial`
+- Lint fix: pola setState-in-effect dihapus → derived state (useMemo) + key-remount; `bun run lint` 0 error
+- README v3.1.0 diverifikasi: semua anchor TOC valid, 4 klaim branding lengkap (pertama di dunia · PHI/IPHI pra-1946 · pengurus tokoh nasional/internasional · blueprint karya abadi), susunan pengurus Prof. Dr. Anwar Sanusi dkk., panduan Vercel Opsi 1 — dipertahankan
+- E2E Agent Browser (semua LOLOS): kartu ekosistem beranda → #/ekosistem/1 + dialog "Visa Umroh & Haji"; tutup dialog → hash bersih; 5 sosmed footer ber-URL eksternal asli + mailto + tel; footer "Cek Verifikasi" → #/anggota/verifikasi tab aktif; footer "Command Center 24/7" → #/ekosistem/13 dialog terbuka; 4 kartu kontak klikable (mailto/tel/maps/#/lapor) + kartu lapor → halaman Pengaduan; CMS login → aktifkan WA → POST /api/whatsapp/test = 200 dengan respons gateway nyata {"sent":false,"detail":"invalid token"} + lastTestStatus tercatat (pipeline ujung-ke-ujung hidup); 4 PDF unduhan 200; 15 rute publik render h1 benar; deep-link berita/tutorial per slug; halaman 404 OK; mobile 390px menu sheet 22 item + footer ada; 0 error console/runtime
+- Konfigurasi WA dikembalikan (enabled=false) setelah uji; browser ditutup bersih
+
+Stage Summary:
+- Tidak ada lagi link mati di MUHDIN: setiap ikon, kartu, tombol navigasi, dan CTA kini membawa tujuan nyata (route dalam, dialog detail, mailto/tel, Google Maps, wa.me, PDF, atau URL sosmed resmi dari CMS)
+- Fitur baru: deep-link `#/ekosistem/<nomor>` & `#/anggota/verifikasi`; endpoint POST /api/whatsapp/test; sosmed & kontak terpusat dari Pengaturan Situs (CMS) — admin cukup ubah URL sekali, seluruh situs ikut
+- Semua 15 rute + 404 + deep-link slug terverifikasi hidup; lint 0 error; dev.log bersih

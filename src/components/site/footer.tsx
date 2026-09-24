@@ -16,10 +16,10 @@
  * viewport (mt-auto).
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useHashRoute, navigate } from "@/hooks/use-hash-route";
 import { useToast } from "@/hooks/use-toast";
-import { apiSend } from "@/lib/client-api";
+import { apiGet, apiSend } from "@/lib/client-api";
 import { MuhdinBrand } from "@/components/site/logo";
 import { Icon } from "@/components/site/icon";
 import { BRAND } from "@/lib/constants";
@@ -33,7 +33,8 @@ const NAV_LINKS: [path: string, key: string][] = [
   ["ekosistem", "ekosistem13"],
   ["alur", "alur"],
   ["anggota", "anggota"],
-  ["anggota", "verifikasi"],
+  // Task 30 — deep-link tab verifikasi: #/anggota/verifikasi kini membuka tab Cek Verifikasi langsung.
+  ["anggota/verifikasi", "verifikasi"],
   ["tutorial", "tutorial"],
   ["berita", "berita"],
   ["gabung", "gabung"],
@@ -48,9 +49,32 @@ const QUICK_LINKS: [path: string, key: string][] = [
   ["lapor", "lapor"],
 ];
 
-const EKOSISTEM_KEYS = ["visa", "handling", "akomodasi", "raudah", "retail", "command"] as const;
+/** Task 30 — tiap layanan footer kini deep-link ke detail ekosistemnya (dialog auto-terbuka). */
+const EKOSISTEM_LINKS: [key: string, num: number][] = [
+  ["visa", 1],
+  ["handling", 2],
+  ["akomodasi", 6],
+  ["raudah", 9],
+  ["retail", 11],
+  ["command", 13],
+];
 
-const SOCIALS = ["instagram", "facebook", "twitter", "youtube"] as const;
+/** Task 30 — ikon sosmed memakai URL resmi dari Pengaturan Situs (CMS), bukan placeholder. */
+const SOCIALS: [key: string, icon: string, settingKey: string][] = [
+  ["instagram", "instagram", "instagram"],
+  ["facebook", "facebook", "facebook"],
+  ["twitter", "twitter", "twitter"],
+  ["youtube", "youtube", "youtube"],
+  ["whatsapp", "message-circle", "whatsapp"],
+];
+
+/** Normalisasi nomor WA menjadi format internasional untuk tautan wa.me. */
+function waDigits(raw: string): string {
+  let d = (raw || "").replace(/\D/g, "");
+  if (d.startsWith("0")) d = `62${d.slice(1)}`;
+  else if (d.startsWith("8")) d = `62${d}`;
+  return d;
+}
 
 /** Bar kepercayaan — fitur nyata hasil Task 14–18. */
 const TRUST_BADGES: [icon: string, key: string][] = [
@@ -233,9 +257,29 @@ function Credit({
 export function Footer() {
   const route = useHashRoute();
   const { t } = useT();
+  const [settings, setSettings] = useState<Record<string, string> | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    apiGet<Record<string, string>>("/api/settings")
+      .then((s) => alive && setSettings(s))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   if (route[0] === "admin") return null;
 
   const go = (path: string) => navigate(path);
+
+  /** URL sosmed asli dari CMS; fallback ke halaman kontak bila belum diisi. */
+  const socialHref = (settingKey: string): string => {
+    const raw = settings?.[settingKey]?.trim();
+    if (!raw) return "#/kontak";
+    if (settingKey === "whatsapp") return `https://wa.me/${waDigits(raw)}`;
+    return /^https?:\/\//.test(raw) ? raw : `https://${raw}`;
+  };
 
   return (
     <footer className="relative mt-auto overflow-hidden bg-forest-deep text-emerald-50/90">
@@ -271,16 +315,22 @@ export function Footer() {
                 ✦ {t("footer.tagline")}
               </p>
               <div className="flex gap-2 pt-1">
-                {SOCIALS.map((s) => (
-                  <a
-                    key={s}
-                    href="#/kontak"
-                    aria-label={s.charAt(0).toUpperCase() + s.slice(1)}
-                    className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-emerald-100/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-gold/15 hover:text-gold hover:shadow-[0_8px_20px_-6px_rgba(212,175,55,0.4)]"
-                  >
-                    <Icon name={s} className="h-4 w-4" />
-                  </a>
-                ))}
+                {SOCIALS.map(([key, icon, settingKey]) => {
+                  const href = socialHref(settingKey);
+                  const external = href.startsWith("http");
+                  return (
+                    <a
+                      key={key}
+                      href={href}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noopener noreferrer" : undefined}
+                      aria-label={key.charAt(0).toUpperCase() + key.slice(1)}
+                      className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-emerald-100/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-gold/15 hover:text-gold hover:shadow-[0_8px_20px_-6px_rgba(212,175,55,0.4)]"
+                    >
+                      <Icon name={icon} className="h-4 w-4" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
 
@@ -312,9 +362,9 @@ export function Footer() {
             <nav aria-label={t("footer.colEcosystem")}>
               <ColHead>{t("footer.colEcosystem")}</ColHead>
               <ul className="space-y-2.5 text-sm">
-                {EKOSISTEM_KEYS.map((k) => (
+                {EKOSISTEM_LINKS.map(([k, num]) => (
                   <li key={k}>
-                    <FootLink onClick={() => go("ekosistem")}>{t(`footer.eco.${k}`)}</FootLink>
+                    <FootLink onClick={() => go(`ekosistem/${num}`)}>{t(`footer.eco.${k}`)}</FootLink>
                   </li>
                 ))}
               </ul>
@@ -326,11 +376,22 @@ export function Footer() {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start gap-2.5">
                   <Icon name="mail" className="h-4 w-4 mt-0.5 text-gold shrink-0" />
-                  <span className="text-emerald-100/70 break-all">info@muhdin.web.id</span>
+                  <a
+                    href={`mailto:${settings?.email?.trim() || "info@muhdin.web.id"}`}
+                    className="text-emerald-100/70 break-all transition-colors hover:text-gold"
+                  >
+                    {settings?.email?.trim() || "info@muhdin.web.id"}
+                  </a>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <Icon name="phone" className="h-4 w-4 mt-0.5 text-gold shrink-0" />
-                  <span className="text-emerald-100/70" dir="ltr">+62 21 1234 5678</span>
+                  <a
+                    href={`tel:${(settings?.phone?.trim() || "+62 21 1234 5678").replace(/[^+\d]/g, "")}`}
+                    className="text-emerald-100/70 transition-colors hover:text-gold"
+                    dir="ltr"
+                  >
+                    {settings?.phone?.trim() || "+62 21 1234 5678"}
+                  </a>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <Icon name="map-pin" className="h-4 w-4 mt-0.5 text-gold shrink-0" />
@@ -338,7 +399,15 @@ export function Footer() {
                 </li>
                 <li className="flex items-start gap-2.5">
                   <Icon name="globe" className="h-4 w-4 mt-0.5 text-gold shrink-0" />
-                  <span className="text-emerald-100/70" dir="ltr">www.muhdin.web.id</span>
+                  <a
+                    href="https://www.muhdin.web.id"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-100/70 transition-colors hover:text-gold"
+                    dir="ltr"
+                  >
+                    www.muhdin.web.id
+                  </a>
                 </li>
               </ul>
             </div>

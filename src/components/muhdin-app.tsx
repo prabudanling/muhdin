@@ -93,13 +93,16 @@ export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en
       content = <HomeView />;
       break;
     case "ekosistem":
-      content = <EcosystemView />;
+      // Task 30 — deep-link #/ekosistem/<nomor> membuka dialog detail langsung.
+      content = <EcosystemView focusNumber={route[1]} />;
       break;
     case "alur":
       content = <JourneyView />;
       break;
     case "anggota":
-      content = <MembersView />;
+      // Task 30 — deep-link #/anggota/verifikasi membuka tab Cek Verifikasi.
+      // key-remount agar state tab mengikuti hash terbaru.
+      content = <MembersView key={`anggota-${route[1] ?? ""}`} initialTab={route[1]} />;
       break;
     case "tutorial":
       content = <TutorialView slug={route[1]} />;

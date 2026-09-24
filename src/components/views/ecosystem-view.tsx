@@ -12,6 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { useT } from "@/lib/i18n";
+import { navigate } from "@/hooks/use-hash-route";
 import { CLUSTERS } from "@/lib/constants";
 import type { Ecosystem } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -23,12 +24,13 @@ const CLUSTER_KEY: Record<string, string> = {
   "Nilai Tambah & Jaminan Mutu": "ecosystem.cluster.quality",
 };
 
-export function EcosystemView() {
+export function EcosystemView({ focusNumber }: { focusNumber?: string }) {
   const { t, locale } = useT();
   const [ecosystems, setEcosystems] = useState<Ecosystem[] | null>(null);
   const [cluster, setCluster] = useState<string>("all");
   const [q, setQ] = useState("");
-  const [selected, setSelected] = useState<Ecosystem | null>(null);
+  /** Task 30 — picked: kartu yang diklik manual; deepLinked: dari URL #/ekosistem/<nomor>. */
+  const [picked, setPicked] = useState<Ecosystem | null>(null);
 
   const clusterLabel = (name: string) => {
     const key = CLUSTER_KEY[name];
@@ -40,6 +42,16 @@ export function EcosystemView() {
       .then(setEcosystems)
       .catch(() => setEcosystems([]));
   }, [locale]);
+
+  // Task 30 — deep-link #/ekosistem/<nomor> membuka dialog detail secara derived
+  // (dipakai kartu ekosistem di Beranda & kolom Layanan di Footer).
+  const deepLinked = useMemo<Ecosystem | null>(() => {
+    if (!ecosystems || !focusNumber) return null;
+    const num = parseInt(focusNumber, 10);
+    if (Number.isNaN(num)) return null;
+    return ecosystems.find((e) => e.number === num) ?? null;
+  }, [ecosystems, focusNumber]);
+  const selected = picked ?? deepLinked;
 
   const filtered = useMemo(() => {
     if (!ecosystems) return [];
@@ -120,7 +132,7 @@ export function EcosystemView() {
               {filtered.map((e, i) => (
                 <Reveal key={e.id} delay={Math.min(i * 0.04, 0.4)}>
                   <button
-                    onClick={() => setSelected(e)}
+                    onClick={() => setPicked(e)}
                     className="group h-full w-full text-left rounded-2xl border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -148,7 +160,15 @@ export function EcosystemView() {
       </section>
 
       {/* Detail dialog */}
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+      <Dialog
+        open={!!selected}
+        onOpenChange={(o) => {
+          if (o) return;
+          setPicked(null);
+          // Bersihkan deep-link agar refresh tidak membuka dialog lagi.
+          if (window.location.hash.includes("/ekosistem/")) navigate("ekosistem");
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto scrollbar-thin">
           {selected && (
             <>

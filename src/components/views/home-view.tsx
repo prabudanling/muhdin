@@ -392,7 +392,8 @@ function EcosystemSection({ ecosystems }: { ecosystems: Ecosystem[] }) {
                   {items.map((e) => (
                     <StaggerItem key={e.id}>
                       <button
-                        onClick={() => navigate("ekosistem")}
+                        onClick={() => navigate(`ekosistem/${e.number}`)}
+                        aria-label={`${e.name} — ${t("home.umum.selengkapnya")}`}
                         className="group h-full w-full text-start rounded-2xl border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
                       >
                         <div className="flex items-start justify-between">
