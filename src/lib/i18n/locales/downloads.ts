@@ -24,6 +24,10 @@ export const downloadsDict = {
       emptyTitle: "Belum Ada Dokumen",
       emptyDesc: "Dokumen sedang disiapkan. Silakan kembali lagi nanti.",
       toastFailTitle: "Gagal memproses unduhan",
+      kitTitle: "Kit Promosi — DAFTAR & IURAN GRATIS",
+      kitDesc:
+        "Banner siap pakai untuk WhatsApp & Instagram (feed, story, share link) — gratis diunduh dan dibagikan.",
+      kitCta: "BUKA KIT PROMOSI",
     },
   },
   en: {
@@ -45,6 +49,10 @@ export const downloadsDict = {
       emptyTitle: "No Documents Yet",
       emptyDesc: "Documents are being prepared. Please come back later.",
       toastFailTitle: "Failed to process the download",
+      kitTitle: "Promo Kit — FREE Registration & Dues",
+      kitDesc:
+        "Ready-to-share banners for WhatsApp & Instagram (feed, story, link preview) — free to download.",
+      kitCta: "OPEN PROMO KIT",
     },
   },
   ar: {
@@ -65,6 +73,9 @@ export const downloadsDict = {
       emptyTitle: "لا توجد مستندات بعد",
       emptyDesc: "المستندات قيد الإعداد. يرجى العودة لاحقا.",
       toastFailTitle: "فشل تجهيز التنزيل",
+      kitTitle: "حزمة الدعاية — التسجيل والاشتراك مجاناً",
+      kitDesc: "لافتات جاهزة للمشاركة على واتساب وإنستغرام (منشور وستوري ومعاينة الرابط) — تنزيل مجاني.",
+      kitCta: "افتح حزمة الدعاية",
     },
   },
 } as const;

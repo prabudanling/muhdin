@@ -1063,6 +1063,10 @@ export function DaftarView() {
               {t(`${NS}.title`)}
             </h1>
             <p className="mt-3 max-w-2xl text-emerald-50/80">{t(`${NS}.subtitle`)}</p>
+            <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-gold/50 bg-gold/15 px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-widest text-gold-soft">
+              <Icon name="check-circle-2" className="h-4 w-4" aria-hidden />
+              {t(`${NS}.freeBadge`)}
+            </p>
           </Reveal>
         </div>
       </section>

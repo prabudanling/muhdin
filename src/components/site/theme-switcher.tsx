@@ -9,6 +9,13 @@
  *
  * next-themes mengembalikan resolvedTheme setelah mount — sebelum mount kita
  * render ikon netral (moon-star) agar bebas hydration mismatch.
+ *
+ * Fix hydration lapis 2 (Task 35-h addendum): Radix DropdownMenuTrigger
+ * merender atribut `id` dari React useId — di dev Next 16, race bookkeeping
+ * TreeContext dapat menggeser useId antara server (Fizz) dan hydration pass.
+ * Solusi bulletproof: id EKSPILIT deterministik pada trigger (radix men-spread
+ * consumer props SETELAH id internal, jadi id kita selalu menang) — atribut
+ * server == client di semua kondisi, mismatch mustahil terjadi.
  */
 import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
@@ -81,6 +88,7 @@ export function ThemeSwitcher({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
+            id="muhdin-theme-trigger-compact"
             variant="ghost"
             size="icon"
             className="h-9 w-9 text-foreground/70 hover:text-primary"
@@ -113,6 +121,7 @@ export function ThemeSwitcher({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
+          id="muhdin-theme-trigger"
           variant="ghost"
           size="icon"
           className={cn(

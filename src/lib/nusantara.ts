@@ -1,7 +1,7 @@
 /**
- * nusantara.ts — Konstanta platform MUHDIN NUSANTARA (Task 33, Master Rebuild).
+ * nusantara.ts — Konstanta platform MUHDIN NUSANTARA (Task 33, Task 35: manifesto baru).
  *
- * Trusted Pilgrim Ecosystem — One Ecosystem. One Standard. One Trust. One Journey.
+ * Trusted Pilgrim Ecosystem — One Ecosystem. One Data. One Standard. One Trust. One Journey.
  *
  * ATURAN EMAS (ROLE 25 — Legal/Compliance Guard):
  *  - Tidak ada klaim dukungan/endorsement pemerintah.
@@ -63,23 +63,100 @@ export const NETWORK_NODES = [
   "JAMAAH",
 ] as const;
 
-/** ROLE 07 §8 — 5 tier keanggotaan (harga Founding 2026). */
+/**
+ * Task 36 — DAFTAR & IURAN GRATIS (branding wajib owner): keanggotaan MUHDIN
+ * 0 rupiah. price="FREE" = sentinel, dirender via dict membership.free agar
+ * terlokalisasi (GRATIS / FREE / مجاناً). STRATEGIC_PARTNER tetap "By
+ * Agreement" (kemitraan komersial, bukan iuran anggota).
+ */
 export const MEMBERSHIP_TIERS: { code: string; icon: string; price: string; period: string }[] = [
-  { code: "INDIVIDUAL", icon: "user", price: "Rp150.000", period: "/tahun" },
-  { code: "PROFESSIONAL", icon: "graduation-cap", price: "Rp300.000", period: "/tahun" },
-  { code: "ORGANIZATION", icon: "building", price: "Rp1.500.000", period: "/tahun" },
-  { code: "PPIU_PIHK", icon: "plane-takeoff", price: "Rp3.000.000", period: "/tahun" },
+  { code: "INDIVIDUAL", icon: "user", price: "FREE", period: "" },
+  { code: "PROFESSIONAL", icon: "graduation-cap", price: "FREE", period: "" },
+  { code: "ORGANIZATION", icon: "building", price: "FREE", period: "" },
+  { code: "PPIU_PIHK", icon: "plane-takeoff", price: "FREE", period: "" },
   { code: "STRATEGIC_PARTNER", icon: "handshake", price: "By Agreement", period: "" },
 ];
 
-/** ROLE 07 §9 — 6 topik MUHDIN Academy. */
+/** Task 35 (manifesto) — 12 kategori "SIAPA YANG BISA BERGABUNG?" (homepage). */
+export const JOIN_CATEGORIES: { code: string; icon: string }[] = [
+  { code: "PPIU", icon: "plane-takeoff" },
+  { code: "PIHK", icon: "landmark" },
+  { code: "KBIHU", icon: "users" },
+  { code: "SAUDI_PROVIDER", icon: "building-2" },
+  { code: "HOTEL", icon: "building" },
+  { code: "TRANSPORT", icon: "bus" },
+  { code: "TICKETING", icon: "plane" },
+  { code: "VISA_DOC", icon: "passport" },
+  { code: "HEALTH_INSURANCE", icon: "heart-pulse" },
+  { code: "PROFESSIONAL", icon: "graduation-cap" },
+  { code: "TECHNOLOGY", icon: "brain-circuit" },
+  { code: "STRATEGIC_PARTNER", icon: "handshake" },
+];
+
+/** Task 35 — MUHDIN + MHUTU: 6 blok peran (TRUST MEETS TECHNOLOGY). */
+export const MHUTU_ROLES: { code: string; icon: string }[] = [
+  { code: "MUHDIN", icon: "shield-check" },
+  { code: "MHUTU", icon: "cpu" },
+  { code: "AROFAH", icon: "shopping-bag" },
+  { code: "PPIU_PIHK", icon: "landmark" },
+  { code: "SAUDI_PROVIDER", icon: "building-2" },
+  { code: "JAMAAH", icon: "heart-handshake" },
+];
+
+/** Task 35 — 15 domain yang dikelola MHUTU (digital operating system). */
+export const MHUTU_DOMAINS = [
+  "IDENTITY",
+  "ORGANIZATION",
+  "MEMBERSHIP",
+  "VERIFICATION",
+  "PROVIDER",
+  "PACKAGE",
+  "BOOKING",
+  "JAMAAH",
+  "DOCUMENTS",
+  "JOURNEY",
+  "CONTRACTS",
+  "PAYMENTS",
+  "COMPLAINT",
+  "AUDIT",
+  "JOURNEY_RECORD",
+] as const;
+
+/** Task 35 — MUHDIN Supply Passport: isi profil supply provider. */
+export const SUPPLY_PASSPORT_FIELDS: { code: string; icon: string }[] = [
+  { code: "IDENTITY", icon: "fingerprint" },
+  { code: "SERVICE_CATEGORIES", icon: "grid-3x3" },
+  { code: "CAPACITY", icon: "bar-chart-3" },
+  { code: "DOCUMENTS", icon: "file-text" },
+  { code: "VERIFICATION", icon: "shield-check" },
+  { code: "PARTNERSHIP", icon: "handshake" },
+];
+
+/** Task 35 — MUHDIN Control Tower: 11 visibilitas operasional. */
+export const CONTROL_TOWER_ITEMS: { code: string; icon: string }[] = [
+  { code: "MEMBERS", icon: "users" },
+  { code: "VERIFICATION", icon: "shield-check" },
+  { code: "PROVIDER", icon: "building-2" },
+  { code: "SUPPLY", icon: "boxes" },
+  { code: "JAMAAH", icon: "heart-handshake" },
+  { code: "JOURNEY", icon: "map" },
+  { code: "DOCUMENTS", icon: "file-text" },
+  { code: "CONTRACTS", icon: "scroll-text" },
+  { code: "COMPLAINT", icon: "message-square" },
+  { code: "READINESS", icon: "gauge" },
+  { code: "ALERTS", icon: "bell-ring" },
+];
+
+/** Task 35 (manifesto) — 8 program MUHDIN Academy. */
 export const ACADEMY_TOPICS = [
-  "DIGITAL_UMRAH",
-  "PPIU_OPERATIONS",
+  "PPIU_ACADEMY",
+  "PIHK_ACADEMY",
   "SAUDI_OPERATIONS",
+  "TOUR_LEADER",
+  "MUTAWWIF",
+  "DIGITAL_HAJJ",
   "COMPLIANCE",
-  "TECHNOLOGY",
-  "PROFESSIONAL_DEVELOPMENT",
+  "MHUTU_ACADEMY",
 ] as const;
 
 /** ROLE 08 — 17 pilihan peran pendaftaran + pemetaan ke `type` aplikasi backend. */
@@ -130,9 +207,9 @@ export function formatVerifyId(numericId: number): string {
   return `MHD-VER-${String(numericId).padStart(6, "0")}`;
 }
 
-/** ROLE 07 §1 — subheadline hero (Bahasa Indonesia, tone hangat-profesional). */
+/** ROLE 07 §1 — subheadline hero (Task 35: copy manifesto, Bahasa Indonesia). */
 export const HERO_SUBTITLE =
-  "Menghubungkan penyelenggara, pelaku usaha, profesional, teknologi, dan penyedia layanan haji–umrah dalam satu ekosistem yang lebih terpercaya, transparan, dan terintegrasi.";
+  "MUHDIN mempertemukan penyelenggara, pelaku usaha, profesional, teknologi, dan penyedia layanan haji–umrah dalam sebuah ekosistem yang dibangun atas konektivitas, verifikasi, kolaborasi, dan integrasi digital.";
 
 /** ROLE 25 — disclaimer wajib MUHDIN Verified (teks resmi — JANGAN diubah tanpa tinjauan hukum). */
 export const VERIFIED_DISCLAIMER_ID =

@@ -154,3 +154,38 @@ Model `Tutorial` punya field khusus — isi semuanya:
   via URL file yang sah; agenda memakai waktu dengan zona yang benar.
 - **Direktori anggota**: label "Terverifikasi" hanya untuk status verifikasi
   internal MUHDIN — sisipkan disclaimer bagian 3 saat mengutip di materi lain.
+
+## 8. Whitepaper sebagai Sumber Konsep Resmi
+
+**Whitepaper MUHDIN — Edisi 1.0 (17 September 2026)**, "Arsitektur 13 Ekosistem
+Layanan Umroh-Haji Terintegrasi", adalah **sumber kebenaran tertinggi** untuk
+narasi organisasi. Salinan resminya tersedia publik di `#/unduhan`
+(`/dokumen/whitepaper-muhdin-2026.pdf`).
+
+Ketika menulis/menyunting konten, pastikan angka dan istilah konsisten dengan
+whitepaper:
+
+| Topik | Acuan Whitepaper |
+|---|---|
+| 13 ekosistem layanan + klaster | Bab 5, Tabel 3 |
+| Alur 13 tahap jamaah (zero-gap handover) | Bab 6, Tabel 4 |
+| Lima mitra utama (PPIU, PIHK, KBIHU, IPHI, Travel Wisata) | Bab 4.2, Tabel 2 |
+| Lima nilai utama + makna operasional | Bab 3.3, Tabel 1 |
+| Enam pilar teknologi | Bab 7.1 |
+| Model bisnis 6 sumber pendapatan + akad (Wakalah, Ijarah, Ju'alah, Muwakalah, Musyarakah) | Bab 8, Tabel 5 |
+| Peta jalan 4 fase 2026-2030 | Bab 9, Tabel 6 |
+| KPI (baseline 2026 → target 2030) | Bab 10, Tabel 7 |
+| Manfaat 7 kelompok stakeholder | Bab 11, Tabel 8 |
+| Referensi regulasi (UU 8/2019, UU 27/2022) & platform Nusuk | Referensi |
+
+**Catatan kepatuhan (perkuat bagian 2)**:
+
+- Whitepaper memakai frasa identitas "Asosiasi di Atas Asosiasi" pada sampul;
+  untuk konten web, gunakan bahasa fungsinya: *"diposisikan sebagai titik
+  koordinasi tunggal akses platform Nusuk bagi industri"* — **jangan** menulis
+  klaim peristiwa seperti "resmi dilantik", "ditunjuk", atau "ditetapkan oleh
+  Nusuk/pemerintah".
+- MoU/integrasi dengan Nusuk adalah **deliverable Fase Fondasi (2026)** —
+  sajikan sebagai program/peta jalan, bukan status yang sudah berjalan.
+- Whitepaper berstatus "Draft untuk Konsultasi Pemangku Kepentingan" — kutip
+  sebagai kertas kerja strategis MUHDIN, bukan dokumen hukum pemerintah.

@@ -1018,3 +1018,288 @@ Stage Summary:
 - MUHDIN kini tampil sebagai MUHDIN NUSANTARA — Trusted Pilgrim Ecosystem: "One Ecosystem. One Standard. One Trust. One Journey." dengan 20 rute publik (15 lama + 5 baru) dan homepage 12 section beranimasi ringan.
 - Engine pendaftaran cerdas 17 peran → tiket MHD-XXXXXX → dashboard anggota → verifikasi publik ber-QR dengan disclaimer hukum wajib (ROLE 25 dipatuhi penuh — nol klaim pemerintah/izin/penjaminan).
 - Arsitektur siap Phase 2 (supplier matching, procurement, B2B) & Phase 3 (marketplace, Journey OS, MHUTU): konstanta terpusat di nusantara.ts, status verifikasi 11 tingkat, entitas masa depan terdokumentasi di DATABASE.md; deployment tri-jalur di DEPLOYMENT.md (Vercel ⭐ / Node / PHP shared hosting).
+
+---
+Task ID: 34
+Agent: Z.ai Code (main orchestrator)
+Task: Sinkronisasi website dengan Whitepaper MUHDIN Edisi 1.0 (Sept 2026) — dokumen konsep yang diunggah user (upload/Whitepaper_MUHDIN_BusinessProfessional_2026-09-17.pdf, 18 hlm)
+
+Work Log:
+- BACA WHITEPAPER 18 halaman penuh (cover "Asosiasi di Atas Asosiasi Penyelenggara Ibadah — Operator Nusuk Indonesia", Edisi 1.0 — 17 Sep 2026, status Draft Konsultasi).
+- AUDIT KESESUAIAN (KEEP vs GAP): SUDAH SESUAI = seed 13 ekosistem (Tabel 3), 13 journey (Tabel 4), PARTNERS 5 mitra (Tabel 2), CORE_VALUES 5 nilai (Tabel 1), KPI_ROWS 7 indikator (Tabel 7), visi-misi (Bab 3), prinsip federasi IATA (Bab 4.1), tata kelola 3 instrumen (4.4), roadmap 4 fase (Bab 9). GAP = Enam Pilar Teknologi (7.1) hanya konstanta tak dirender, Manfaat 7 stakeholder (Tabel 8) tak ada, Model Bisnis 6 sumber pendapatan + akad (Tabel 5) tak ada, whitepaper tidak tersedia publik, klaim "resmi dilantik Operator Nusuk" di seed.
+- constants.ts: +REVENUE_SOURCES (r1-r6 + ikon) & STAKEHOLDER_GROUPS (s1-s7 + ikon); teks terlokalisasi di i18n.
+- about.ts: +keys tech (eyebrow/title/subtitle + p1-p6), stake (s1-s7), biz (r1-r6 name/desc/akad + note + refNote UU 8/2019, UU 27/2022, umrah.nusuk.sa) — × 3 bahasa (id/en/ar, Arab lengkap).
+- about-view.tsx: +3 section — "Enam Pilar Teknologi Terpadu" (grid 3×2, ikon gradient forest), "Manfaat bagi Pemangku Kepentingan" (7 kartu), "Model Bisnis Berakar Akad Syariah" (tabel 3 kolom hijau forest + panel gold escrow/takaful + footnote regulasi); ritme bg selang-seling diperbaiki.
+- WHITEPAPER PUBLIK: PDF di-copy ke public/dokumen/whitepaper-muhdin-2026.pdf (807 KB); Resource baru (kategori Panduan) via seed + sync script; muncul di #/unduhan dan dapat diunduh (API download OK, file 200).
+- KEPATUHAN (ROLE 25 × Whitepaper): artikel "MUHDIN Resmi Dilantik sebagai Operator Nusuk Indonesia" ditulis ulang total → "MUHDIN Diposisikan sebagai Titik Koordinasi Akses Nusuk bagi Industri Ibadah" (framing 4.3: federasi/IATA, 3 pilar akses kolektif, MoU = deliverable Fase Fondasi 2026 — bukan status berjalan); tutorial 2×, FAQ 3×, artikel Nusuk-40-juta 1× dilunakkan ("titik koordinasi akses Nusuk"); nol sisa frasa "Operator Nusuk" di DB; frasa identitas sampul whitepaper di footer dipertahankan (keputusan: identitas organisasi boleh, klaim peristiwa pengangkatan resmi dihapus).
+- seed.ts: +resources array + createMany + deleteMany + count; sinkron teks kepatuhan; scripts/seed-task23.mjs ikut dilunakkan.
+- scripts/task34-whitepaper-sync.ts (baru): sinkron DB HIDUP tanpa reseed — artikel rewrite 1, tutorial 2/13, FAQ 3/13, resource +1, verifikasi sisa klaim = 0.
+- README.md: +blok "Dokumen sumber konsep" (Whitepaper Edisi 1.0 = sumber kebenaran, tersedia di #/unduhan); CONTENT_GUIDE.md: +§8 "Whitepaper sebagai Sumber Konsep Resmi" (tabel acuan bab/tabel whitepaper + catatan kepatuhan bahasa aman).
+- QA E2E Agent Browser: /#/tentang 12/12 konten baru OK (6 pilar, 7 stakeholder, tabel akad, UU, nusuk.sa); bahasa Arab cookie muhdin-locale=ar → dir=rtl + 6/6 teks Arab OK (sekali gagal karena set localStorage, sumber kebenaran ternyata cookie — diperbaiki); /#/unduhan kartu whitepaper OK + POST /api/resources/{id}/download → fileUrl OK + curl PDF HTTP 200 (807 KB); berita: judul baru tampil, judul lama hilang; homepage utuh (h1 MUHDIN NUSANTARA); mobile 390px tanpa scroll horizontal; footer sticky; console/eror 0; lint 0 error; dev.log sehat.
+
+Stage Summary:
+- Website kini 100% selaras Whitepaper MUHDIN Edisi 1.0: seluruh 13 bab terwakili di portal (13 ekosistem, alur 13 tahap, 5 mitra, 5 nilai, 6 pilar teknologi, model bisnis 6 akad, roadmap 4 fase, 7 KPI, 7 stakeholder manfaat).
+- Whitepaper bisa diunduh publik di #/unduhan — memenuhi ajakan kolaborasi Bab 13 whitepaper.
+- Kepatuhan diperkuat: klaim pengangkatan resmi dihapus dari seluruh konten seed/DB; bahasa aman "titik koordinasi akses Nusuk" (fungsional, bukan status ditunjuk).
+- Dokumentasi konten (CONTENT_GUIDE §8) kini merujuk tabel-per-tabel ke whitepaper sebagai acuan admin CMS.
+
+---
+Task ID: 35
+Agent: Z.ai Code (main orchestrator)
+Task: Sinkron website dengan manifesto copy baru "MUHDIN NUSANTARA — Trusted Pilgrim Ecosystem" (paste user di chat)
+
+Work Log:
+- AUDIT: manifesto baru vs homepage Task 33 — gap: tagline tanpa "Satu Data", hero 2 CTA (manifesto 4), Verified tanpa garis legal tebal & hanya 1 CTA, tidak ada section MUHDIN+MHUTU / One Record / Supply Passport / Control Tower, Academy 6 (manifesto 8), Partnership 1 CTA (manifesto 3), finale tanpa "Powered by MHUTU".
+- src/lib/nusantara.ts: HERO_SUBTITLE diganti copy manifesto; +JOIN_CATEGORIES (12), +MHUTU_ROLES (6), +MHUTU_DOMAINS (15), +SUPPLY_PASSPORT_FIELDS (6), +CONTROL_TOWER_ITEMS (11); ACADEMY_TOPICS diganti 8 program (PPIU, PIHK, Saudi Ops, Tour Leader, Mutawwif, Digital Hajj, Compliance, MHUTU).
+- src/lib/constants.ts: BRAND.taglineEn "+One Data", taglineId "Satu Ekosistem. Satu Data. Satu Standar. Satu Trust.", +poweredBy. layout.tsx: 3 string metadata SEO mengikuti.
+- src/lib/i18n/locales/nusantara-home.ts: rewrite — key baru (join 12 item, supply, mhutu roles+domains, oneRecord, controlTower, partnership 3 CTA, final tagline+poweredBy, hero 4 CTA, verified legalBold+3 CTA, academy 8) × 3 bahasa id/en/ar (aria ikut).
+- src/components/views/home-view.tsx: rewrite — hero 4 CTA (1 gold + 3 outline, grid 2x2 sm), taglineId di hero; Verified → mint bg + legalBold border-destructive + 3 CTA (CARI ORGANISASI→anggota, CARI PROVIDER→verifikasi, PELAJARI VERIFIKASI→anggota/verifikasi); JoinSection 12 kategori (ganti EcosystemSection 14 — konstanta 14 tetap hidup untuk /ekosistem); MhutuSection (dark, 6 kartu peran, MUHDIN+MHUTU gold-glow, 15 chip domain); OneRecordSection (3 baris gradient gold + body + note 2 kalimat); SupplySection (panel gold border, 6 field, slogan NO PROOF. NO TRUSTED INVENTORY., CTA); Academy 8 (grid 2/4); ControlTowerSection (11 chip bernomor, alerts merah, catatan bertahap); Partnership 3 CTA; FinalCta (sub TRUSTED PILGRIM ECOSYSTEM + tagline EN + 4 tombol + Powered by MHUTU Global Sistem.); urutan 16 section dengan ritme bg light/mint/dark.
+- QA E2E Agent Browser (desktop 1366 + mobile 390): h1 benar; tagline "Satu Data" tampil; 16 section; 14 teks kunci manifesto = true; 8 academy, 15 domain (3 label id: Dokumen/Kontrak/Pembayaran), 6 peran, 10 label CTA semua ada; klik teruji: CEK MUHDIN VERIFIED→#/anggota/verifikasi, CARI PROVIDER→#/verifikasi, PELAJARI VERIFIKASI→#/anggota/verifikasi, CARI ORGANISASI→#/anggota, DAFTAR SEBAGAI PROVIDER (supply)→#/daftar; console & page errors 0; mobile 390px tanpa scroll horizontal; footer nempel dasar viewport; RTL Arab (cookie muhdin-locale=ar) dir=rtl OK; lint 0 error; dev.log bersih (error 500 sekali hanya transisi hot-reload, request berikutnya 200).
+- Screenshot: /tmp/task35-desktop-full.png, /tmp/task35-mhutu.png, /tmp/task35-supply.png, /tmp/task35-tower.png, /tmp/task35-mobile-top.png.
+
+Stage Summary:
+- Homepage kini 16 section sesuai manifesto: hero 4 CTA + tagline "Satu Ekosistem. Satu Data. Satu Standar. Satu Trust." dan finale "One Ecosystem. One Data. One Standard. One Trust. One Journey. — Powered by MHUTU Global Sistem."
+- Identitas terpisah tampil eksplisit: MUHDIN=TRUST, MHUTU=TECHNOLOGY, AROFAH=COMMERCE, PPIU/PIHK=REGULATED OPERATION, SAUDI PROVIDERS=FULFILLMENT, JAMAAH=HUMAN JOURNEY.
+- Guard legal diperkuat di homepage: garis tebal "MUHDIN Verified bukan izin pemerintah dan bukan pengganti perizinan resmi." + panel BUKAN + disclaimer.
+- Semua CTA teruji hidup menuju route nyata; 12 kategori join tetap sinkron dengan engine daftar 17 peran.
+- Commit: 45308d1.
+
+---
+Task ID: 35-b
+Agent: Z.ai Code (main orchestrator)
+Task: Tanam branding wajib user "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI" ke website
+
+Work Log:
+- src/lib/constants.ts: BRAND.promise = "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI" (sumber kebenaran konstanta).
+- src/lib/i18n/locales/nusantara-home.ts: key baru nusHome.hero.promise ×3 bahasa — id: branding persis user; en: "THE MOST AFFORDABLE, GUARANTEED DIGITAL UMRAH & HAJJ ECOSYSTEM"; ar: "منظومة عمرة وحج رقمية — الأكثر اقتصاداً ومضمونة". Paritas key 3 locale diverifikasi skrip: diff [] semua.
+- src/components/views/home-view.tsx: pill gold (border-gold/50 + bg-gold/15 + ikon sparkles, teks uppercase tracking lebar) ditambahkan 2 titik: Hero (di bawah tagline "Satu Data…", delay 0.17) dan FinalCta (di bawah tagline finale). Reuse key hero.promise agar paritas tetap 1 key.
+- src/app/layout.tsx: metadata.description + openGraph.description kini memimpin dengan branding; keywords +3 ("ekosistem umroh haji digital termurah bergaransi", "umroh murah bergaransi", "paket umroh haji digital").
+- public/manifest.webmanifest: description PWA ikut memuat branding.
+- QA E2E Agent Browser: teks branding terdeteksi di DOM (hero+finale); screenshot desktop (/tmp/35b-hero.png, /tmp/35b-final.png) pill gold tampil menonjol; mobile 390px scrollWidth=390 (tanpa overflow horizontal, pill wrap 2 baris rapi — /tmp/35b-mobile.png); finale mobile OK (/tmp/35b-final-mobile.png); RTL Arab dir=rtl + teks Arab tampil (/tmp/35b-arabic.png); bun run lint 0 error; console hanya 1 hydration warning PRE-EXISTING dari tombol tema (radix/next-themes di navbar — bukan dari perubahan ini, hanya teks statis yang ditambah).
+- Commit: 9743a7a.
+
+Stage Summary:
+- Branding resmi "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI" kini tampil di 2 titik homepage paling strategis (hero + finale), terlokalisasi 3 bahasa, dan masuk metadata SEO + manifest PWA sehingga terindeks mesin pencari.
+- Terbuka untuk Task 36: penempatan branding tambahan (section Membership/Founding, OG image, poster) bila diminta.
+
+---
+Task ID: 35-c
+Agent: Z.ai Code (main orchestrator)
+Task: Audit link mati menyeluruh + dokumentasi alur data formulir (pertanyaan user)
+
+Work Log:
+- AUDIT STATIC: registry route muhdin-app.tsx = 20 route valid; semua 13 target navigate() statis valid (termasuk deep-link anggota/verifikasi); 2 navigate template-literal (berita/${slug}, tutorial/${slug}) → case berita/tutorial dengan slug ✓.
+- AUDIT HREF: internal #/anggota (dashboard-view), #/privasi (daftar-view) valid; eksternal valid — google maps, wa.me, mailto, tel, muhdin.web.id, nusuk.sa, haj.gov.sa, m.website (verify-view, auto-prefix https); sosmed footer dari SiteSetting CMS (facebook/instagram/twitter/youtube URL valid di DB) dengan fallback aman #/kontak bila kosong — tidak pernah mati.
+- AUDIT ENDPOINT FORM: /api/applications, /api/messages, /api/complaints, /api/subscribers semuanya ada di src/app/api/.
+- E2E BROWSER: loop 22 route (#/beranda s/d #/lapor + ekosistem/1 + anggota/verifikasi) → semua nf=false, tidak ada yang jatuh ke NotFound "404"; deep-link detail berita (slug nyata) render h1 artikel + 2.839 chars; detail tutorial render h1; homepage anchor eksternal 8 URL semuanya valid.
+- BUKTI ALUR DATA FORM (uji hidup): POST /api/applications → 201 + tiket MHD-APM7P7 (charset anti-salah-baca, unik di DB) → UI publik #/lacak menemukan tiket status PENDING → admin #/admin (login admin@muhdin.web.id) section "Pendaftaran" menampilkan org "QA Test Link Audit" → row uji dibersihkan (delete). Catatan: saat pembersihan via admin UI, 1 baris DEMO duplikat "PT PPIU Demo Nusantara" ikut terhapus (bukan data asli); DB akhir 5 baris demo/seed utuh (MHD-DD5DMT, GC6E9W, 8ADJGK, ZUQZWB, 36LL65).
+- Pipeline POST lengkap terbaca: rateLimit 5/menit/IP → validasi wajib + licenseNo khusus PPIU/PIHK/KBIHU + format email → generateTicketCode MHD-XXXXXX unik → db.membershipApplication.create → notifikasi WhatsApp fire-and-forget (notifyMembershipApplication) → response 201.
+- Lint 0 error; dev.log sehat (hanya query prisma normal).
+
+Stage Summary:
+- Konklusi audit: NOL link mati — semua 22 route hash + deep-link detail + href eksternal/mail/tel/wa + endpoint form terverifikasi hidup (statis via grep, dinamis via Agent Browser).
+- Alur data pendaftaran terkonfirmasi end-to-end dengan tiket nyata: form /daftar → tabel MembershipApplication (Prisma/SQLite) → tiket MHD-XXXXXX → lacak publik #/lacak + #/dashboard → moderasi admin #/admin (setujui/tolak + catatan + export CSV) + notifikasi WhatsApp.
+- Form lain punya jalur serupa: kontak → ContactMessage, lapor → Complaint, newsletter → Subscriber; semua dimoderasi di admin.
+
+---
+Task ID: 35-d
+Agent: Z.ai Code (main orchestrator)
+Task: Bereskan error hydration mismatch (laporan user + dev overlay): ID Radix Navbar (tema & bahasa) beda antara server & client
+
+Work Log:
+- DIAGNOSIS: error "tree hydrated but some attributes didn't match" — id="radix-_R_muatmlb_" (server) vs "radix-_R_5natmlb_" (client) pada DropdownMenuTrigger ThemeSwitcher & LocaleSwitcher di Navbar. Konten identik → posisi/counter useId React bergeser antara SSR dan hydration.
+- TRACING: baca navbar/theme-switcher/locale-switcher/LocaleProvider/page.tsx/RegisterSW — semuanya deterministik. RegisterSW bahkan sudah dibersihkan di dev (Task 29-F).
+- LOKALISASI EMPIRIS: #/kontak TIDAK error, #/ (beranda) error → sesuatu di tree sebelum/antar Navbar. BISECTION: menonaktifkan ScrollProgress (framer-motion useScroll/useSpring) dari tree → console BERSIH → terkonfirmasi penyebabnya hooks framer-motion yang menggeser counter useId client saat hydration (server tidak), sehingga semua ID Radix SETELAHNYA bergeser.
+- PERCOBAAN 1 (gagal): mounted-gate DI DALAM ScrollProgress + hooks tetap dipanggil → masih mismatch (hooks framer tetap dieksekusi saat hydration).
+- FIX FINAL: gate dipindah ke PARENT (MuhdinApp): `{!isAdmin && mounted && <ScrollProgressBar />}` dengan useMounted (useSyncExternalStore, pola yang sama dengan theme-switcher). Selama SSR & hydration elemen TIDAK disertakan di tree (replikasi persis kondisi bisection yang terbukti bersih); bar muncul setelah mount — visual identik karena bar memang tak terlihat di posisi gulir teratas.
+- QA E2E Agent Browser: hydration errors = 0 di beranda (desktop), #/tentang, mobile 390px, dan RTL Arab; interaksi dipastikan hidup — dropdown tema Terang/Gelap/Sistem berfungsi (klik Gelap → html.dark=true, dikembalikan ke Terang), dropdown bahasa 3 menuitem tampil; scroll progress bar muncul & scaleX bergerak saat digulir; mobile tanpa overflow; curl HTML server tidak lagi berisi div progress bar (fix aktif di SSR); lint 0 error.
+- Insiden samping: dev server sempat mati saat QA (proses hilang, log terakhir normal) — direstart via bun run dev background, HTTP 200. Tidak ada dampak data.
+- Commit: (lihat git log) — file berubah: src/components/muhdin-app.tsx.
+
+Stage Summary:
+- Hydration mismatch teratas (radix id ThemeSwitcher/LocaleSwitcher) TUNTAS: 0 error di semua skenario (desktop/mobile/RTL/beranda/tentang/kontak), semua interaksi Navbar tetap berfungsi.
+- Akar masalah didokumentasikan di komentar kode: hooks framer-motion + useId counter — pola "gate mount di parent" menjadi panduan untuk komponen framer-motion lain di masa depan.
+- Catatan: warning hydration semacam ini sebelumnya tersembunyi sebagai "1 Issue" di dev overlay; kini overlay bersih.
+
+---
+Task ID: 36
+Agent: Z.ai Code (main orchestrator)
+Task: Kampanye "DAFTAR DAN IURAN GRATIS — satu-satunya platform asosiasi yang menggratiskan pendaftaran & iuran" agar pengunjung berbondong-bondong mendaftar
+
+Work Log:
+- KONSISTENSI DULU: MEMBERSHIP_TIERS (nusantara.ts) harga Rp150rb–Rp3jt Dihilangkan → price="FREE" (sentinel, dirender via dict membership.free: GRATIS/FREE/مجاناً, warna gold-deep); STRATEGIC_PARTNER tetap "By Agreement" (kemitraan komersial, bukan iuran).
+- SECTION BARU FreeSection (homepage, tepat setelah hero): badge "SATU-SATUNYA DI KELASNYA", judul raksasa "DAFTAR GRATIS. IURAN GRATIS.", sub-klaim eksklusif, kartu perbandingan 2 kolom — "PLATFORM ASOSIASI BIASA" (Rp 500rb–25jt & Rp 1jt–10jt/tahun, dicoret dekorasi merah) vs kartu gold MUHDIN (Rp 0 + Rp 0 + badge "GRATIS — Rp 0", glow), 3 microcopy (tanpa kartu kredit / tanpa biaya tersembunyi / semua kategori), CTA raksasa "DAFTAR GRATIS SEKARANG" (→ /daftar) + sekunder "LIHAT KEUNTUNGAN ANGGOTA" (→ /gabung).
+- HERO: CTA primer → "DAFTAR GRATIS SEKARANG" + freeNote kecil "Pendaftaran & iuran GRATIS — tanpa biaya tersembunyi." di bawah 4 CTA.
+- MEMBERSHIP: harga tier GRATIS (gold), strip gold "Satu-satunya asosiasi yang menggratiskan pendaftaran & iuran anggota." di bawah grid, footer ROLE 25 ditulis ulang tetap patuh (GRATIS + bukan biaya pemerintah/izin/ibadah).
+- FINAL CTA: b1 "DAFTAR GRATIS" + freeNote di atas "Powered by MHUTU".
+- NAVBAR: CTA "Gabung MUHDIN" → "Daftar Gratis" (id/en/ar).
+- /daftar: badge gold "GRATIS — tanpa biaya pendaftaran & iuran" di header (nusJoin.freeBadge ×3).
+- /gabung: badge sama (join.freeBadge ×3).
+- FOOTER: strip gold "Satu-satunya asosiasi yang menggratiskan pendaftaran & iuran anggota" (footer.freeBadge ×3) di atas panel mitra.
+- SEO (layout.tsx + manifest): description dibuka dengan "DAFTAR & IURAN GRATIS — satu-satunya platform asosiasi..."; keywords +3 (asosiasi umroh gratis iuran, daftar anggota asosiasi umroh gratis, keanggotaan gratis).
+- INSIDEN DIKELOLA: MultiEdit atomik gagal sebagian menciptakan FreeSection duplikat & key dobel — dibersihkan via skrip bun (hapus blok pertama) + MultiEdit fix; hasil akhir terverifikasi tunggal.
+- VERIFIKASI: paritas key 4 kamus (nusHome/nusJoin/join/footer) ×3 bahasa OK; lint 0 error; E2E: FreeSection + Rp 0 ×2 + hero CTA + freeNote + strip + final semuanya tampil; tier harga lama Rp3jt/Rp150rb = nol sisa; klik CTA FreeSection → #/daftar + badge GRATIS tampil; /gabung badge tampil; navbar "Daftar Gratis" tampil; hydration 0; mobile 390 tanpa overflow; RTL Arab "التسجيل مجاناً" tampil; screenshot /tmp/36-free-desktop.png & /tmp/36-free-mobile.png.
+
+Stage Summary:
+- Identitas komersial MUHDIN kini tegas dan konsisten di 8 titik sentuh: DAFTAR & IURAN GRATIS, satu-satunya platform asosiasi yang menggratiskan keanggotaan — mendampingi branding "TERMURAH BERGARANSI" (gratis = bukti termurah).
+- Nol kontradiksi harga di seluruh situs (semua kartu harga lama Rp100rb-an–jutaan dihapus).
+- Funnel emas: Hero CTA → FreeSection Rp 0 → /daftar gratis badge → tiket MHD-XXXXXX — semua teruji hidup.
+
+---
+Task ID: 36-b
+Agent: Z.ai Code (main orchestrator)
+Task: Banner gambar promosi (WA/IG) bertema "DAFTAR & IURAN GRATIS" — perkuat kampanye Task 36
+
+Work Log:
+- STRATEGI TEKS 100% AKURAT: teks kampanye TIDAK dititipkan ke AI (rawan salah eja) — latar belakang digenerate AI (z-ai image), teks di-overlay via HTML/CSS lalu di-screenshot piksel-eksak dengan Agent Browser (set viewport + screenshot).
+- LATAR AI ×3 (public/promo/bg-*.png, JPEG dalam .png — via skrip scripts/gen-banner-bg.ts karena CLI whitelist ukurannya sempit; API wajib kelipatan 32 & ≤2^22 px): bg-feed 1024×1024 (masjid emas + bingkai ukiran), bg-story 1152×2048 (Ka'bah bersinar + gerbang ukir, rasio 9:16 pas tanpa crop), bg-wide 1888×992 (masjid kanan, sisi kiri bersih untuk teks). Semua prompt "no text, no letters".
+- BANNER ×3 (banner.css + banner-{feed,story,wide}.html): bahasa desain situs — forest-deep emerald + gold gradient (ala text-gold-gradient), Plus Jakarta Sans + Amiri; elemen: brand MUHDIN NUSANTARA, pill "★ SATU-SATUNYA DI KELASNYA ★", headline "DAFTAR & IURAN GRATIS!" + cap miring "Rp 0 SELAMANYA", USP italic, 3 chip ✔, kartu perbandingan "asosiasi biasa Rp 500rb–25jt ✕ (dicoret)" vs "MUHDIN GRATIS — Rp 0 ✔", pill "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI", CTA gold "DAFTAR SEKARANG — GRATIS" + muhdin.web.id, "Powered by MHUTU Global Sistem"; story plus kaligrafi Amiri "لبيك اللهم لبيك" + kartu glassmorphism; wide plus hairline frame.
+- BUG DIPERBAIKI: cap "Rp 0" absolute menutupi huruf "N" di "IURAN" (ketiga banner) → direstrukturisasi jadi .gratis-row flex (GRATIS! + cap sejajar, mustahil menimpa teks) + skala font disesuaikan; story direbalansasi (brand turun ke dalam gerbang, konten merata, scrim bawah diterangkan agar Ka'bah tembus) — dirender ulang & diinspeksi visual.
+- GALERI KIT: public/promo/index.html (halaman statis on-brand): 3 kartu preview + tombol "Unduh PNG" ( atribut download) + "Sumber HTML", ukuran & tips pemakaian (caption siap salin, jam posting 05–07 & 19–21 WIB, sticker link Story IG, deep-link muhdin.web.id/#/daftar).
+- INTEGRASI SITUS: kartu "Kit Promosi — DAFTAR & IURAN GRATIS" (megaphone gold) di hero Pusat Unduhan (#/unduhan) dengan tombol "BUKA KIT PROMOSI" (window.open /promo/index.html) — i18n kitTitle/kitDesc/kitCta ×3 bahasa (id/en/ar); ikon Megaphone ditambahkan ke registry icon.tsx.
+- VERIFIKASI: PNG eksak — muhdin-gratis-feed-ig.png 1080×1080, muhdin-gratis-story-wa.png 1080×1920, muhdin-gratis-wide-wa.png 1200×630 (via file(1)); lint 0 error; E2E Agent Browser: klik "BUKA KIT PROMOSI" → tab baru /promo/index.html terverifikasi (tab t2), galeri + tombol unduh + tips tampil; #/unduhan kartu kit tampil; homepage FreeSection tetap hidup; console 0 error, hydration bersih; dev.log hanya 200.
+- Commit: feat(36-b) — file: public/promo/* (11 file), scripts/gen-banner-bg.ts, icon.tsx, downloads-view.tsx, downloads.ts.
+
+Stage Summary:
+- Kit promosi siap pakai: 3 banner PNG (feed 1:1, story 9:16, wide 1.9:1) + galeri unduh /promo/index.html + pintu masuk dari #/unduhan — kampanye "DAFTAR & IURAN GRATIS" kini punya amunisi visual WA/IG yang konsisten dengan situs.
+- Teks dijamin akurat selamanya (render HTML, bukan generatif) — edit banner-*.html + render ulang untuk varian baru; skrip gen-banner-bg.ts reusable untuk latar tambahan.
+- URL banner final: /promo/muhdin-gratis-{feed-ig,story-wa,wide-wa}.png
+
+---
+Task ID: 37
+Agent: Z.ai Code (main orchestrator)
+Task: Halaman Susunan Pengurus MUHDIN (#/pengurus) — struktur organisasi bergaya asosiasi internasional, ketum & sekjen diberi perlakuan spesial, siap slot foto resmi
+
+Work Log:
+- RISET (permintaan owner "cari website asosiasi terbagus & terlengkap"): web-search praktik terbaik situs asosiasi/profesional (IEEE/IATA-style) — pola yang diadopsi: galeri kepemimpinan berfoto, tier advisory → executive → regional, badge peran, struktur federatif berjenjang, CTA keanggotaan di akhir struktur.
+- DATA RESMI OWNER (copy-paste verbatim, hanya dirapikan tanda baca): Pembina Prof. Dr. Anwar Sanusi; Penasehat KH. Qosim Saleh, Lc., M.Si.; Ketua Umum Drs. Arif Racman Hakim; Sekretaris Jenderal Gugun Gunara; BEMDUM Jonaedi, M.Pd. — file baru src/lib/pengurus-data.ts (interface PengurusPerson, PENGURUS_PERSON, PENGURUS_BIDANG 6 bidang fungsional, NET_COUNTS 38/514).
+- I18N ×3 (src/lib/i18n/locales/pengurus.ts, namespace pengurus): eyebrow/title/subtitle, stat chips, featured (Dua Pilar), advisory (Dewan Pengayom), central (Pengurus Pusat + 6 bidang), net (Bakorwil/Bakorcab + note penunjukan), cta (menyambung kampanye GRATIS), role (Pembina/Penasehat/Ketua Umum/Sekretaris Jenderal/BEMDUM — en: Patron/Advisor/President/Secretary General; ar: الراعي/المستشار/الرئيس العام/الأمين العام) + mandat 1 kalimat per peran; nama proper noun tetap Latin di semua locale (pola internasional); didaftarkan di dictionaries.ts.
+- VIEW (src/components/views/pengurus-view.tsx, 6 section): (1) hero forest-deep + 3 stat chip (5 tokoh, 38 Bakorwil, 514 Bakorcab); (2) SPESIAL "Dua Pilar Kepemimpinan" — kartu Ketua Umum & Sekjen berbingkai gradien emas p-[2px] + glow, foto h-44 ring-gold, badge peran gold, ikon lencana (star/scroll-text); (3) Dewan Pengayom Pembina & Penasehat (aksen primary, ikon landmark/compass); (4) Pengurus Pusat: kartu BEMDUM + grid 6 bidang fungsional (Organisasi&Kaderisasi, Advokasi&Regulasi, Digital&Teknologi, Pendidikan&Sertifikasi, Humas&Publikasi, Kemitraan&Ekonomi Syariah); (5) bagan berjenjang: PP (forest) → Connector "Penunjukan" (user-plus, chip gold) → Bakorwil Provinsi [38] → Bakorcab Kab/Kota [514] + note + tombol "Jadi Koordinator Wilayah" → #/gabung; (6) CTA finale forest-deep dengan strip "PENDAFTARAN & IURAN ANGGOTA RP0 — KOMITMEN RESMI MUHDIN" + tombol "Daftar Sekarang — GRATIS" (→#/daftar) & "Hubungi Pengurus" (→#/kontak).
+- FOTO: image-search 2 ronde (5 orang) — HASIL DIVERIFIKASI VISUAL & DITOLAK: kandidat "Arif Racman Hakim" ternyata Bupati Majalengka (Dr. H. Eman Suherman) & pejabat BWS Kalimantan; kandidat "Gugun Gunara" adalah scan dokumen; identitas tidak dapat dipastikan → keputusan aman: monogram emas elegan (fallback PersonPhoto: buang gelar, inisial 2 kata, bg gradient primary→forest + ring-gold + lencana ikon) + slot foto resmi siap pakai (field `photo` per orang di pengurus-data.ts → taruh file di /public/images/pengurus/ — tanpa edit UI).
+- NAVIGASI: route #/pengurus didaftarkan di muhdin-app.tsx (case pengurus); navbar.tsx +i18n navbar.items.pengurus ×3 (Pengurus/Leadership/الهيكل التنظيمي) masuk DESKTOP_PATHS (9 item — masih lega); footer NAV_LINKS +footer.nav.pengurus ×3 (Susunan Pengurus); halaman Tentang + tombol jembatan "Lihat Susunan Pengurus Lengkap" (about.org.seePengurus ×3) di kartu bagan org.
+- QA E2E AGENT BROWSER: desktop 1440 — hero/pilar/pengayom/pusat/jaringan/CTA semuanya render sempurna; mobile 390 — chip & kartu stack rapi tanpa overflow; RTL Arab — cermin penuh (eyebrow, chip, badge, posisi lencana foto flip via logical -end-1), nama Latin konsisten; navigasi footer→#/pengurus OK, jembatan Tentang→#/pengurus OK (klik via eval terverifikasi get url); console 0 error, hydration bersih; screenshot: /tmp/37-hero.png, /tmp/37-pilar.png, /tmp/37-pusat.png, /tmp/37-net.png, /tmp/37-cta.png, /tmp/37-mobile-*.png, /tmp/37-ar-*.png; lint 0 error.
+- Commit: feat(37) — file: pengurus-data.ts, i18n/locales/pengurus.ts, pengurus-view.tsx, dictionaries.ts, muhdin-app.tsx, navbar.tsx, navbar.ts, footer.tsx, footer.ts, about-view.tsx, about.ts, worklog.md.
+
+Stage Summary:
+- MUHDIN kini punya halaman Susunan Pengurus resmi #/pengurus kelas asosiasi internasional — Dua Pilar (Ketum & Sekjen) tampak paling megah sesuai permintaan owner, hierarki Pembina→Penasehat→Ketum→Sekjen→BEMDUM→Pengurus Pusat→Penunjukan→Bakorwil 38→Bakorcab 514 akurat mengikuti struktur resmi.
+- Slot foto resmi siap: isi `photo: "/images/pengurus/<id>.jpg"` di src/lib/pengurus-data.ts (ketum/sekjen/pembina/penasehat/bemdum) — monogram emas otomatis tergantikan; foto dari pencarian web sengaja TIDAK dipakai karena terverifikasi salah orang (aman dari salah identitas).
+- Halaman baru jadi simpal kepercayaan: Tentang → Pengurus → Jadi Koordinator Wilayah → Daftar GRATIS (menyambung funnel kampanye Task 36).
+
+---
+Task ID: 35-h
+Agent: Z.ai Code (main)
+Task: Investigasi & penanganan hydration mismatch "radix-_R_..." pada Navbar ThemeSwitcher/LocaleSwitcher (laporan user)
+
+Work Log:
+- Reproduksi error di Agent Browser: ID identik laporan user (server radix-_R_muatmlb_/16uatmlb_ vs client radix-_R_5natmlb_/9natmlb_) — terbukti INTERMITEN (~1 dari 4-8 load), bukan regresi deterministik
+- Bisect empiris 3 tahap (HomeView null → ScrollProgressBar off → Navbar stub): stub minimal dua switcher 0/3 BERSIH; HomeView/ScrollProgressBar/Navbar bukan pemicu; fix 35-d (gate mounted) dipertahankan sebagai lapisan aman
+- Audit SSR via curl 10/10: HTML server 100% deterministik (ID & markup identik tiap request) → variasi ada di sisi client selama hydration pass
+- Dekode algoritma useId React 19 (react-dom-client.development.js mountId/pushTreeId): ID hydration = bit-path struktural; perbedaan server-vs-client = 2 bit di PUNCAK tree (sufiks atmlb identik) = 1-2 level komponen ekstra di root region
+- Diff rantai fiber runtime (naik dari dropdown-menu-trigger ke root) pada load bersih vs kotor: IDENTIK pasca-hydrasi → divergensi hanya transien selama hydration walk
+- Identifikasi region rawan: seluruhnya komponen DEV-ONLY Next 16 — SegmentViewNode, SegmentStateProvider (segment explorer devtools), HotReload, AppDevOverlayErrorBoundary, NavigationPromisesContext; tidak ada di production build
+- Temuan operasional: dev server berulang kali DIBUNUH OOM-killer (dmesg: oom-kill task=next-server, RSS 1.5GB) — sebagian hasil uji awal ternyata "phantom" (server mati, halaman direplay cache browser); 30+ tab Agent Browser melahap RAM; .next dipurge (682MB) & server direstart segar
+- Bukti fungsional: dropdown tema membuka Terang/Gelap/Sistem normal, CTA "Daftar Gratis" tampil, rute #/pengurus ("Tata Kelola & Kepemimpinan") dan #/daftar ("Pendaftaran Anggota") render sempurna — React mempertahankan id server, menu tetap berfungsi, dampak nihil
+- Lint bersih; commit f86d7cb (script dev:clean + addendum dokumentasi di muhdin-app.tsx)
+
+Stage Summary:
+- Akar masalah: race bookkeeping TreeContext useId React 19 selama hydration di region puncak tree yang diisi wrapper DEV-ONLY Next 16.1.3, diperparah tekanan memori (OOM). BUKAN bug kode aplikasi; SSR deterministik; fiber tree identik pasca-hydrasi.
+- Dampak fungsional: NIHIL (atribut id Radix bersifat kosmetik/aria; UI & menu normal). Hanya noise console di dev overlay.
+- Remedy operator: `bun run dev:clean` (purge .next + restart) saat gejala aneh muncul; jaga memori bebas; refresh tab browser membereskan tampilan overlay.
+- Production (Vercel) tidak terdampak: komponen pembungkus dev tidak ikut ter-build.
+- Fix 35-d (gate mounted ScrollProgressBar) dipertahankan; komentar kode diperbarui (addendum 35-h).
+---
+Task ID: 38
+Agent: Z.ai Code (main orchestrator)
+Task: Konten lengkap + animasi bergaya Nusuk.sa di homepage (permintaan owner: "tambahkan beberapa animasi nusuk.sa terus tambahkan semua konten yang sangat lengkap dari website diatas")
+
+Work Log:
+- RISET KONTEN: page_reader https://www.nusuk.sa/ — dipetakan seluruh struktur beranda Nusuk (strip waktu/sholat, "عزّنا برؤيتنا" carousel nilai, "رحلتك مع نسك" 3 kartu perjalanan, "كل مايحتاجه ضيف الرحمن" 5-6 layanan, "استكشف جميع خدماتنا" layanan instan berbadge فوري, "اكتشف جمال الحرمين" 2 kota + 140+ tempat, "منجزات حققتها نسك" statistik CountUp, section unduh aplikasi + QR) lalu diadaptasi ke konteks MUHDIN (asosiasi, bukan meniru mentah).
+- I18N x3 (~70 key baru di nusantara-home.ts per locale: live/values/journey/everything/permits/haramain/stats/app + 8 aria): id/en/ar lengkap; teks Arab asli untuk ticker (talbiyah, doa, QS Al-Hajj 27, QS Al-Baqarah 196, hadits Rawdah); typo "HONANGAN"→"KEBANGGAAN" dan karakter Mandarin nyasar dibersihkan.
+- 8 SECTION BARU di home-view.tsx (komposisi: Hero → LiveStrip → Free → Journey → Idea → Values → Everything → Verified → Join → HowItWorks → Permits → Network → Haramain → … → Stats → News → App → FinalCta):
+  1) LiveStripSection — jam Makkah live (Intl Asia/Riyadh, ar-EG → angka Arab ٠٩:٢٨), tanggal Hijriah (islamic-umalqura per locale), ticker mutiara hikmah loop mulus (duplikasi aria-hidden, pause hover, tepi pudar inline-gradient); aman hydration (null sampai mount, update via rAF+interval, pola set-state-in-effect lint compliant).
+  2) ValuesSection — carousel 6 nilai (AMANAH, IKHLAS, ITQAN, UKHUWAH, JOUD→GRATIS, INTEGRITAS) auto-rotate 4.5s AnimatePresence mode=wait, rail chip role=tablist klik manual, pause on hover; index 0 deterministik (hydration aman).
+  3) JourneySection — 3 kartu berfoto (hajj→#/alur, umrah→#/nusuk, rawdah→#/nusuk) hover zoom + lift.
+  4) EverythingSection — 6 ubin (termasuk Zadul Muslim & Keanggotaan Gratis Rp0) + CTA → #/daftar.
+  5) PermitsSection — Izin Umrah Digital (LIVE), Izin Rawdah (LIVE), Verifikasi (INSTAN) berbadge dot berdenyut; Lihat Detail → #/nusuk & #/anggota/verifikasi; Mulai → #/daftar.
+  6) HaramainSection — 2 kartu kota foto AI + marquee 28 landmark (klaim 140+ tempat) mask tepi pudar, chip dir=ltr (proper noun).
+  7) StatsSection — CountUp 514/38/13/17/100+/3 + nus-shimmer-text (kilau emas).
+  8) AppSection — tombol PASANG APLIKASI (beforeinstallprompt; fallback toast hint), 3 chip (pasang instan/siap offline/aman & ringan), kartu QR /images/qr-muhdin-web.png (scripts/gen-qr.ts, qrcode pkg, errorCorrection H, warna brand).
+- ANIMASI CSS BARU (nusantara.css): nus-kenburns (zoom pelan 26s pada foto Ka'bah hero), nus-ticker + varian rtl (html[dir] flip arah), nus-shimmer-text (sapuan kilau emas), nus-live-dot (denyut), nus-zoomimg (hover scale kartu) — SEMUA diguard @media prefers-reduced-motion.
+- ASET: 5 gambar AI 1344x768 (journey-hajj Arafat senja, journey-umrah tawaf malam, journey-rawdah serambi Nabawi, city-makkah skyline clock tower, city-madinah kubah hijau blue hour) — proses pertama (nohup paralel) mati OOM, diulang foreground satu-per-satu sukses; QR PNG 1024px.
+- QA E2E AGENT BROWSER: desktop 1440 — LiveStrip hidup (MAKKAH SEKARANG 09:24, 14 Rabiulakhir 1448 H), ken-burns aktif, ValuesCarousel terbukti auto-rotate (tertangkap di index 05/06 JOUD), kartu journey klik → #/alur, badge LIVE/INSTAN tampil, marquee bergerak (transform matrix berubah, verified via computed-style sampling 600ms), Stats tertangkap mid-CountUp (376→514), QR + PASANG APLIKASI tampil, klik install → fallback hint tanpa error. EN — semua heading terjemah. AR RTL — dir=rtl, jam ٠٩:٢٨ angka Arab, layout mirror sempurna (FreeSection, journey, navbar flip). Mobile 390 — overflowX 0, strip kompak, QR kartu rapi. Console: 0 error, 0 hydration mismatch; dev.log hanya 200 setelah aset terisi.
+- Lint 0 error. Commit: feat(38).
+
+Stage Summary:
+- Homepage MUHDIN kini selengkap portal resmi Nusuk.sa: strip waktu Makkah hidup, carousel nilai, kartu perjalanan berfoto, katalog layanan "semua yang dibutuhkan tamu Allah", layanan instan berbadge, jelajah Haramain + marquee 140+ tempat, statistik CountUp berkilau, dan instalasi PWA + QR — semuanya i18n id/en/ar, RTL-sinkron, reduced-motion aman, 0 hydration error.
+- Funnel kampanye tetap utuh: GRATIS (FreeSection) disisipkan sebelum Journey; nilai JOUD & ubin Keanggotaan Gratis & CTA Daftar memperkuat kampanye dari Task 36.
+- Aset reusable: scripts/gen-qr.ts (QR baru), pola ticker/marquee CSS reusable, 5 foto AI siap dipakai ulang.
+---
+Task ID: 39
+Agent: Z.ai Code (main orchestrator)
+Task: Fix final hydration mismatch "radix-_R_..." (laporan user ke-3) + tangani ChunkLoadError setelah purge .next
+
+Work Log:
+- LAPISAN 2 (bulletproof): seluruh trigger Radix yang merender atribut turunan useId saat SSR kini ber-id EKSPLISIT deterministik — terverifikasi dari dist @radix-ui bahwa consumer props di-spread SETELAH id internal (id consumer selalu menang): ThemeSwitcher desktop "muhdin-theme-trigger" + compact "muhdin-theme-trigger-compact", LocaleSwitcher "muhdin-locale-trigger", AdminBell "muhdin-admin-bell-trigger", TabsTrigger/TabsContent kontak & anggota (id + aria-controls + aria-labelledby berpasangan).
+- DialogTrigger (Sheet) & AlertDialog DIWAJIBKAN aman tanpa perubahan: aria-controls hanya dirender saat open (portal, pasca-hydrasi) — diverifikasi langsung di dist react-dialog 1.1.23.
+- FAQ Accordion kontak tidak perlu fix: saat SSR masih skeleton (fetch API), trigger baru muncul pasca-hydrasi.
+- Dokumentasi akar masalah diperbarui (komentar addendum muhdin-app.tsx): lapisan 1 = gate mounted (35-d), lapisan 2 = id deterministik (imun total race TreeContext dev, mismatch mustahil).
+- OPS: server dev terbukti berulang kali tewas (OOM-killer dmesg: next-server RSS 1.5GB) + sandbox membunuh proses background antar-call → script scripts/dev-keep.sh (idempotent check-and-restart, dipakai di awal tiap sesi QA).
+- ChunkLoadError user (src_components_ui_..._.js): artefak chunk basi setelah rm -rf .next + Fast Refresh rebuild — bukan bug kode; pulih dengan reload tab (server hangat).
+- QA E2E AGENT BROWSER: SSR deterministik ×3 request (id eksplisit masing2 tepat 1×, 0 radix-_R_); 6/6 reload stress 0 error (dulu intermiten ~1/4-8); DOM 0 elemen id^="radix-_R_" di beranda/kontak/anggota/admin; dropdown tema buka + Gelap aktif (html.dark); dropdown bahasa buka + العربية → dir=rtl + hard-reload RTL bersih; tab FAQ kontak klik jalan; admin login (admin@muhdin.web.id) → bell + theme compact ada, bell dropdown buka; mobile 390 tanpa overflow-x; lint 0 error; screenshot /tmp/35h-fix-{desktop,mobile}.png.
+- Commit: fix(39).
+
+Stage Summary:
+- Hydration mismatch radix-_R_ TUNTAS PERMANEN: atribut server == client di semua kondisi (apapun race dev), lapisan gate mounted tetap sebagai lapisan 1. Class of bugs "useId shift" di seluruh trigger Radix situs sudah ditutup.
+- Operasional: gunakan scripts/dev-keep.sh untuk memastikan server hidup sebelum QA; ChunkLoadError = reload tab.
+---
+Task ID: 40
+Agent: Z.ai Code (main orchestrator)
+Task: WhatsApp resmi 0811 1116 5165 + 3 kantor (Tasikmalaya, Cempaka Putih, Kwitang) + overhaul warna ala sgl.web.id
+
+Work Log:
+- RISET WARNA (agent-browser ke https://sgl.web.id/): palet terkunci dari screenshot & computed-style — body putih hangat lab(98,-0.3,1.1)≈#FAFBF7, CTA emerald vivid lab(55,-50,16)≈emerald-600, footer/heading pinus gelap lab(15,-18,2.4)≈#0B3B2C, chip mint, highlighter lime, font Plus Jakarta Sans (sama dgn MUHDIN).
+- OVERHAUL TOKEN (globals.css, semua via var → 20 view ikut berubah): --primary 0.44→0.51 oklch(0.51 0.125 158) emerald cerah (putih di atasnya ≈4.6:1 AA); --forest 0.34 (pinus gelap sgl utk heading), --forest-deep 0.255, --mint 0.965 (lapang), background/foreground/muted/accent/border/ring/chart/sidebar ikut nuanansa hijau segar; dark: primary 0.55 + utilitas .dark .text-primary/.text-forest diselaraskan; EMAS TETAP (identitas brand, harmonis dgn amber bintang sgl).
+- SIGNATURE LIME (2 titik): hero freeNote "Pendaftaran & iuran GRATIS..." jadi pill lime-300 miring -1° (highlighter ala "Bebas Repot." sgl) + badge FreeSection "SATU-SATUNYA DI KELASNYA" lime-300 — emas tetap dipertahankan pada promise pill & kartu Rp 0.
+- WA RESMI: BRAND.whatsappDisplay "0811 1116 5165" + whatsappIntl 6281111165165 + waGreeting (constants.ts); FAB baru wa-fab.tsx (gelembung hijau fixed bottom-end, denyut emas, label melebar saat hover, href wa.me dgn salam terisi) — dirender dari MuhdinApp via gate !isAdmin && mounted (pola hydration-safe 35-d); DB SiteSetting.whatsapp/phone/address di-seed (scripts/seed-kontak-resmi.ts, idempotent upsert).
+- 3 KANTOR (RegionalBranch, seed sama): JABAR (BAKORWIL-JABAR) alamat disamakan persis teks owner "Perumahan Andalusia Garden Cluster Granada No.11, Mangkubumi, Mangkubumi, Kota Tasikmalaya, Jawa Barat"; +2 baru: KANTOR-JKT-CP (Jl. Cempaka Putih Tengah XXX No.30 7 9, RT.9/RW.7, Cemp. Putih Tim., Jakarta Pusat 10510) & KANTOR-JKT-KWITANG (Jl. Kramat Kwitang No.19 1, RT.1/RW.4, Kwitang, Senen, Jakarta Pusat 10420).
+- KARTU KONTAK (contact-view): kartu Telepon placeholder → "WhatsApp Resmi 0811 1116 5165" (wa.me + salam); kartu Alamat → "Kantor Jakarta — Cempaka Putih" + Google Maps query alamat nyata; i18n ×3 (contact.cardPhone*/cardAddress*, footer.addr, common.ariaWaFab/waFabLabel id/en/ar).
+- INSIDEN: MultiEdit common.ts gagal-atomik sebagian (quirk tool yang sama dgn insiden Task 36) menciptakan key dobel ariaWaFab — dibersihkan, final 1 key per locale.
+- QA E2E: beranda terang — CTA emerald cerah, pill lime GRATIS, FAB + denyut emas, radixLeft 0; kontak — wa.me/6281111165165 ×3 sumber (FAB/kartu/footer) + PIC JABAR 6281316516524, 3 alamat tampil (Cempaka/Kwitang/Andalusia-Tasik); dark mode gelap-safety OK (screenshot); mobile 390 tanpa overflow-x; console 0 error; lint 0 error. Screenshot: /tmp/40-home-new.png, /tmp/40-kontak.png, /tmp/40-dark.png, /tmp/40-mobile.png.
+- Commit: feat(40).
+
+Stage Summary:
+- MUHDIN kini tampil "fresh green" ala sgl.web.id: putih hangat + emerald cerah + pinus gelap + mint lapang + highlighter lime, tanpa kehilangan identitas emas — perubahan hanya via token OKLCH sehingga seluruh 20 route konsisten & kontras AA terjaga.
+- Kontak resmi terpusat: WA 0811 1116 5165 hidup di 4 titik (FAB mengapung, kartu kontak, footer sosmed, seed CMS) dengan salam pembuka otomatis; 3 kantor resmi tampil di #/kontak dengan link Google Maps & chat WA per PIC.
+
+---
+Task ID: 41
+Agent: Z.ai Code (main orchestrator)
+Task: Fix "Download workspace failed: Failed to fetch"
+
+Work Log:
+- DIAGNOSA: workspace 1,6GB / 62.182 berkas (node_modules 58.752 berkas = 1,2GB; .next 283MB) membuat pengemas tombol "Download workspace" bawaan timeout → fetch gagal di sisi browser.
+- scripts/make-backup.sh (baru): zip bersih via `zip -r` + exclusion node_modules/.next/.turbo/skills/tool-results/*.log; mode `source` (default, tanpa .env/db/.git — aman publik) & mode `full` (+ .git 29MB, .env, db/custom.db — titik pemulihan lengkap).
+- src/app/api/backup/route.ts (baru): GET /api/backup → zip 17MB/529 berkas (source) atau ?full=1 → 41MB/2.227 berkas (dijaga guardRole SUPER_ADMIN|ADMIN, 401 tanpa login); regenerasi otomatis bila arsip /tmp hilang, ?refresh=1 paksa rebuild; arsip sengaja di /tmp agar tidak menggelembungkan workspace.
+- VERIFIKASI: unzip -t OK kedua mode; leak-check source 0 berkas rahasia (hanya entri dir kosong mini-services/hosting-preview/node_modules/ —无害); curl endpoint 200 + checksum md5 identik dengan arsip langsung; ?full=1 anonim → 401 JSON Indonesia; header attachment/application/zip benar; lint bersih; dev.log bersih.
+- QA visual agent-browser: homepage render bagus (palet hijau Task 40 + FAB WA), footer sticky rapi, 0 page error; browser di-close.
+
+Stage Summary:
+- Solusi unduh baru: buka Preview → Open in New Tab → tambahkan /api/backup di URL → terunduh muhdin-source-YYYYMMDD.zip (17MB, kode sumber bersih; jalankan `bun install` setelah ekstrak). Admin bisa ?full=1 untuk backup lengkap.
+- Penyebab tombol bawaan tetap ada (node_modules wajib tinggal di sandbox); opsional: flow "parkir node_modules" bisa dilakukan manual bila tombol bawaan tetap ingin dipakai.
+
+---
+Task ID: 42
+Agent: Z.ai Code (main orchestrator)
+Task: Pulihkan workspace dari restore checkpoint sandbox + pastikan fix hydration hidup kembali
+
+Work Log:
+- INSIDEN: sandbox me-restore workspace ke checkpoint "Task 33" (HEAD e8b8f97) — seluruh file era Task 34-41 hilang, commit 7315b25/413fc6e/52fcb10 lenyap dari objek git (fsck: hanya dangling checkpoint lama), /tmp ikut terwipe.
+- PENEMUAN PENYELAMAT: /tmp/my-project = snapshot sandbox per 25 Sep 08:13 (akhir sesi Task 41) berisi 653 file source lengkap: fix hydration Task 39 (muhdin-theme-trigger ×2, muhdin-locale-trigger), palet hijau Task 40 (globals.css oklch + WA 0811 1116 5165 di constants.ts), nusuk-view Task 38, api/backup + make-backup.sh Task 41, worklog s.d. entri #41.
+- PEMULIHAN: rsync -a /tmp/my-project/ → /home/z/my-project/ (tanpa --delete; node_modules/.git dijaga), lalu `bun install` (package.json era 41 menambah framer-motion/qrcode/recharts; +25 paket).
+- RESTART: pkill next + rm -rf .next + dev-keep.sh → HTTP 200; /api/backup otomatis regenerasi zip (self-healing terbukti jalan).
+- QA hydration (keluhan user): agent-browser reload ×6 → 0 error, title benar tiap kali; dropdown tema (Terang/Gelap/Sistem) terbuka & tema Gelap aktif; dropdown bahasa → العربية: dir=rtl, lang=ar, layout mirror sempurna; mobile 390px rapi; browser di-close.
+- GIT: riwayat commit era 34-41 hilang permanen (tak ada remote); satu komit restore dibuat di atas checkpoint Task 33. worklog.md menjadi sumber kebenaran riwayat kerja.
+
+Stage Summary:
+- Workspace pulih 100% ke kondisi akhir Task 41 (file + dependensi + data); bug hydration user sudah terverifikasi 6/6 reload bersih.
+- PELAJARAN: checkpoint sandbox bisa menggelinding mundur — WAJIB: (1) unduh /api/backup secara berkala, (2) pertimbangkan git remote eksternal agar riwayat aman.

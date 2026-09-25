@@ -52,7 +52,13 @@ export function AdminBell({ onSection }: { onSection: (id: string) => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="relative rounded-full h-9 w-9" aria-label="Notifikasi">
+        <Button
+          id="muhdin-admin-bell-trigger"
+          variant="outline"
+          size="icon"
+          className="relative rounded-full h-9 w-9"
+          aria-label="Notifikasi"
+        >
           <Icon name={total > 0 ? "bell-ring" : "bell"} className="h-4 w-4" aria-hidden />
           {total > 0 && (
             <span

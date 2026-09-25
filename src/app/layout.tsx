@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     template: "%s | MUHDIN NUSANTARA",
   },
   description:
-    "MUHDIN NUSANTARA (Masyarakat Umroh Haji Digital Nusantara) — Trusted Pilgrim Ecosystem. Jaringan ekosistem haji & umrah: keanggotaan, verifikasi anggota, direktori penyelenggara & penyedia layanan, akademi, dan kolaborasi industri. Satu Ekosistem. Satu Standar. Satu Kepercayaan. Satu Perjalanan.",
+    "MUHDIN NUSANTARA (Masyarakat Umroh Haji Digital Nusantara) — Trusted Pilgrim Ecosystem. EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI: DAFTAR & IURAN GRATIS — satu-satunya platform asosiasi yang menggratiskan pendaftaran dan iuran anggota. Keanggotaan, verifikasi, direktori penyelenggara & penyedia, akademi.",
   keywords: [
     "MUHDIN",
     "MUHDIN Nusantara",
@@ -53,6 +53,12 @@ export const metadata: Metadata = {
     "IPHI",
     "travel umroh terpercaya",
     "ekosistem umroh digital",
+    "ekosistem umroh haji digital termurah bergaransi",
+    "umroh murah bergaransi",
+    "paket umroh haji digital",
+    "asosiasi umroh gratis iuran",
+    "daftar anggota asosiasi umroh gratis",
+    "keanggotaan gratis",
     "verifikasi penyelenggara umroh",
     "muhdin verified",
     "transformasi digital umroh",
@@ -74,7 +80,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "MUHDIN NUSANTARA — Trusted Pilgrim Ecosystem",
     description:
-      "Jaringan ekosistem haji & umrah Indonesia: keanggotaan, verifikasi, direktori penyelenggara & penyedia, akademi, dan kolaborasi industri. One Ecosystem. One Standard. One Trust. One Journey.",
+      "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI — DAFTAR & IURAN GRATIS, satu-satunya platform asosiasi yang menggratiskan keanggotaan. One Ecosystem. One Data. One Standard. One Trust. One Journey.",
     siteName: "MUHDIN NUSANTARA",
     type: "website",
     locale: "id_ID",
@@ -83,7 +89,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MUHDIN NUSANTARA — Trusted Pilgrim Ecosystem",
     description:
-      "Satu Ekosistem. Satu Standar. Satu Kepercayaan. Satu Perjalanan.",
+      "Satu Ekosistem. Satu Data. Satu Standar. Satu Trust.",
   },
 };
 

@@ -45,17 +45,28 @@ export function MembersView({ initialTab = "direktori" }: { initialTab?: string 
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Tabs value={tab} onValueChange={setTab} className="w-full">
             <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
-              <TabsTrigger value="direktori" className="gap-2">
+              {/* id/aria deterministik (Task 35-h addendum) — imun geser useId dev */}
+              <TabsTrigger
+                value="direktori"
+                id="muhdin-members-tab-direktori"
+                aria-controls="muhdin-members-panel-direktori"
+                className="gap-2"
+              >
                 <Icon name="grid-3x3" className="h-4 w-4" /> {t("members.tabDirectory")}
               </TabsTrigger>
-              <TabsTrigger value="verifikasi" className="gap-2">
+              <TabsTrigger
+                value="verifikasi"
+                id="muhdin-members-tab-verifikasi"
+                aria-controls="muhdin-members-panel-verifikasi"
+                className="gap-2"
+              >
                 <Icon name="shield-check" className="h-4 w-4" /> {t("members.tabVerify")}
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="direktori">
+            <TabsContent value="direktori" id="muhdin-members-panel-direktori" aria-labelledby="muhdin-members-tab-direktori">
               <DirectoryTab />
             </TabsContent>
-            <TabsContent value="verifikasi">
+            <TabsContent value="verifikasi" id="muhdin-members-panel-verifikasi" aria-labelledby="muhdin-members-tab-verifikasi">
               <VerifyTab />
             </TabsContent>
           </Tabs>

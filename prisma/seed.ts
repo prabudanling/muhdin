@@ -1,7 +1,7 @@
 /**
  * ============================================================
  * SEED DATA MUHDIN — Masyarakat Umroh Haji Digital Nusantara
- * "Asosiasi di Atas Asosiasi" — Operator Nusuk Indonesia
+ * "Asosiasi di Atas Asosiasi" — titik koordinasi akses Nusuk bagi industri
  * Tagline: Bersama Melayani Tamu Allah
  * ------------------------------------------------------------
  * Jalankan: cd /home/z/my-project && bun prisma/seed.ts
@@ -566,7 +566,7 @@ const tutorials = [
     summary:
       "Tur singkat seluruh fitur portal MUHDIN: beranda, menu navigasi, direktori anggota, hingga cara memeriksa status verifikasi penyelenggara.",
     content: [
-      "Portal MUHDIN adalah rumah digital Masyarakat Umroh Haji Digital Nusantara — asosiasi payung penyelenggara ibadah Indonesia yang berperan sebagai Operator Nusuk Indonesia. Tutorial ini memandu Anda mengenal seluruh fitur utama portal dalam waktu kurang dari sepuluh menit.",
+      "Portal MUHDIN adalah rumah digital Masyarakat Umroh Haji Digital Nusantara — asosiasi payung penyelenggara ibadah Indonesia yang diposisikan sebagai titik koordinasi tunggal akses platform Nusuk. Tutorial ini memandu Anda mengenal seluruh fitur utama portal dalam waktu kurang dari sepuluh menit.",
       "## Halaman Utama (Beranda)",
       "Saat membuka muhdin.web.id, Anda akan disambut tagline **Bersama Melayani Tamu Allah** beserta visi Transformasi Digitalisasi Umroh dan Haji Indonesia 2030. Dari beranda Anda dapat langsung:",
       "1. Mengakses **Direktori Anggota** untuk melihat seluruh penyelenggara yang telah bergabung.",
@@ -740,7 +740,7 @@ const tutorials = [
       "## Uji Setelah Menyimpan",
       "Setelah perubahan, buka halaman publik terkait: pastikan teks tidak terpotong, ikon tampil dengan benar, dan urutan tidak melompat. Melaporkan anomali data segera ke tim teknis mencegah inkonsistensi konten berlarut.",
       "## Ringkasan",
-      "Kelola ekosistem dan journey seperti mengelola dokumen resmi: akurat, konsisten, dan terukur. Data yang rapi menjaga kredibilitas MUHDIN sebagai Operator Nusuk Indonesia di mata jamaah, mitra, dan regulator.",
+      "Kelola ekosistem dan journey seperti mengelola dokumen resmi: akurat, konsisten, dan terukur. Data yang rapi menjaga kredibilitas MUHDIN sebagai titik koordinasi akses Nusuk di mata jamaah, mitra, dan regulator.",
     ].join("\n\n"),
   },
   {
@@ -931,30 +931,29 @@ const tutorials = [
 // ---------- 8. ARTICLES (6) ----------
 const articles = [
   {
-    title: "MUHDIN Resmi Dilantik sebagai Operator Nusuk Indonesia",
+    title: "MUHDIN Diposisikan sebagai Titik Koordinasi Akses Nusuk bagi Industri Ibadah",
     category: "Press Release",
     featured: true,
     cover: "/images/hero-kaaba.jpg",
     views: 1840,
     excerpt:
-      "Masyarakat Umroh Haji Digital Nusantara (MUHDIN) resmi dilantik sebagai Operator Nusuk Indonesia, menandai babak baru digitalisasi industri jasa ibadah nasional.",
+      "Whitepaper MUHDIN Edisi 1.0 (September 2026) menegaskan posisi MUHDIN sebagai titik koordinasi tunggal akses platform Nusuk bagi industri penyelenggara ibadah Indonesia — mengubah kompetisi kacau menjadi kompetisi mutu.",
     content: [
-      "Jakarta — Masyarakat Umroh Haji Digital Nusantara (MUHDIN) resmi dilantik sebagai Operator Nusuk Indonesia, menandai babak baru digitalisasi industri jasa ibadah nasional. Pelantikan yang berlangsung di Jakarta ini menegaskan mandat MUHDIN sebagai asosiasi payung penyelenggara ibadah — Asosiasi di Atas Asosiasi — yang memayungi PPIU, PIHK, KBIHU, dan mitra layanan jamaah di seluruh Indonesia dengan tagline Bersama Melayani Tamu Allah.",
-      "## Mandat dan Makna Strategis",
-      "Sebagai Operator Nusuk Indonesia, MUHDIN menjadi jembatan resmi antara ekosistem platform digital Arab Saudi dan industri jasa ibadah Indonesia. Seluruh layanan kunci jamaah — mulai dari visa, kuota, jadwal, hingga akomodasi — akan terintegrasi dalam satu sistem yang transparan dan dapat dipantau secara real time.",
-      "Ketua Ummu MUHDIN, H. Ahmad Syaiful Bahri, S.E., M.M., menyatakan bahwa pelantikan ini adalah amanah sekaligus tanggung jawab besar. Selama ini industri ibadah kita terfragmentasi: ribuan penyelenggara bekerja sendiri-sendiri, standar tidak seragam, dan jamaah kerap menjadi pihak yang paling rentan. Kini, di bawah payung MUHDIN dan integrasi Nusuk, kami membangun satu tata kelola yang membuat jamaah tenang dan pelaku usaha tumbuh.",
-      "## Tiga Pilar Kerja Sama",
-      "Kerja sama Operator Nusuk Indonesia berpijak pada tiga pilar utama:",
-      "1. **Integrasi sistem.** Seluruh anggota MUHDIN terhubung ke layanan Nusuk untuk pengurusan visa, verifikasi akomodasi berstandar Nusuk, dan manajemen jadwal ibadah termasuk akses Raudah.",
-      "2. **Sertifikasi SDM.** Tour leader dan mutawif bersertifikasi menjadi standar wajib layanan, dengan penilaian kompetensi, bahasa, dan akhlak yang melibatkan umpan balik jamaah.",
+      "Jakarta — Masyarakat Umroh Haji Digital Nusantara (MUHDIN) menegaskan posisi strategisnya sebagai titik koordinasi tunggal akses platform Nusuk bagi industri penyelenggara ibadah Indonesia. Penegasan ini tertuang dalam Whitepaper MUHDIN Edisi 1.0 — September 2026, kertas kerja strategis yang disusun sebagai dasar konsultasi pemangku kepentingan.",
+      "## Posisi: Asosiasi di Atas Asosiasi",
+      "MUHDIN didesain bukan sebagai pesaing pelaku industri, melainkan lapisan federasi yang menaungi PPIU, PIHK, KBIHU, IPHI, dan penyelenggara travel wisata halal-ziarah. Sebagaimana IATA bagi industri penerbangan, MUHDIN menyediakan infrastruktur bersama, standar interoperabilitas, dan penjaminan mutu — sementara setiap anggota tetap menjalankan bisnisnya masing-masing dengan identitasnya sendiri.",
+      "Ketua Ummu MUHDIN, H. Ahmad Syaiful Bahri, S.E., M.M., menyatakan bahwa posisi federasi ini adalah amanah sekaligus tanggung jawab besar. Selama ini industri ibadah kita terfragmentasi: ribuan penyelenggara bekerja sendiri-sendiri, standar tidak seragam, dan jamaah kerap menjadi pihak yang paling rentan. Melalui MUHDIN, kami membangun satu tata kelola yang membuat jamaah tenang dan pelaku usaha tumbuh.",
+      "## Tiga Pilar Akses Kolektif",
+      "Integrasi kolektif terhadap Nusuk melalui satu entitas asosiasi berpijak pada tiga pilar utama:",
+      "1. **Integrasi sistem.** Akses pengurusan visa, verifikasi akomodasi berstandar Nusuk, dan manajemen jadwal ibadah termasuk akses Raudah melalui platform Nusuk (umrah.nusuk.sa dan hajj.nusuk.sa).",
+      "2. **Sertifikasi SDM.** Tour leader dan mutawif bersertifikasi menjadi standar layanan, dengan penilaian kompetensi, bahasa, dan akhlak yang melibatkan umpan balik jamaah.",
       "3. **Perlindungan jamaah.** Transparansi harga, kontrak elektronik, escrow, dan takaful menjadi syarat keanggotaan untuk memastikan dana jamaah terlindungi.",
       "## Manfaat bagi Jamaah dan Industri",
-      "Bagi jamaah, status Operator Nusuk berarti proses keberangkatan yang jauh lebih pasti: status visa dapat dicek dari aplikasi, penerimaan di bandara Jeddah dan Madinah dipantau real time oleh command center, dan setiap tahap perjalanan — 13 tahap lengkap dari registrasi hingga oleh-oleh — memiliki aktor dan standar yang jelas.",
-      "Bagi industri, MUHDIN membuka akses pasar yang lebih luas dengan aturan main yang sehat. Penyelenggara kecil dan menengah memperoleh kesempatan yang sama untuk mengakses kuota, teknologi, dan pelatihan, sehingga persaingan bergeser dari perang harga menuju perang mutu layanan.",
-      "## Peta Jalan Menuju 2030",
-      "Pelantikan ini menjadi fase awal peta jalan Transformasi Digitalisasi Umroh dan Haji Indonesia 2030. Fase Fondasi (2026) menuntaskan kelembagaan, MoU dengan pemangku kepentingan, dan MVP aplikasi. Fase Integrasi (2027) menghadirkan onboarding gelombang pertama mitra, GPS tracking, dan command center 24/7. Fase Skala (2028) meluncurkan marketplace 13 ekosistem penuh dan modul kecerdasan data. Fase Keunggulan (2029-2030) menargetkan akreditasi mutu eksternal dan layanan lebih dari satu juta jamaah per tahun.",
-      "Sekretaris Jenderal Drs. H. Ridwan Kamil Hasyim menutup rangkaian acara dengan ajakan: undangan ini terbuka bagi seluruh penyelenggara yang bersedia tunduk pada standar. Semakin rapi barisannya, semakin tenang langkah jamaah. Bersama Melayani Tamu Allah.",
-      "Informasi keanggotaan dan verifikasi penyelenggara dapat diakses melalui muhdin.web.id atau email info@muhdin.web.id.",
+      "Bagi jamaah, akses kolektif berarti kepastian: status visa dapat dipantau dari aplikasi, penerimaan di bandara Jeddah dan Madinah terkonfirmasi real time oleh command center, dan setiap tahap perjalanan — 13 tahap lengkap dari registrasi hingga oleh-oleh — memiliki aktor dan standar yang jelas. Bagi industri, daya tawar kolektif menghasilkan efisiensi biaya serta persaingan yang bergeser dari perang harga menuju perang mutu layanan.",
+      "## Status Kesepakatan dan Peta Jalan",
+      "Kesepakatan formal dengan pemangku kepentingan — termasuk MoU dengan Nusuk — merupakan deliverable Fase Fondasi (2026) sebagaimana peta jalan Whitepaper. Fase Integrasi (2027) menghadirkan onboarding gelombang pertama mitra, GPS tracking, dan command center 24/7. Fase Skala (2028) meluncurkan marketplace 13 ekosistem penuh dan modul kecerdasan data. Fase Keunggulan (2029-2030) menargetkan akreditasi mutu eksternal dan layanan lebih dari satu juta jamaah per tahun. Kemajuan kesepakatan akan dilaporkan secara transparan melalui kanal resmi MUHDIN.",
+      "Sekretaris Jenderal Drs. H. Ridwan Kamil Hasyim menutup rangkaian penegasan dengan ajakan: undangan ini terbuka bagi seluruh penyelenggara yang bersedia tunduk pada standar. Semakin rapi barisannya, semakin tenang langkah jamaah. Bersama Melayani Tamu Allah.",
+      "Whitepaper MUHDIN Edisi 1.0 dapat diperoleh melalui halaman Unduhan di muhdin.web.id. Informasi keanggotaan dan verifikasi penyelenggara tersedia pada kanal resmi MUHDIN atau email info@muhdin.web.id.",
     ].join("\n\n"),
   },
   {
@@ -1105,14 +1104,14 @@ const faqs = [
   {
     question: "Apa itu MUHDIN?",
     answer:
-      "MUHDIN (Masyarakat Umroh Haji Digital Nusantara) adalah asosiasi payung penyelenggara jasa ibadah Indonesia — Asosiasi di Atas Asosiasi — yang berperan sebagai Operator Nusuk Indonesia. MUHDIN memayungi PPIU, PIHK, KBIHU, dan mitra layanan jamaah dalam satu tata kelola terstandar dengan tagline Bersama Melayani Tamu Allah.",
+      "MUHDIN (Masyarakat Umroh Haji Digital Nusantara) adalah asosiasi payung penyelenggara jasa ibadah Indonesia — Asosiasi di Atas Asosiasi — yang diposisikan sebagai titik koordinasi tunggal akses platform Nusuk bagi industri. MUHDIN memayungi PPIU, PIHK, KBIHU, dan mitra layanan jamaah dalam satu tata kelola terstandar dengan tagline Bersama Melayani Tamu Allah.",
     category: "Umum",
     order: 1,
   },
   {
     question: "Apa manfaat bergabung menjadi anggota MUHDIN?",
     answer:
-      "Anggota memperoleh akses ke 13 ekosistem layanan, integrasi resmi dengan Nusuk (visa, kuota, jadwal), program sertifikasi tour leader dan mutawif, visibilitas di Direktori Anggota publik, serta jaringan perlindungan dana jamaah melalui skema escrow dan takaful. Keanggotaan menjadi tanda kredibilitas yang dapat diverifikasi calon jamaah.",
+      "Anggota memperoleh akses ke 13 ekosistem layanan, program akses kolektif Nusuk (visa, kuota, jadwal), program sertifikasi tour leader dan mutawif, visibilitas di Direktori Anggota publik, serta jaringan perlindungan dana jamaah melalui skema escrow dan takaful. Keanggotaan menjadi tanda kredibilitas yang dapat diverifikasi calon jamaah.",
     category: "Keanggotaan",
     order: 2,
   },
@@ -1147,7 +1146,7 @@ const faqs = [
   {
     question: "Bagaimana MUHDIN terintegrasi dengan Nusuk?",
     answer:
-      "Sebagai Operator Nusuk Indonesia, MUHDIN menghubungkan seluruh anggotanya ke layanan Nusuk untuk pengurusan visa, verifikasi akomodasi berstandar Nusuk, manajemen jadwal ibadah termasuk akses Raudah, dan pemantauan kedatangan jamaah secara real time — satu sumber kebenaran bagi seluruh industri.",
+      "Melalui program akses kolektif Nusuk, MUHDIN menghubungkan seluruh anggotanya ke layanan Nusuk untuk pengurusan visa, verifikasi akomodasi berstandar Nusuk, manajemen jadwal ibadah termasuk akses Raudah, dan pemantauan kedatangan jamaah secara real time — satu sumber kebenaran bagi seluruh industri. Status kesepakatan formal mengikuti peta jalan Whitepaper dan dilaporkan transparan melalui kanal resmi MUHDIN.",
     category: "Teknologi",
     order: 7,
   },
@@ -1260,6 +1259,20 @@ const managements = [
   },
 ];
 
+// ---------- 9a. RESOURCES (unduhan publik) ----------
+const resources = [
+  {
+    title: "Whitepaper MUHDIN — Edisi 1.0 (September 2026)",
+    description:
+      "Kertas kerja strategis MUHDIN: arsitektur 13 ekosistem layanan umroh-haji terintegrasi, lima mitra utama, enam pilar teknologi, model bisnis berakar akad syariah, dan peta jalan 2026-2030. Dokumen konsultasi pemangku kepentingan.",
+    category: "Panduan",
+    fileUrl: "/dokumen/whitepaper-muhdin-2026.pdf",
+    fileType: "PDF",
+    published: true,
+    downloads: 0,
+  },
+];
+
 // ============================================================
 // MAIN
 // ============================================================
@@ -1281,6 +1294,7 @@ async function main() {
   await prisma.testimonial.deleteMany();
   await prisma.management.deleteMany();
   await prisma.siteSetting.deleteMany();
+  await prisma.resource.deleteMany();
   console.log("Data lama berhasil dihapus.");
 
   // ---------- 1. User admin ----------
@@ -1333,6 +1347,9 @@ async function main() {
   // ---------- 9. FAQ ----------
   await prisma.faq.createMany({ data: faqs });
 
+  // ---------- 9a. Resources (unduhan publik — whitepaper) ----------
+  await prisma.resource.createMany({ data: resources });
+
   // ---------- 10. Testimonials ----------
   await prisma.testimonial.createMany({ data: testimonials });
 
@@ -1352,6 +1369,7 @@ async function main() {
     faqCount,
     testimonialCount,
     managementCount,
+    resourceCount,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.siteSetting.count(),
@@ -1364,6 +1382,7 @@ async function main() {
     prisma.faq.count(),
     prisma.testimonial.count(),
     prisma.management.count(),
+    prisma.resource.count(),
   ]);
 
   console.log("\n=== SEED MUHDIN SELESAI — JUMLAH RECORD PER MODEL ===");
@@ -1378,6 +1397,7 @@ async function main() {
   console.log("Faq           :", faqCount);
   console.log("Testimonial   :", testimonialCount);
   console.log("Management    :", managementCount);
+  console.log("Resource      :", resourceCount);
   console.log("\nSeed sukses. Bersama Melayani Tamu Allah.");
 }
 

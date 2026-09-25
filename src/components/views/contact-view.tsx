@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { useT } from "@/lib/i18n";
+import { BRAND } from "@/lib/constants";
 import { BranchesSection } from "@/components/site/branches-section";
 import type { Faq } from "@/lib/types";
 
@@ -33,18 +34,22 @@ const CONTACT_CARDS: {
     href: "mailto:info@muhdin.web.id",
   },
   {
-    icon: "phone",
-    value: "+62 21 1234 5678",
+    // Task 40 — WhatsApp resmi MUHDIN 0811 1116 5165 (salam pembuka terisi otomatis).
+    icon: "message-circle",
+    value: BRAND.whatsappDisplay,
     titleKey: "contact.cardPhoneTitle",
     descKey: "contact.cardPhoneDesc",
-    href: "tel:+622112345678",
+    href: `https://wa.me/${BRAND.whatsappIntl}?text=${encodeURIComponent(BRAND.waGreeting)}`,
+    external: true,
   },
   {
     icon: "map-pin",
-    value: "Gedung Asosiasi MUHDIN",
+    value: "Kantor Jakarta — Cempaka Putih",
     titleKey: "contact.cardAddressTitle",
     descKey: "contact.cardAddressDesc",
-    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Gedung Asosiasi MUHDIN Jakarta Pusat")}`,
+    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      "Jl. Cempaka Putih Tengah XXX No.30, Cempaka Putih Timur, Jakarta Pusat 10510"
+    )}`,
     external: true,
   },
   {
@@ -106,17 +111,28 @@ export function ContactView() {
 
           <Tabs defaultValue="pesan" className="w-full max-w-4xl mx-auto">
             <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="pesan" className="gap-2">
+              {/* id/aria deterministik (Task 35-h addendum) — imun geser useId dev */}
+              <TabsTrigger
+                value="pesan"
+                id="muhdin-contact-tab-pesan"
+                aria-controls="muhdin-contact-panel-pesan"
+                className="gap-2"
+              >
                 <Icon name="message-square" className="h-4 w-4" /> {t("contact.tabMessage")}
               </TabsTrigger>
-              <TabsTrigger value="faq" className="gap-2">
+              <TabsTrigger
+                value="faq"
+                id="muhdin-contact-tab-faq"
+                aria-controls="muhdin-contact-panel-faq"
+                className="gap-2"
+              >
                 <Icon name="help-circle" className="h-4 w-4" /> {t("contact.tabFaq")}
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="pesan">
+            <TabsContent value="pesan" id="muhdin-contact-panel-pesan" aria-labelledby="muhdin-contact-tab-pesan">
               <MessageForm />
             </TabsContent>
-            <TabsContent value="faq">
+            <TabsContent value="faq" id="muhdin-contact-panel-faq" aria-labelledby="muhdin-contact-tab-faq">
               <FaqSection />
             </TabsContent>
           </Tabs>

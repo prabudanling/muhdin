@@ -63,3 +63,4 @@ server.log
 # Salinan unduhan darurat di public/ (bukan aset aplikasi, jangan ter-commit)
 /public/*.zip
 /public/muhdin-shared-hosting-INSTALL.txt
+tool-results/

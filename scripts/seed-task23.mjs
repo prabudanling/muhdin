@@ -55,7 +55,7 @@ Sebagai aplikasi pemerintah terdaftar pada Otoritas Pemerintah Digital (DGA) Ker
 
 ## MUHDIN dalam Ekosistem Ini
 
-Sebagai asosiasi di atas asosiasi penyelenggara ibadah — Operator Nusuk Indonesia — MUHDIN memastikan anggotanya mampu menemani jamaah Indonesia memanfaatkan seluruh layanan ini dengan amanah.
+Sebagai asosiasi di atas asosiasi penyelenggara ibadah — titik koordinasi akses Nusuk bagi industri Indonesia — MUHDIN memastikan anggotanya mampu menemani jamaah Indonesia memanfaatkan seluruh layanan ini dengan amanah.
 
 *Sumber: rilis resmi SPA (Saudi Press Agency) · nusuk.sa.*`,
   },

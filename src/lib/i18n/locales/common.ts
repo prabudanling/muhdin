@@ -58,6 +58,8 @@ export const commonDict = {
       themeDark: "Gelap",
       themeSystem: "Sistem",
       ariaTheme: "Ganti tema tampilan",
+      ariaWaFab: "Chat WhatsApp resmi MUHDIN",
+      waFabLabel: "Chat WhatsApp",
     },
   },
   en: {
@@ -114,6 +116,8 @@ export const commonDict = {
       themeDark: "Dark",
       themeSystem: "System",
       ariaTheme: "Change appearance",
+      ariaWaFab: "MUHDIN official WhatsApp chat",
+      waFabLabel: "Chat on WhatsApp",
     },
   },
   ar: {
@@ -170,6 +174,8 @@ export const commonDict = {
       themeDark: "داكن",
       themeSystem: "النظام",
       ariaTheme: "تغيير المظهر",
+      ariaWaFab: "محادثة واتساب الرسمية لموهدين",
+      waFabLabel: "محادثة واتساب",
     },
   },
 } as const;

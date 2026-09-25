@@ -6,12 +6,19 @@ export const BRAND = {
   legalName: "Masyarakat Umroh Haji Digital Nusantara",
   positioning: "Trusted Pilgrim Ecosystem",
   tagline: "Bersama Melayani Tamu Allah",
-  taglineEn: "One Ecosystem. One Standard. One Trust. One Journey.",
-  taglineId: "Satu Ekosistem. Satu Standar. Satu Kepercayaan. Satu Perjalanan.",
+  taglineEn: "One Ecosystem. One Data. One Standard. One Trust. One Journey.",
+  taglineId: "Satu Ekosistem. Satu Data. Satu Standar. Satu Trust.",
+  // Branding utama (wajib user, Task 35-b) — tampil di hero, finale, & SEO.
+  promise: "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI",
+  poweredBy: "Powered by MHUTU Global Sistem",
   arabic: "\u0644\u0628\u064a\u0643 \u0627\u0644\u0644\u0647\u0645 \u0644\u0628\u064a\u0643",
   arabicMeaning: "Labbaik Allahumma Labbaik",
   motto: "Melayani dengan Amanah, Profesional, Terstandar dan Penuh Keberkahan",
   connecting: "Connecting Indonesia to The Holy Journey",
+  // Kontak resmi (Task 40) — WhatsApp official & kantor-kantor MUHDIN.
+  whatsappDisplay: "0811 1116 5165",
+  whatsappIntl: "6281111165165",
+  waGreeting: "Assalamu'alaikum, saya ingin bertanya tentang MUHDIN.",
   // ROLE 25 (Compliance): tanpa klaim "Operator Nusuk"/endorsement pemerintah.
   edition: "Ekosistem Penyelenggaraan Ibadah Terpercaya — Terhubung dengan jalur resmi Nusuk",
 };
@@ -143,6 +150,36 @@ export const BENEFITS: string[] = [
   "Keamanan dengan tracking real time",
   "Peningkatan kualitas layanan",
   "Keberkahan usaha yang berkelanjutan",
+];
+
+/* ====== TASK 34 — Whitepaper Edisi 1.0 (Sept 2026) sync ======
+   Tabel 5 (Sumber Pendapatan & Dasar Akad) + Tabel 8 (Manfaat Stakeholder).
+   Teks terlokalisasi tinggal di i18n: about.biz.r1..r6 & about.stake.s1..s7. */
+
+export interface I18nItemDef {
+  id: string;
+  icon: string;
+}
+
+/** Sumber pendapatan MUHDIN — Bab 8 Whitepaper (akad syariah). */
+export const REVENUE_SOURCES: I18nItemDef[] = [
+  { id: "r1", icon: "wallet" }, // Iuran keanggotaan — Wakalah (perwakilan)
+  { id: "r2", icon: "monitor" }, // Biaya teknologi & platform — Ijarah (sewa jasa)
+  { id: "r3", icon: "trending-up" }, // Komisi ekosistem — Ju'alah (imbal hasil)
+  { id: "r4", icon: "graduation-cap" }, // Sertifikasi & pelatihan — Muwakalah
+  { id: "r5", icon: "bar-chart-3" }, // Layanan data & kepatuhan — Wakalah (jasa profesional)
+  { id: "r6", icon: "handshake" }, // Kemitraan strategis — Musyarakah (kemitraan)
+];
+
+/** Manfaat bagi 7 kelompok pemangku kepentingan — Bab 11 Whitepaper. */
+export const STAKEHOLDER_GROUPS: I18nItemDef[] = [
+  { id: "s1", icon: "heart-handshake" }, // Jamaah
+  { id: "s2", icon: "building" }, // PPIU & PIHK
+  { id: "s3", icon: "network" }, // KBIHU & IPHI
+  { id: "s4", icon: "plane" }, // Travel wisata halal-ziarah
+  { id: "s5", icon: "scale" }, // Regulator
+  { id: "s6", icon: "landmark" }, // Pemerintah Saudi & Nusuk
+  { id: "s7", icon: "boxes" }, // UMKM & masyarakat
 ];
 
 export const CLUSTERS = [

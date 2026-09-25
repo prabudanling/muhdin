@@ -209,6 +209,13 @@ Satu platform yang menggabungkan **empat zona** dalam satu codebase:
 | 👁️ **Transparan** | status & rekam jejak terbuka publik (verifikasi lisensi) |
 | 🛡️ **Tepercaya** | legalitas diverifikasi, sanksi konsisten (RBAC 4 peran) |
 
+**Dokumen sumber konsep**: seluruh narasi portal (13 ekosistem, lima mitra
+utama, enam pilar teknologi, lima nilai, model bisnis akad syariah, peta jalan
+2026-2030, KPI) bersumber dari **Whitepaper MUHDIN Edisi 1.0 — September 2026**
+("Arsitektur 13 Ekosistem Layanan Umroh-Haji Terintegrasi"). Dokumen asli bisa
+diunduh publik di halaman `#/unduhan` (berkas: `public/dokumen/whitepaper-muhdin-2026.pdf`)
+dan menjadi acuan penulisan konten (lihat `CONTENT_GUIDE.md` §8).
+
 ---
 
 ## 🚀 Jalankan Lokal

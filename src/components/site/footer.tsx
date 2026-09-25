@@ -37,6 +37,7 @@ const NAV_LINKS: [path: string, key: string][] = [
   ["anggota/verifikasi", "verifikasi"],
   ["tutorial", "tutorial"],
   ["berita", "berita"],
+  ["pengurus", "pengurus"],
   ["gabung", "gabung"],
 ];
 
@@ -411,6 +412,14 @@ export function Footer() {
                 </li>
               </ul>
             </div>
+          </div>
+
+          {/* Task 36 — strip DAFTAR & IURAN GRATIS */}
+          <div className="mt-12 rounded-2xl border border-gold/40 bg-gold/10 p-4 text-center">
+            <p className="inline-flex flex-wrap items-center justify-center gap-2 text-xs font-extrabold uppercase tracking-widest text-gold sm:text-sm">
+              <Icon name="check-circle-2" className="h-4 w-4 shrink-0" aria-hidden />
+              {t("footer.freeBadge")}
+            </p>
           </div>
 
           {/* 2 — Panel Mitra Teknologi (Task 20): Digiman × JuraganWeb */}

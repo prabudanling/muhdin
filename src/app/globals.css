@@ -58,42 +58,44 @@
   --card-foreground: oklch(0.2 0.03 150);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.03 150);
-  --primary: oklch(0.44 0.115 160);
-  --primary-foreground: oklch(0.985 0.005 120);
-  --secondary: oklch(0.96 0.015 150);
-  --secondary-foreground: oklch(0.32 0.07 160);
-  --muted: oklch(0.965 0.008 140);
-  --muted-foreground: oklch(0.5 0.02 150);
-  --accent: oklch(0.94 0.03 155);
-  --accent-foreground: oklch(0.3 0.08 160);
+  --primary: oklch(0.51 0.125 158);
+  --primary-foreground: oklch(0.99 0.003 118);
+  --secondary: oklch(0.955 0.02 150);
+  --secondary-foreground: oklch(0.3 0.07 160);
+  --muted: oklch(0.963 0.012 145);
+  --muted-foreground: oklch(0.49 0.022 152);
+  --accent: oklch(0.95 0.035 152);
+  --accent-foreground: oklch(0.29 0.075 160);
   /* Destructive 0.52 (marun): putih di atasnya 6.02:1, teks destructive di
      atas tint bg-destructive/5..10 tetap >= 5:1 (Spectrum 8 audit) */
   --destructive: oklch(0.52 0.22 27);
-  --border: oklch(0.91 0.02 150);
-  --input: oklch(0.91 0.02 150);
-  --ring: oklch(0.6 0.1 160);
-  --chart-1: oklch(0.44 0.115 160);
+  --border: oklch(0.915 0.018 150);
+  --input: oklch(0.915 0.018 150);
+  --ring: oklch(0.56 0.12 158);
+  --chart-1: oklch(0.51 0.125 158);
   --chart-2: oklch(0.75 0.14 85);
   --chart-3: oklch(0.6 0.1 165);
   --chart-4: oklch(0.68 0.13 100);
   --chart-5: oklch(0.52 0.09 170);
   --sidebar: oklch(0.98 0.005 150);
   --sidebar-foreground: oklch(0.2 0.03 150);
-  --sidebar-primary: oklch(0.44 0.115 160);
-  --sidebar-primary-foreground: oklch(0.985 0.005 120);
-  --sidebar-accent: oklch(0.94 0.03 155);
-  --sidebar-accent-foreground: oklch(0.3 0.08 160);
-  --sidebar-border: oklch(0.91 0.02 150);
-  --sidebar-ring: oklch(0.6 0.1 160);
-  /* MUHDIN brand tokens
+  --sidebar-primary: oklch(0.51 0.125 158);
+  --sidebar-primary-foreground: oklch(0.99 0.003 118);
+  --sidebar-accent: oklch(0.95 0.035 152);
+  --sidebar-accent-foreground: oklch(0.29 0.075 160);
+  --sidebar-border: oklch(0.915 0.018 150);
+  --sidebar-ring: oklch(0.56 0.12 158);
+  /* MUHDIN brand tokens — palet "fresh green" (Task 40, referensi sgl.web.id):
+     putih hangat + emerald cerah + pinus gelap + mint lapang; emas tetap
+     identitas brand (harmonis dengan aksen amber pada referensi).
      gold-deep 0.49 = perunggu emas antik — teks di putih 6.35:1 dan di atas
      tint bg-gold/15 tetap 5.6:1 (semua chip PENDING/ADMIN lolos AA) */
   --gold: oklch(0.72 0.135 85);
   --gold-soft: oklch(0.9 0.07 90);
   --gold-deep: oklch(0.49 0.115 78);
-  --forest: oklch(0.38 0.1 162);
-  --forest-deep: oklch(0.26 0.08 165);
-  --mint: oklch(0.95 0.04 155);
+  --forest: oklch(0.34 0.088 163);
+  --forest-deep: oklch(0.255 0.078 166);
+  --mint: oklch(0.965 0.032 152);
 }
 
 .dark {
@@ -103,9 +105,9 @@
   --card-foreground: oklch(0.96 0.008 140);
   --popover: oklch(0.22 0.025 165);
   --popover-foreground: oklch(0.96 0.008 140);
-  /* Primary dark 0.53: putih di bg-primary/button tetap >= 4.5:1,
+  /* Primary dark 0.55 (emerald cerah): putih di bg-primary/button >= 4.5:1,
      namun tetap cukup terang dibanding background 0.17 */
-  --primary: oklch(0.53 0.125 156);
+  --primary: oklch(0.55 0.13 158);
   --primary-foreground: oklch(0.985 0.005 120);
   --secondary: oklch(0.26 0.03 165);
   --secondary-foreground: oklch(0.96 0.008 140);
@@ -117,14 +119,14 @@
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.74 0.13 155);
-  --chart-1: oklch(0.66 0.12 155);
+  --chart-1: oklch(0.68 0.125 158);
   --chart-2: oklch(0.75 0.14 85);
   --chart-3: oklch(0.6 0.1 165);
   --chart-4: oklch(0.68 0.13 100);
   --chart-5: oklch(0.52 0.09 170);
   --sidebar: oklch(0.2 0.025 165);
   --sidebar-foreground: oklch(0.96 0.008 140);
-  --sidebar-primary: oklch(0.53 0.125 156);
+  --sidebar-primary: oklch(0.55 0.13 158);
   --sidebar-primary-foreground: oklch(0.985 0.005 120);
   --sidebar-accent: oklch(0.3 0.04 163);
   --sidebar-accent-foreground: oklch(0.96 0.008 140);
@@ -133,9 +135,9 @@
   --gold: oklch(0.78 0.14 88);
   --gold-soft: oklch(0.84 0.09 90);
   --gold-deep: oklch(0.68 0.13 82);
-  --forest: oklch(0.32 0.07 165);
-  --forest-deep: oklch(0.22 0.05 168);
-  --mint: oklch(0.28 0.05 160);
+  --forest: oklch(0.31 0.07 166);
+  --forest-deep: oklch(0.215 0.055 168);
+  --mint: oklch(0.27 0.045 160);
 }
 
 @layer base {
@@ -394,12 +396,12 @@ html[dir="rtl"] pre {
    ============================================================ */
 @layer utilities {
   .dark .text-primary {
-    color: oklch(0.72 0.115 155);
+    color: oklch(0.74 0.12 158);
   }
   /* Spectrum 8 audit: --forest gelap (0.32) jadi INVISIBEL (1.36:1)
      sebagai teks di kartu gelap — naikkan seperti text-primary */
   .dark .text-forest {
-    color: oklch(0.74 0.1 162);
+    color: oklch(0.74 0.095 163);
   }
   /* Spectrum 8 audit: text-gold-deep (0.68) di chip bg-gold/15 gelap
      hanya 4.41:1 — sebagai teks dipakai versi emas terang (5.97:1) */

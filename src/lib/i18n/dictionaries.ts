@@ -25,6 +25,7 @@ import { branchesDict } from "@/lib/i18n/locales/branches";
 import { nusHomeDict } from "@/lib/i18n/locales/nusantara-home";
 import { nusTrustDict } from "@/lib/i18n/locales/nusantara-trust";
 import { nusJoinDict } from "@/lib/i18n/locales/nusantara-join";
+import { pengurusDict } from "@/lib/i18n/locales/pengurus";
 
 const dicts = [
   commonDict,
@@ -51,6 +52,8 @@ const dicts = [
   nusHomeDict,
   nusTrustDict,
   nusJoinDict,
+  // Task 37 — Susunan Pengurus MUHDIN (#/pengurus)
+  pengurusDict,
 ];
 
 export const dictionaries: Record<"id" | "en" | "ar", Record<string, unknown>> = {

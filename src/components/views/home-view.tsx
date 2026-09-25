@@ -1,15 +1,20 @@
 "use client";
 
-/* Task 33-b — Rebuild homepage MUHDIN NUSANTARA (11 section + news strip).
+/* Task 33-b — Rebuild homepage MUHDIN NUSANTARA.
+   Task 35 — Sinkron manifesto: hero 4 CTA, "SIAPA YANG BISA BERGABUNG?" (12),
+   Verified 3 CTA + legal bold, MUHDIN+MHUTU, One Record, Supply Passport,
+   Academy 8 program, Control Tower, finale "Powered by MHUTU Global Sistem".
    SPA hash-routing publik; animasi via Reveal/Stagger + CSS murni di
    nusantara.css (reduced-motion aman). Tanpa API fetch kecuali news strip. */
 import "@/components/site/nusantara.css";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { apiGet } from "@/lib/client-api";
 import { navigate } from "@/hooks/use-hash-route";
+import { toast } from "@/hooks/use-toast";
 import { Icon } from "@/components/site/icon";
-import { Reveal, SectionHeading, Stagger, StaggerItem } from "@/components/site/reveal";
+import { Reveal, SectionHeading, Stagger, StaggerItem, CountUp } from "@/components/site/reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,10 +22,14 @@ import { BRAND } from "@/lib/constants";
 import {
   HERO_FLOW,
   PILLARS,
-  ECOSYSTEM_CATEGORIES,
+  JOIN_CATEGORIES,
   ONBOARDING_STEPS,
   NETWORK_NODES,
   MEMBERSHIP_TIERS,
+  MHUTU_ROLES,
+  MHUTU_DOMAINS,
+  SUPPLY_PASSPORT_FIELDS,
+  CONTROL_TOWER_ITEMS,
   ACADEMY_TOPICS,
 } from "@/lib/nusantara";
 import { useT, formatDateL10n } from "@/lib/i18n";
@@ -44,21 +53,69 @@ const PILLAR_META: Record<string, { icon: string; key: string }> = {
   INTEGRATE: { icon: "workflow", key: "integrate" },
 };
 
-const ECO_KEY: Record<string, string> = {
+const JOIN_KEY: Record<string, string> = {
   PPIU: "ppiu",
   PIHK: "pihk",
   KBIHU: "kbihu",
-  TRAVEL: "travel",
   SAUDI_PROVIDER: "saudiProvider",
   HOTEL: "hotel",
+  TRANSPORT: "transport",
   TICKETING: "ticketing",
   VISA_DOC: "visaDoc",
-  TRANSPORT: "transport",
-  INSURANCE: "insurance",
-  HEALTH: "health",
+  HEALTH_INSURANCE: "healthInsurance",
   PROFESSIONAL: "professional",
   TECHNOLOGY: "technology",
   STRATEGIC_PARTNER: "strategicPartner",
+};
+
+const MHUTU_ROLE_KEY: Record<string, string> = {
+  MUHDIN: "muhdin",
+  MHUTU: "mhutu",
+  AROFAH: "arofah",
+  PPIU_PIHK: "ppiuPihk",
+  SAUDI_PROVIDER: "saudiProvider",
+  JAMAAH: "jamaah",
+};
+
+const MHUTU_DOMAIN_KEY: Record<string, string> = {
+  IDENTITY: "identity",
+  ORGANIZATION: "organization",
+  MEMBERSHIP: "membership",
+  VERIFICATION: "verification",
+  PROVIDER: "provider",
+  PACKAGE: "package",
+  BOOKING: "booking",
+  JAMAAH: "jamaah",
+  DOCUMENTS: "documents",
+  JOURNEY: "journey",
+  CONTRACTS: "contracts",
+  PAYMENTS: "payments",
+  COMPLAINT: "complaint",
+  AUDIT: "audit",
+  JOURNEY_RECORD: "journeyRecord",
+};
+
+const SUPPLY_FIELD_KEY: Record<string, string> = {
+  IDENTITY: "identity",
+  SERVICE_CATEGORIES: "serviceCategories",
+  CAPACITY: "capacity",
+  DOCUMENTS: "documents",
+  VERIFICATION: "verification",
+  PARTNERSHIP: "partnership",
+};
+
+const TOWER_KEY: Record<string, string> = {
+  MEMBERS: "members",
+  VERIFICATION: "verification",
+  PROVIDER: "provider",
+  SUPPLY: "supply",
+  JAMAAH: "jamaah",
+  JOURNEY: "journey",
+  DOCUMENTS: "documents",
+  CONTRACTS: "contracts",
+  COMPLAINT: "complaint",
+  READINESS: "readiness",
+  ALERTS: "alerts",
 };
 
 const STEP_META: Record<string, { icon: string; key: string }> = {
@@ -104,12 +161,14 @@ const TIER_KEY: Record<string, string> = {
 };
 
 const TOPIC_META: Record<string, { icon: string; key: string }> = {
-  DIGITAL_UMRAH: { icon: "book-open", key: "digitalUmrah" },
-  PPIU_OPERATIONS: { icon: "graduation-cap", key: "ppiuOps" },
-  SAUDI_OPERATIONS: { icon: "landmark", key: "saudiOps" },
+  PPIU_ACADEMY: { icon: "plane-takeoff", key: "ppiu" },
+  PIHK_ACADEMY: { icon: "landmark", key: "pihk" },
+  SAUDI_OPERATIONS: { icon: "building-2", key: "saudiOps" },
+  TOUR_LEADER: { icon: "compass", key: "tourLeader" },
+  MUTAWWIF: { icon: "tent-tree", key: "mutawwif" },
+  DIGITAL_HAJJ: { icon: "brain-circuit", key: "digitalHajj" },
   COMPLIANCE: { icon: "scale", key: "compliance" },
-  TECHNOLOGY: { icon: "brain-circuit", key: "technology" },
-  PROFESSIONAL_DEVELOPMENT: { icon: "trending-up", key: "professionalDev" },
+  MHUTU_ACADEMY: { icon: "cpu", key: "mhutu" },
 };
 
 const NOT_KEYS = ["govt", "accredit", "departure", "visa", "transaction"] as const;
@@ -150,6 +209,12 @@ function useInViewOnce<T extends HTMLElement>() {
 /* ================= S01 — HERO ================= */
 function HeroSection() {
   const { t } = useT();
+  const ctas = [
+    { key: "ctaPrimary", to: "daftar", primary: true },
+    { key: "ctaPartner", to: "daftar", primary: false },
+    { key: "ctaProvider", to: "daftar", primary: false },
+    { key: "ctaVerified", to: "anggota/verifikasi", primary: false },
+  ] as const;
   return (
     <section
       aria-label={t("nusHome.aria.hero")}
@@ -160,7 +225,7 @@ function HeroSection() {
         <img
           src="/images/hero-kaaba.jpg"
           alt={t("nusHome.hero.imgAlt")}
-          className="h-full w-full object-cover"
+          className="nus-kenburns h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/95 via-forest-deep/70 to-forest-deep/90" aria-hidden />
         <div className="absolute inset-0 bg-islamic-pattern-gold opacity-40" aria-hidden />
@@ -181,7 +246,15 @@ function HeroSection() {
 
         <Reveal delay={0.14}>
           <p className="mt-4 text-base font-semibold italic text-gold sm:text-lg">
-            {BRAND.taglineEn}
+            {BRAND.taglineId}
+          </p>
+        </Reveal>
+
+        {/* Task 35-b — Branding utama: EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI */}
+        <Reveal delay={0.17}>
+          <p className="mx-auto mt-5 inline-flex max-w-full items-center justify-center gap-2 rounded-xl border border-gold/50 bg-gold/15 px-4 py-2.5 text-[11px] font-extrabold uppercase leading-relaxed tracking-[0.14em] text-gold-soft sm:px-6 sm:text-sm sm:tracking-[0.2em]">
+            <Icon name="sparkles" className="h-4 w-4 shrink-0" aria-hidden />
+            <span>{t("nusHome.hero.promise")}</span>
           </p>
         </Reveal>
 
@@ -191,28 +264,36 @@ function HeroSection() {
           </p>
         </Reveal>
 
+        {/* Task 35 — 4 CTA sesuai manifesto */}
         <Reveal delay={0.26}>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button
-              size="lg"
-              onClick={() => navigate("daftar")}
-              className="h-12 w-full bg-gold px-8 text-sm font-extrabold tracking-widest text-forest-deep hover:bg-gold-soft sm:w-auto"
-            >
-              {t("nusHome.hero.ctaPrimary")}
-              <Icon name="arrow-right" className="ms-2 h-4 w-4 icon-flip" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => navigate("ekosistem")}
-              className="h-12 w-full border-gold/50 bg-white/5 px-8 text-sm font-bold tracking-widest text-white hover:border-gold hover:bg-white/10 hover:text-gold sm:w-auto"
-            >
-              {t("nusHome.hero.ctaSecondary")}
-            </Button>
+          <div className="mx-auto mt-8 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
+            {ctas.map(({ key, to, primary }) => (
+              <Button
+                key={key}
+                size="lg"
+                onClick={() => navigate(to)}
+                className={cn(
+                  "h-12 px-6 text-xs font-extrabold tracking-widest sm:text-sm",
+                  primary
+                    ? "bg-gold text-forest-deep hover:bg-gold-soft"
+                    : "border-gold/50 bg-white/5 text-white hover:border-gold hover:bg-white/10 hover:text-gold"
+                )}
+              >
+                {t(`nusHome.hero.${key}`)}
+              </Button>
+            ))}
           </div>
         </Reveal>
 
         {/* Alur ekosistem animasi: 5 node + konektor "pulse mengalir" */}
+        {/* Task 36 — freeNote hero · Task 40 — highlighter lime ala sgl.web.id */}
+        <Reveal delay={0.3}>
+          <p className="mt-5 inline-flex -rotate-1 items-center gap-1.5 rounded-lg bg-lime-300 px-3 py-1.5 text-xs font-extrabold text-forest-deep shadow-[0_6px_18px_-6px_oklch(0.9_0.19_130/0.6)]">
+            <Icon name="check-circle-2" className="h-4 w-4" aria-hidden />
+            {t("nusHome.hero.freeNote")}
+          </p>
+        </Reveal>
+
         <div className="mt-14 sm:mt-16">
           <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-soft/80">
             {t("nusHome.hero.flowTitle")}
@@ -255,6 +336,118 @@ function HeroSection() {
   );
 }
 
+/* ================= S01-b — DAFTAR & IURAN GRATIS (Task 36) ================= */
+function FreeSection() {
+  const { t } = useT();
+  const notes = [
+    { key: "note1", icon: "check-circle-2" },
+    { key: "note2", icon: "eye-off" },
+    { key: "note3", icon: "users" },
+  ] as const;
+  return (
+    <section
+      aria-label={t("nusHome.aria.free")}
+      className="relative overflow-hidden bg-gradient-to-b from-gold/15 via-background to-background py-16 sm:py-24"
+    >
+      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" aria-hidden />
+      <div className="relative mx-auto max-w-5xl px-4 text-center sm:px-6">
+        <Reveal>
+          <Badge className="border border-lime-400/70 bg-lime-300 px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.25em] text-forest-deep shadow-[0_8px_24px_-8px_oklch(0.9_0.19_130/0.7)] sm:text-xs">
+            {t("nusHome.free.badge")}
+          </Badge>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+            {t("nusHome.free.title")}
+          </h2>
+        </Reveal>
+        <Reveal delay={0.14}>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {t("nusHome.free.sub")}
+          </p>
+        </Reveal>
+
+        {/* Perbandingan: asosiasi biasa vs MUHDIN */}
+        <Reveal delay={0.2}>
+          <div className="mx-auto mt-10 grid max-w-3xl gap-4 text-start md:grid-cols-2">
+            {/* Kartu platform biasa */}
+            <div className="rounded-2xl border border-dashed border-border bg-card/60 p-6">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                {t("nusHome.free.compareUs")}
+              </p>
+              <div className="mt-5 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground sm:text-sm">{t("nusHome.free.rowSignup")}</span>
+                  <span className="text-sm font-bold text-muted-foreground line-through decoration-destructive/70 sm:text-base">
+                    {t("nusHome.free.otherSignup")}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground sm:text-sm">{t("nusHome.free.rowDues")}</span>
+                  <span className="text-sm font-bold text-muted-foreground line-through decoration-destructive/70 sm:text-base">
+                    {t("nusHome.free.otherDues")}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {/* Kartu MUHDIN — Rp 0 */}
+            <div className="relative rounded-2xl border-2 border-gold bg-gradient-to-b from-gold/20 via-gold/10 to-gold/5 p-6 shadow-[0_0_40px_-12px_oklch(0.72_0.135_85/0.55)]">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground">
+                {t("nusHome.free.compareMuhdin")}
+              </p>
+              <div className="mt-5 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-foreground/70 sm:text-sm">{t("nusHome.free.rowSignup")}</span>
+                  <span className="text-2xl font-extrabold tracking-tight text-gold-deep sm:text-3xl">Rp 0</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-foreground/70 sm:text-sm">{t("nusHome.free.rowDues")}</span>
+                  <span className="text-2xl font-extrabold tracking-tight text-gold-deep sm:text-3xl">Rp 0</span>
+                </div>
+              </div>
+              <p className="mt-4 inline-flex rounded-full bg-gold px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-forest-deep">
+                {t("nusHome.free.freeLabel")}
+              </p>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.26}>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {notes.map(({ key, icon }) => (
+              <span key={key} className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                <Icon name={icon} className="h-4 w-4 text-gold-deep" />
+                {t(`nusHome.free.${key}`)}
+              </span>
+            ))}
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.32}>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button
+              size="lg"
+              onClick={() => navigate("daftar")}
+              className="h-14 bg-gold px-10 text-sm font-extrabold tracking-widest text-forest-deep shadow-[0_10px_30px_-10px_oklch(0.72_0.135_85/0.7)] hover:bg-gold-soft sm:text-base"
+            >
+              {t("nusHome.free.cta")}
+              <Icon name="arrow-right" className="ms-2 h-5 w-5 icon-flip" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => navigate("gabung")}
+              className="h-14 border-gold/50 px-8 text-xs font-extrabold tracking-widest text-foreground hover:border-gold hover:bg-gold/10 sm:text-sm"
+            >
+              {t("nusHome.free.cta2")}
+            </Button>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 /* ================= S02 — THE IDEA ================= */
 function IdeaSection() {
   const { t } = useT();
@@ -291,62 +484,15 @@ function IdeaSection() {
   );
 }
 
-/* ================= S03 — ECOSYSTEM (14 kategori keanggotaan) ================= */
-function EcosystemSection() {
-  const { t } = useT();
-  return (
-    <section
-      aria-label={t("nusHome.aria.ecosystem")}
-      className="bg-mint/30 py-16 sm:py-24 dark:bg-muted/30"
-    >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeading
-          eyebrow={t("nusHome.eco.eyebrow")}
-          title={t("nusHome.eco.title")}
-          subtitle={t("nusHome.eco.sub")}
-        />
-        <Stagger
-          className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5"
-          stagger={0.045}
-        >
-          {ECOSYSTEM_CATEGORIES.map((cat) => {
-            const key = ECO_KEY[cat.code];
-            return (
-              <StaggerItem key={cat.code} className="h-full">
-                <div className="group flex h-full flex-col rounded-2xl border bg-card p-4 transition-all duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-lg">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-gold/15 group-hover:text-gold-deep">
-                    <Icon name={cat.icon} className="h-5 w-5" strokeWidth={1.8} />
-                  </div>
-                  <h3 className="mt-3 text-xs font-extrabold uppercase tracking-wide text-foreground sm:text-sm">
-                    {t(`nusHome.eco.items.${key}.name`)}
-                  </h3>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {t(`nusHome.eco.items.${key}.desc`)}
-                  </p>
-                  <button
-                    onClick={() => navigate("daftar")}
-                    className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-bold text-gold-deep transition-colors hover:text-primary"
-                    aria-label={`${t("nusHome.eco.cta")} — ${t(`nusHome.eco.items.${key}.name`)}`}
-                  >
-                    {t("nusHome.eco.cta")}
-                    <Icon name="arrow-right" className="h-3.5 w-3.5 icon-flip" />
-                  </button>
-                </div>
-              </StaggerItem>
-            );
-          })}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-/* ================= S04 — MUHDIN VERIFIED ================= */
+/* ================= S03 — MUHDIN VERIFIED ================= */
 function VerifiedSection() {
   const { t } = useT();
   const { ref, inView } = useInViewOnce<HTMLDivElement>();
   return (
-    <section aria-label={t("nusHome.aria.verified")} className="py-16 sm:py-24">
+    <section
+      aria-label={t("nusHome.aria.verified")}
+      className="bg-mint/30 py-16 sm:py-24 dark:bg-muted/30"
+    >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
           eyebrow={t("nusHome.verified.eyebrow")}
@@ -381,19 +527,41 @@ function VerifiedSection() {
             </div>
           </Reveal>
 
-          {/* Penjelasan + panel BUKAN + disclaimer */}
+          {/* Penjelasan + garis legal tebal + 3 CTA + panel BUKAN + disclaimer */}
           <Reveal delay={0.1}>
             <div>
               <p className="text-base leading-relaxed text-foreground/85 sm:text-lg">
                 {t("nusHome.verified.meaning")}
               </p>
-              <Button
-                onClick={() => navigate("anggota/verifikasi")}
-                className="mt-5 h-11 bg-primary px-6 font-bold text-primary-foreground hover:bg-primary/90"
-              >
-                <Icon name="search" className="me-2 h-4 w-4" />
-                {t("nusHome.verified.cta")}
-              </Button>
+              <p className="mt-4 border-s-4 border-destructive/60 bg-destructive/5 px-4 py-3 text-sm font-bold text-destructive sm:text-base">
+                {t("nusHome.verified.legalBold")}
+              </p>
+
+              <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
+                <Button
+                  onClick={() => navigate("anggota")}
+                  className="h-11 bg-primary px-5 font-bold text-primary-foreground hover:bg-primary/90"
+                >
+                  <Icon name="search" className="me-2 h-4 w-4" />
+                  {t("nusHome.verified.ctaOrg")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("verifikasi")}
+                  className="h-11 border-primary px-5 font-bold text-primary hover:bg-primary hover:text-primary-foreground"
+                >
+                  <Icon name="badge-check" className="me-2 h-4 w-4" />
+                  {t("nusHome.verified.ctaProvider")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("anggota/verifikasi")}
+                  className="h-11 px-5 font-bold text-primary hover:bg-primary/10"
+                >
+                  <Icon name="help-circle" className="me-2 h-4 w-4" />
+                  {t("nusHome.verified.ctaLearn")}
+                </Button>
+              </div>
 
               <div className="mt-7 rounded-2xl border border-destructive/20 bg-destructive/5 p-5">
                 <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.2em] text-destructive">
@@ -416,6 +584,53 @@ function VerifiedSection() {
             </div>
           </Reveal>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S04 — SIAPA YANG BISA BERGABUNG (12 kategori) ================= */
+function JoinSection() {
+  const { t } = useT();
+  return (
+    <section aria-label={t("nusHome.aria.join")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("nusHome.join.eyebrow")}
+          title={t("nusHome.join.title")}
+          subtitle={t("nusHome.join.sub")}
+        />
+        <Stagger
+          className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
+          stagger={0.045}
+        >
+          {JOIN_CATEGORIES.map((cat) => {
+            const key = JOIN_KEY[cat.code];
+            return (
+              <StaggerItem key={cat.code} className="h-full">
+                <div className="group flex h-full flex-col rounded-2xl border bg-card p-4 transition-all duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-lg">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-gold/15 group-hover:text-gold-deep">
+                    <Icon name={cat.icon} className="h-5 w-5" strokeWidth={1.8} />
+                  </div>
+                  <h3 className="mt-3 text-xs font-extrabold uppercase tracking-wide text-foreground sm:text-sm">
+                    {t(`nusHome.join.items.${key}.name`)}
+                  </h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {t(`nusHome.join.items.${key}.desc`)}
+                  </p>
+                  <button
+                    onClick={() => navigate("daftar")}
+                    className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-bold text-gold-deep transition-colors hover:text-primary"
+                    aria-label={`${t("nusHome.join.cta")} — ${t(`nusHome.join.items.${key}.name`)}`}
+                  >
+                    {t("nusHome.join.cta")}
+                    <Icon name="arrow-right" className="h-3.5 w-3.5 icon-flip" />
+                  </button>
+                </div>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
       </div>
     </section>
   );
@@ -661,8 +876,17 @@ function MembershipSection() {
                     {t(`nusHome.membership.tiers.${key}`)}
                   </h3>
                   <p className="mt-2">
-                    <span className="text-2xl font-extrabold tracking-tight text-foreground">
-                      {tier.price === "By Agreement" ? t("nusHome.membership.byAgreement") : tier.price}
+                    <span
+                      className={cn(
+                        "text-2xl font-extrabold tracking-tight",
+                        tier.price === "FREE" && "text-gold-deep"
+                      )}
+                    >
+                      {tier.price === "By Agreement"
+                        ? t("nusHome.membership.byAgreement")
+                        : tier.price === "FREE"
+                          ? t("nusHome.membership.free")
+                          : tier.price}
                     </span>
                     {tier.period && (
                       <span className="ms-1 text-xs text-muted-foreground">
@@ -684,6 +908,15 @@ function MembershipSection() {
           })}
         </Stagger>
 
+        {/* Task 36 — strip GRATIS di bawah grid tier */}
+        <Reveal className="mt-6">
+          <div className="mx-auto max-w-4xl rounded-2xl border border-gold/40 bg-gradient-to-r from-gold/15 via-gold/25 to-gold/15 p-4 text-center">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-foreground sm:text-sm">
+              {t("nusHome.membership.freeStrip")}
+            </p>
+          </div>
+        </Reveal>
+
         {/* Footer wajib (ROLE 25) — klarifikasi iuran keanggotaan */}
         <Reveal className="mt-10">
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 rounded-2xl border bg-card p-5 text-start sm:flex-row sm:justify-between">
@@ -704,21 +937,199 @@ function MembershipSection() {
   );
 }
 
-/* ================= S09 — ACADEMY ================= */
-function AcademySection() {
+/* ================= S09 — MUHDIN + MHUTU (TRUST MEETS TECHNOLOGY) ================= */
+function MhutuSection() {
   const { t } = useT();
   return (
     <section
-      aria-label={t("nusHome.aria.academy")}
+      aria-label={t("nusHome.aria.mhutu")}
+      className="relative overflow-hidden bg-forest-deep py-16 sm:py-24"
+    >
+      <div className="absolute inset-0 bg-islamic-pattern opacity-70" aria-hidden />
+      <div
+        className="absolute end-0 top-0 h-72 w-72 rounded-full bg-gold/10 blur-3xl"
+        aria-hidden
+      />
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          light
+          eyebrow={t("nusHome.mhutu.eyebrow")}
+          title={t("nusHome.mhutu.title")}
+          subtitle={t("nusHome.mhutu.sub")}
+        />
+
+        {/* 6 blok peran — identitas terpisah & tidak digabung */}
+        <Stagger className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3" stagger={0.06}>
+          {MHUTU_ROLES.map(({ code, icon }) => {
+            const key = MHUTU_ROLE_KEY[code];
+            const hub = code === "MUHDIN" || code === "MHUTU";
+            return (
+              <StaggerItem key={code} className="h-full">
+                <div
+                  className={cn(
+                    "group flex h-full flex-col items-center rounded-2xl border p-5 text-center transition-all duration-300 hover:-translate-y-1",
+                    hub
+                      ? "border-gold/60 bg-gold/10 shadow-[0_0_30px_-12px_oklch(0.72_0.135_85/0.6)]"
+                      : "border-white/10 bg-white/5 hover:border-gold/40"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex h-11 w-11 items-center justify-center rounded-xl transition-colors",
+                      hub ? "bg-gold/20 text-gold" : "bg-white/10 text-gold-soft"
+                    )}
+                  >
+                    <Icon name={icon} className="h-5 w-5" strokeWidth={1.8} />
+                  </span>
+                  <span className="mt-3 text-sm font-extrabold tracking-wide text-white">
+                    {t(`nusHome.mhutu.roles.${key}.name`)}
+                  </span>
+                  <span
+                    className={cn(
+                      "mt-1 text-[10px] font-bold uppercase tracking-[0.2em]",
+                      hub ? "text-gold" : "text-emerald-100/70"
+                    )}
+                  >
+                    {t(`nusHome.mhutu.roles.${key}.role`)}
+                  </span>
+                </div>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
+
+        {/* 15 domain yang dikelola MHUTU */}
+        <Reveal className="mt-12 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-gold-soft/80">
+            {t("nusHome.mhutu.domainsTitle")}
+          </p>
+          <div className="mx-auto mt-5 flex max-w-4xl flex-wrap justify-center gap-2">
+            {MHUTU_DOMAINS.map((d) => (
+              <span
+                key={d}
+                className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-emerald-100/85"
+              >
+                {t(`nusHome.mhutu.domains.${MHUTU_DOMAIN_KEY[d]}`)}
+              </span>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S10 — ONE PILGRIM. ONE JOURNEY. ONE RECORD. ================= */
+function OneRecordSection() {
+  const { t } = useT();
+  return (
+    <section aria-label={t("nusHome.aria.oneRecord")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+        <Reveal>
+          <h2 className="text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+            <span className="block bg-gradient-to-r from-gold-deep via-gold to-gold-soft bg-clip-text text-transparent">
+              {t("nusHome.oneRecord.l1")}
+            </span>
+            <span className="block bg-gradient-to-r from-gold-deep via-gold to-gold-soft bg-clip-text text-transparent">
+              {t("nusHome.oneRecord.l2")}
+            </span>
+            <span className="block bg-gradient-to-r from-gold-deep via-gold to-gold-soft bg-clip-text text-transparent">
+              {t("nusHome.oneRecord.l3")}
+            </span>
+          </h2>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-foreground/80 sm:text-base">
+            {t("nusHome.oneRecord.body")}
+          </p>
+        </Reveal>
+        <Reveal delay={0.14}>
+          <div className="mt-7 space-y-2 text-sm font-semibold sm:text-base">
+            <p className="flex items-center justify-center gap-2 text-muted-foreground">
+              <Icon name="eye-off" className="h-4 w-4 shrink-0 text-gold-deep" />
+              {t("nusHome.oneRecord.note1")}
+            </p>
+            <p className="flex items-center justify-center gap-2 text-foreground">
+              <Icon name="check-circle-2" className="h-4 w-4 shrink-0 text-gold-deep" />
+              {t("nusHome.oneRecord.note2")}
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S11 — MUHDIN SUPPLY PASSPORT ================= */
+function SupplySection() {
+  const { t } = useT();
+  return (
+    <section
+      aria-label={t("nusHome.aria.supply")}
       className="bg-mint/30 py-16 sm:py-24 dark:bg-muted/30"
     >
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <Reveal>
+          <div className="relative overflow-hidden rounded-3xl border border-gold/40 bg-card p-8 shadow-sm sm:p-12">
+            <div className="absolute inset-0 bg-islamic-pattern-gold opacity-20" aria-hidden />
+            <div className="relative">
+              <SectionHeading
+                eyebrow={t("nusHome.supply.eyebrow")}
+                title={t("nusHome.supply.title")}
+                subtitle={t("nusHome.supply.sub")}
+              />
+              <p className="mt-8 text-center text-xs font-bold uppercase tracking-[0.25em] text-muted-foreground">
+                {t("nusHome.supply.fieldsTitle")}
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {SUPPLY_PASSPORT_FIELDS.map(({ code, icon }) => (
+                  <div
+                    key={code}
+                    className="flex items-center gap-3 rounded-xl border bg-background/70 p-3.5"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 text-gold-deep">
+                      <Icon name={icon} className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span className="text-xs font-bold leading-snug sm:text-sm">
+                      {t(`nusHome.supply.fields.${SUPPLY_FIELD_KEY[code]}`)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-9 text-center">
+                <p className="text-lg font-extrabold tracking-[0.14em] text-gold-deep sm:text-2xl">
+                  {t("nusHome.supply.slogan")}
+                </p>
+                <div className="gold-divider mx-auto mt-4 w-40" aria-hidden />
+                <Button
+                  size="lg"
+                  onClick={() => navigate("daftar")}
+                  className="mt-6 h-12 bg-gold px-8 text-sm font-extrabold tracking-widest text-forest-deep hover:bg-gold-soft"
+                >
+                  {t("nusHome.supply.cta")}
+                  <Icon name="arrow-right" className="ms-2 h-4 w-4 icon-flip" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S12 — ACADEMY (8 program) ================= */
+function AcademySection() {
+  const { t } = useT();
+  return (
+    <section aria-label={t("nusHome.aria.academy")} className="py-16 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
           eyebrow={t("nusHome.academy.eyebrow")}
           title={t("nusHome.academy.title")}
           subtitle={t("nusHome.academy.sub")}
         />
-        <Stagger className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-3 md:grid-cols-3" stagger={0.06}>
+        <Stagger className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-3 md:grid-cols-4" stagger={0.05}>
           {ACADEMY_TOPICS.map((code) => {
             const meta = TOPIC_META[code];
             return (
@@ -750,9 +1161,66 @@ function AcademySection() {
   );
 }
 
-/* ================= S10 — PARTNERSHIP ================= */
+/* ================= S13 — MUHDIN CONTROL TOWER ================= */
+function ControlTowerSection() {
+  const { t } = useT();
+  return (
+    <section
+      aria-label={t("nusHome.aria.controlTower")}
+      className="bg-mint/30 py-16 sm:py-24 dark:bg-muted/30"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow={t("nusHome.controlTower.eyebrow")}
+          title={t("nusHome.controlTower.title")}
+          subtitle={t("nusHome.controlTower.sub")}
+        />
+        <Stagger
+          className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+          stagger={0.045}
+        >
+          {CONTROL_TOWER_ITEMS.map(({ code, icon }, i) => (
+            <StaggerItem key={code}>
+              <div className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-md">
+                <span
+                  className={cn(
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
+                    code === "ALERTS"
+                      ? "bg-destructive/10 text-destructive group-hover:bg-destructive/15"
+                      : "bg-primary/10 text-primary group-hover:bg-gold/15 group-hover:text-gold-deep"
+                  )}
+                >
+                  <Icon name={icon} className="h-4 w-4" strokeWidth={1.8} />
+                </span>
+                <span className="text-xs font-bold leading-snug text-foreground sm:text-sm">
+                  <span className="me-1.5 text-[10px] font-extrabold text-gold-deep/70">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  {t(`nusHome.controlTower.items.${TOWER_KEY[code]}`)}
+                </span>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+        <Reveal className="mt-9 text-center">
+          <p className="mx-auto flex max-w-2xl items-center justify-center gap-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            <Icon name="radar" className="h-4 w-4 shrink-0 text-gold-deep" />
+            {t("nusHome.controlTower.note")}
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S14 — PARTNERSHIP (3 CTA) ================= */
 function PartnershipSection() {
   const { t } = useT();
+  const ctas = [
+    { key: "ctaJoin", primary: true },
+    { key: "ctaPartner", primary: false },
+    { key: "ctaProvider", primary: false },
+  ] as const;
   return (
     <section
       aria-label={t("nusHome.aria.partnership")}
@@ -771,21 +1239,30 @@ function PartnershipSection() {
           subtitle={t("nusHome.partnership.sub")}
         />
         <Reveal className="mt-9">
-          <Button
-            size="lg"
-            onClick={() => navigate("daftar")}
-            className="h-12 bg-gold px-8 text-sm font-extrabold tracking-widest text-forest-deep hover:bg-gold-soft"
-          >
-            {t("nusHome.partnership.cta")}
-            <Icon name="handshake" className="ms-2 h-4 w-4" />
-          </Button>
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
+            {ctas.map(({ key, primary }) => (
+              <Button
+                key={key}
+                size="lg"
+                onClick={() => navigate("daftar")}
+                className={cn(
+                  "h-12 px-7 text-xs font-extrabold tracking-widest sm:text-sm",
+                  primary
+                    ? "bg-gold text-forest-deep hover:bg-gold-soft"
+                    : "border-white/30 bg-white/5 text-white hover:border-gold/60 hover:bg-white/10 hover:text-gold"
+                )}
+              >
+                {t(`nusHome.partnership.${key}`)}
+              </Button>
+            ))}
+          </div>
         </Reveal>
       </div>
     </section>
   );
 }
 
-/* ================= NEWS STRIP (sebelum S11) ================= */
+/* ================= NEWS STRIP (sebelum S16) ================= */
 function NewsSection() {
   const { t, locale } = useT();
   const [articles, setArticles] = useState<Article[] | null>(null);
@@ -866,7 +1343,7 @@ function NewsSection() {
   );
 }
 
-/* ================= S11 — FINAL CTA ================= */
+/* ================= S16 — FINAL CTA + POWERED BY MHUTU ================= */
 function FinalCtaSection() {
   const { t } = useT();
   const buttons = [
@@ -883,12 +1360,19 @@ function FinalCtaSection() {
       <div className="absolute inset-0 bg-islamic-pattern-gold opacity-30" aria-hidden />
       <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
         <Reveal>
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-soft">
+            {t("nusHome.final.sub")}
+          </p>
+          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
             {t("nusHome.final.title")}
           </h2>
-        </Reveal>
-        <Reveal delay={0.08}>
-          <p className="mt-3 text-sm text-emerald-100/80 sm:text-base">{t("nusHome.final.sub")}</p>
+          <p className="mt-4 text-sm font-semibold italic text-gold sm:text-base">
+            {t("nusHome.final.tagline")}
+          </p>
+          <p className="mx-auto mt-6 inline-flex max-w-full items-center justify-center gap-2 rounded-xl border border-gold/50 bg-gold/15 px-4 py-2.5 text-[11px] font-extrabold uppercase leading-relaxed tracking-[0.14em] text-gold-soft sm:px-6 sm:text-sm sm:tracking-[0.2em]">
+            <Icon name="sparkles" className="h-4 w-4 shrink-0" aria-hidden />
+            <span>{t("nusHome.hero.promise")}</span>
+          </p>
         </Reveal>
         <Reveal delay={0.14}>
           <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3">
@@ -909,6 +1393,580 @@ function FinalCtaSection() {
             ))}
           </div>
         </Reveal>
+        <Reveal delay={0.17}>
+          <p className="mt-8 text-xs font-bold text-gold-soft">
+            {t("nusHome.final.freeNote")}
+          </p>
+          <p className="mt-8 text-xs font-semibold tracking-wide text-emerald-100/60">
+            {t("nusHome.final.poweredBy")}
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S02-a — VALUES (Task 38, ala Nusuk “عزّنا برؤيتنا”) ================= */
+const VALUES: ReadonlyArray<{ key: string; icon: string }> = [
+  { key: "v1", icon: "shield-check" },
+  { key: "v2", icon: "heart-handshake" },
+  { key: "v3", icon: "target" },
+  { key: "v4", icon: "users" },
+  { key: "v5", icon: "sparkles" },
+  { key: "v6", icon: "scale" },
+];
+
+function ValuesSection() {
+  const { t } = useT();
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setActive((a) => (a + 1) % VALUES.length), 4500);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  const current = VALUES[active];
+  return (
+    <section
+      aria-label={t("nusHome.aria.values")}
+      className="relative overflow-hidden bg-gradient-to-b from-forest-deep via-forest to-forest-deep py-16 sm:py-24"
+    >
+      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-25" aria-hidden />
+      <div
+        className="relative mx-auto max-w-6xl px-4 sm:px-6"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        <SectionHeading light eyebrow={t("nusHome.values.eyebrow")} title={t("nusHome.values.title")} subtitle={t("nusHome.values.sub")} />
+
+        <div className="mt-12 grid items-stretch gap-5 lg:grid-cols-[1.35fr_1fr]">
+          {/* Kartu nilai aktif — transisi fade/slide ala carousel Nusuk */}
+          <div className="relative min-h-[220px] overflow-hidden rounded-3xl border border-gold/30 bg-white/5 p-8 backdrop-blur-sm sm:min-h-[260px] sm:p-10">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={current.key}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -18 }}
+                transition={{ duration: 0.45, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className="flex h-full flex-col"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <span className="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.25em] text-gold-soft">
+                    {String(active + 1).padStart(2, "0")} / {String(VALUES.length).padStart(2, "0")}
+                  </span>
+                  <span className="nus-flex flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/40 bg-gold/15 text-gold" aria-hidden>
+                    <Icon name={current.icon} className="h-7 w-7" strokeWidth={1.6} />
+                  </span>
+                </div>
+                <h3 className="mt-6 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  {t(`nusHome.values.${current.key}Label`)}
+                </h3>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-emerald-100/85 sm:text-base">
+                  {t(`nusHome.values.${current.key}Text`)}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Rail pemilih nilai — chip vertikal ala pilihan “nilai” Nusuk */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2" role="tablist" aria-label={t("nusHome.aria.values")}>
+            {VALUES.map((v, i) => (
+              <button
+                key={v.key}
+                type="button"
+                role="tab"
+                aria-selected={i === active}
+                onClick={() => setActive(i)}
+                className={cn(
+                  "flex min-h-[44px] items-center gap-2.5 rounded-2xl border px-4 py-3 text-xs font-extrabold uppercase tracking-wider transition-all",
+                  i === active
+                    ? "border-gold bg-gold text-forest-deep shadow-[0_8px_24px_-10px_oklch(0.72_0.135_85/0.8)]"
+                    : "border-white/15 bg-white/5 text-emerald-100/80 hover:border-gold/50 hover:text-gold"
+                )}
+              >
+                <Icon name={v.icon} className="h-4 w-4 shrink-0" aria-hidden />
+                {t(`nusHome.values.${v.key}Label`)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S02-b — LIVE STRIP MAKKAH (Task 38, ala widget Nusuk) ================= */
+const TICKER_KEYS = ["ticker1", "ticker2", "ticker3", "ticker4", "ticker5"] as const;
+
+function LiveStripSection() {
+  const { t, locale } = useT();
+  // Aman SSR: server & render awal keduanya null ("--:--"), baru berdetak setelah mount.
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    // Via rAF (bukan setState sinkron di body effect) agar tidak memicu
+    // cascading render — sekaligus tetap hidup segera setelah paint pertama.
+    const raf = requestAnimationFrame(() => setNow(new Date()));
+    const id = setInterval(() => setNow(new Date()), 30_000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(id);
+    };
+  }, []);
+
+  const clockText = useMemo(() => {
+    if (!now) return null;
+    try {
+      return new Intl.DateTimeFormat(locale === "ar" ? "ar-EG" : "en-GB", {
+        timeZone: "Asia/Riyadh",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(now);
+    } catch {
+      return null;
+    }
+  }, [now, locale]);
+
+  const hijriText = useMemo(() => {
+    if (!now) return null;
+    const tags = [
+      locale === "ar" ? "ar-SA-u-ca-islamic-umalqura" : locale === "id" ? "id-u-ca-islamic-umalqura" : "en-u-ca-islamic-umalqura",
+      "en-u-ca-islamic-umalqura",
+    ];
+    for (const tag of tags) {
+      try {
+        return new Intl.DateTimeFormat(tag, { day: "numeric", month: "long", year: "numeric" }).format(now);
+      } catch {
+        /* coba tag berikutnya */
+      }
+    }
+    return null;
+  }, [now, locale]);
+
+  return (
+    <section
+      aria-label={t("nusHome.aria.live")}
+      className="relative overflow-hidden border-b border-gold/20 bg-gradient-to-r from-forest-deep via-forest to-forest-deep"
+    >
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-6 sm:px-6">
+        {/* Jam Makkah live + tanggal Hijriah */}
+        <div className="flex shrink-0 items-center gap-4">
+          <span className="inline-flex items-center gap-2" dir="ltr">
+            <span className="nus-live-dot h-2 w-2 rounded-full bg-gold" aria-hidden />
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-gold-soft">
+              {t("nusHome.live.clockLabel")}
+            </span>
+            <span className="font-mono text-sm font-bold tabular-nums text-white">
+              {clockText ?? "--:--"}
+            </span>
+          </span>
+          <span className="hidden items-center gap-1.5 sm:inline-flex" dir="auto">
+            <Icon name="moon-star" className="h-4 w-4 text-gold" aria-hidden />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gold-soft">{t("nusHome.live.hijriLabel")}</span>
+            <span className="text-xs font-semibold text-emerald-100">{hijriText ?? "—"}</span>
+          </span>
+        </div>
+
+        {/* Ticker mutiara hikmah — loop mulus, berhenti saat hover */}
+        <div className="relative min-w-0 flex-1 overflow-hidden" aria-label={t("nusHome.live.tickerLabel")}>
+          <div className="nus-ticker-track items-center gap-10">
+            {[0, 1].map((dup) => (
+              <div key={dup} className="flex shrink-0 items-center gap-10" aria-hidden={dup === 1}>
+                {TICKER_KEYS.map((k) => (
+                  <span key={k} className="flex items-center gap-2 whitespace-nowrap text-xs text-emerald-100/90" dir="auto">
+                    <Icon name="sparkles" className="h-3.5 w-3.5 shrink-0 text-gold/80" aria-hidden />
+                    {t(`nusHome.live.${k}`)}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+          {/* Tepi pudar agar ticker terasa menghilang ke dua sisi */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 start-0 w-12"
+            style={{ background: "linear-gradient(to right, #07281B, transparent)" }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 end-0 w-12"
+            style={{ background: "linear-gradient(to left, #07281B, transparent)" }}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S01-d — JOURNEY CARDS (Task 38, ala “رحلتك مع نسك”) ================= */
+const JOURNEYS = [
+  { img: "/images/journey-hajj.png", icon: "tent-tree", titleKey: "hajjTitle", descKey: "hajjDesc", ctaKey: "hajjCta", altKey: "hajjAlt", to: "alur" },
+  { img: "/images/journey-umrah.png", icon: "moon-star", titleKey: "umrahTitle", descKey: "umrahDesc", ctaKey: "umrahCta", altKey: "umrahAlt", to: "nusuk" },
+  { img: "/images/journey-rawdah.png", icon: "landmark", titleKey: "rawdahTitle", descKey: "rawdahDesc", ctaKey: "rawdahCta", altKey: "rawdahAlt", to: "nusuk" },
+] as const;
+
+function JourneySection() {
+  const { t } = useT();
+  return (
+    <section aria-label={t("nusHome.aria.journey")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading eyebrow={t("nusHome.journey.eyebrow")} title={t("nusHome.journey.title")} subtitle={t("nusHome.journey.sub")} />
+        <Stagger className="mt-10 grid gap-5 md:grid-cols-3" stagger={0.1}>
+          {JOURNEYS.map((j) => (
+            <StaggerItem key={j.titleKey}>
+              <button
+                type="button"
+                onClick={() => navigate(j.to)}
+                className="group block h-full w-full overflow-hidden rounded-3xl border border-border bg-card text-start shadow-sm transition-all hover:-translate-y-1 hover:border-gold/60 hover:shadow-xl"
+              >
+                <div className="relative h-48 overflow-hidden sm:h-56">
+                  <img
+                    src={j.img}
+                    alt={t(`nusHome.journey.${j.altKey}`)}
+                    loading="lazy"
+                    className="nus-zoomimg h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/85 via-forest-deep/15 to-transparent" aria-hidden />
+                  <span className="absolute bottom-3 start-4 inline-flex items-center gap-2 text-sm font-extrabold text-white">
+                    <Icon name={j.icon} className="h-4 w-4 text-gold" aria-hidden />
+                    {t(`nusHome.journey.${j.titleKey}`)}
+                  </span>
+                </div>
+                <div className="p-5">
+                  <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                    {t(`nusHome.journey.${j.descKey}`)}
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-gold-deep transition-colors group-hover:text-gold">
+                    {t(`nusHome.journey.${j.ctaKey}`)}
+                    <Icon name="chevron-right" className="icon-flip h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" aria-hidden />
+                  </span>
+                </div>
+              </button>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S02-c — EVERYTHING (Task 38, ala “كل مايحتاجه ضيف الرحمن”) ================= */
+const EVERYTHING = [
+  { key: "t1", icon: "tent-tree" },
+  { key: "t2", icon: "moon-star" },
+  { key: "t3", icon: "landmark" },
+  { key: "t4", icon: "map" },
+  { key: "t5", icon: "book-open" },
+  { key: "t6", icon: "users" },
+] as const;
+
+function EverythingSection() {
+  const { t } = useT();
+  return (
+    <section aria-label={t("nusHome.aria.everything")} className="relative overflow-hidden bg-muted/40 py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading eyebrow={t("nusHome.everything.eyebrow")} title={t("nusHome.everything.title")} subtitle={t("nusHome.everything.sub")} />
+        <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.07}>
+          {EVERYTHING.map((e) => (
+            <StaggerItem key={e.key}>
+              <div className="group h-full rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-gold/50 hover:shadow-lg">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-gold/40 bg-gold/10 text-gold-deep transition-colors group-hover:bg-gold group-hover:text-forest-deep">
+                  <Icon name={e.icon} className="h-6 w-6" strokeWidth={1.7} aria-hidden />
+                </span>
+                <h3 className="mt-4 text-base font-extrabold tracking-tight text-foreground">
+                  {t(`nusHome.everything.${e.key}Title`)}
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                  {t(`nusHome.everything.${e.key}Desc`)}
+                </p>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+        <Reveal delay={0.15} className="mt-8 text-center">
+          <Button
+            size="lg"
+            onClick={() => navigate("daftar")}
+            className="h-13 bg-gold px-10 text-sm font-extrabold tracking-widest text-forest-deep hover:bg-gold-soft"
+          >
+            {t("nusHome.everything.cta")}
+            <Icon name="arrow-right" className="icon-flip ms-2 h-5 w-5" aria-hidden />
+          </Button>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S05-b — PERMITS (Task 38, ala “استكشف جميع خدماتنا”) ================= */
+const PERMITS = [
+  { key: "p1", icon: "qr-code", detailTo: "nusuk" },
+  { key: "p2", icon: "calendar", detailTo: "nusuk" },
+  { key: "p3", icon: "fingerprint", detailTo: "anggota/verifikasi" },
+] as const;
+
+function PermitsSection() {
+  const { t } = useT();
+  return (
+    <section aria-label={t("nusHome.aria.permits")} className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading eyebrow={t("nusHome.permits.eyebrow")} title={t("nusHome.permits.title")} subtitle={t("nusHome.permits.sub")} />
+        <Stagger className="mt-10 grid gap-5 md:grid-cols-3" stagger={0.1}>
+          {PERMITS.map((p) => (
+            <StaggerItem key={p.key}>
+              <div className="flex h-full flex-col rounded-3xl border border-border bg-card p-6 shadow-sm transition-all hover:border-gold/60 hover:shadow-lg">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-gold/40 bg-gold/10 text-gold-deep">
+                    <Icon name={p.icon} className="h-6 w-6" strokeWidth={1.7} aria-hidden />
+                  </span>
+                  <Badge className="border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                    <span className="nus-live-dot me-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
+                    {t(`nusHome.permits.${p.key}Badge`)}
+                  </Badge>
+                </div>
+                <h3 className="mt-4 text-lg font-extrabold tracking-tight text-foreground">
+                  {t(`nusHome.permits.${p.key}Title`)}
+                </h3>
+                <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                  {t(`nusHome.permits.${p.key}Desc`)}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(p.detailTo)}
+                    className="h-10 border-border px-4 text-xs font-bold"
+                  >
+                    {t("nusHome.permits.detail")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => navigate("daftar")}
+                    className="h-10 bg-gold px-4 text-xs font-extrabold tracking-wide text-forest-deep hover:bg-gold-soft"
+                  >
+                    {t("nusHome.permits.start")}
+                    <Icon name="chevron-right" className="icon-flip ms-1 h-4 w-4" aria-hidden />
+                  </Button>
+                </div>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S06-b — HARAMAIN (Task 38, ala “اكتشف جمال الحرمين”) ================= */
+const HARAMAIN_PLACES = [
+  "Masjidil Haram", "Ka'bah", "Maqam Ibrahim", "Hijr Ismail", "Shafa & Marwah",
+  "Gua Hira", "Jabal Thaur", "Mina", "Padang Arafah", "Muzdalifah", "Jamarat",
+  "Masjid Aisyah", "Jabal Nur", "Makkah Clock Tower", "Jannatul Mualla", "Masjid Jin",
+  "Masjid Nabawi", "Raudhah", "Kubah Hijau", "Jabal Uhud", "Masjid Quba",
+  "Masjid Qiblatain", "Masjid Jumu'ah", "Jannatul Baqi", "Masjid Ghamamah",
+  "Pasar Kurma", "Museum Uhud", "Dar Al Madinah",
+];
+
+function HaramainSection() {
+  const { t } = useT();
+  const cities = [
+    { img: "/images/city-makkah.png", nameKey: "makkahName", latinKey: "makkahLatin", descKey: "makkahDesc" },
+    { img: "/images/city-madinah.png", nameKey: "madinahName", latinKey: "madinahLatin", descKey: "madinahDesc" },
+  ] as const;
+  return (
+    <section aria-label={t("nusHome.aria.haramain")} className="relative overflow-hidden bg-muted/40 py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading eyebrow={t("nusHome.haramain.eyebrow")} title={t("nusHome.haramain.title")} subtitle={t("nusHome.haramain.sub")} />
+
+        <Stagger className="mt-10 grid gap-5 md:grid-cols-2" stagger={0.12}>
+          {cities.map((c) => (
+            <StaggerItem key={c.nameKey}>
+              <div className="group relative h-72 overflow-hidden rounded-3xl border border-border shadow-sm sm:h-80">
+                <img
+                  src={c.img}
+                  alt={t(`nusHome.haramain.${c.nameKey}`)}
+                  loading="lazy"
+                  className="nus-zoomimg h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/90 via-forest-deep/25 to-transparent" aria-hidden />
+                <div className="absolute inset-x-0 bottom-0 p-6">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-gold-soft">
+                    {t(`nusHome.haramain.${c.latinKey}`)}
+                  </p>
+                  <h3 className="mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                    {t(`nusHome.haramain.${c.nameKey}`)}
+                  </h3>
+                  <p className="mt-2 max-w-md text-xs leading-relaxed text-emerald-100/90 sm:text-sm">
+                    {t(`nusHome.haramain.${c.descKey}`)}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate("galeri")}
+                    className="mt-4 h-10 border-white/40 bg-white/10 px-5 text-xs font-extrabold tracking-wide text-white backdrop-blur-sm hover:border-gold hover:bg-gold hover:text-forest-deep"
+                  >
+                    {t("nusHome.haramain.cta")}
+                    <Icon name="chevron-right" className="icon-flip ms-1 h-4 w-4" aria-hidden />
+                  </Button>
+                </div>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </div>
+
+      {/* Marquee 140+ tempat ikonik — loop mulus dua-dua, tepi pudar */}
+      <Reveal className="mt-12">
+        <p className="text-center text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+          {t("nusHome.haramain.marqueeTitle")}
+        </p>
+      </Reveal>
+      <div
+        className="relative mt-6 overflow-hidden py-2"
+        style={{ maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}
+      >
+        <div className="nus-ticker-track items-center gap-3">
+          {[0, 1].map((dup) => (
+            <div key={dup} className="flex shrink-0 items-center gap-3" aria-hidden={dup === 1}>
+              {HARAMAIN_PLACES.map((place) => (
+                <span
+                  key={place}
+                  dir="ltr"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground/80"
+                >
+                  <Icon name="map-pin" className="h-3.5 w-3.5 text-gold-deep" aria-hidden />
+                  {place}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S15-b — STATS (Task 38, ala “منجزات حققتها نسك”) ================= */
+const MUHDIN_STATS = [
+  { value: 514, suffix: "", key: "s1" },
+  { value: 38, suffix: "", key: "s2" },
+  { value: 13, suffix: "", key: "s3" },
+  { value: 17, suffix: "", key: "s4" },
+  { value: 100, suffix: "+", key: "s5" },
+  { value: 3, suffix: "", key: "s6" },
+] as const;
+
+function StatsSection() {
+  const { t, locale } = useT();
+  return (
+    <section
+      aria-label={t("nusHome.aria.stats")}
+      className="relative overflow-hidden bg-gradient-to-b from-forest-deep to-forest py-16 sm:py-20"
+    >
+      <div className="absolute inset-0 bg-islamic-pattern-gold opacity-25" aria-hidden />
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading light eyebrow={t("nusHome.stats.eyebrow")} title={t("nusHome.stats.title")} subtitle={t("nusHome.stats.sub")} />
+        <Stagger className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-6" stagger={0.08}>
+          {MUHDIN_STATS.map((s) => (
+            <StaggerItem key={s.key} className="text-center">
+              <p className="nus-shimmer-text text-4xl font-extrabold tracking-tight sm:text-5xl" dir="ltr">
+                <CountUp value={s.value} suffix={s.suffix} locale={locale} />
+              </p>
+              <p className="mt-2 text-[11px] font-bold uppercase tracking-widest text-emerald-100/75">
+                {t(`nusHome.stats.${s.key}Label`)}
+              </p>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </div>
+    </section>
+  );
+}
+
+/* ================= S15-c — APP / PWA (Task 38, ala unduh aplikasi Nusuk) ================= */
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+function AppSection() {
+  const { t } = useT();
+  const [installEvt, setInstallEvt] = useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallEvt(e as BeforeInstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const onInstall = async () => {
+    if (installEvt) {
+      try {
+        await installEvt.prompt();
+      } finally {
+        setInstallEvt(null);
+      }
+    } else {
+      toast({ title: t("nusHome.app.installHint") });
+    }
+  };
+
+  const chips = [
+    { key: "chip1", icon: "sparkles" },
+    { key: "chip2", icon: "download" },
+    { key: "chip3", icon: "shield-check" },
+  ] as const;
+
+  return (
+    <section aria-label={t("nusHome.aria.app")} className="py-16 sm:py-24">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
+        <div>
+          <SectionHeading align="left" eyebrow={t("nusHome.app.eyebrow")} title={t("nusHome.app.title")} subtitle={t("nusHome.app.sub")} />
+          <Reveal delay={0.12}>
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <Button
+                size="lg"
+                onClick={onInstall}
+                className="h-13 bg-gold px-8 text-sm font-extrabold tracking-widest text-forest-deep hover:bg-gold-soft"
+              >
+                <Icon name="download" className="me-2 h-5 w-5" aria-hidden />
+                {t("nusHome.app.installBtn")}
+              </Button>
+              {chips.map((c) => (
+                <span key={c.key} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground/80">
+                  <Icon name={c.icon} className="h-3.5 w-3.5 text-gold-deep" aria-hidden />
+                  {t(`nusHome.app.${c.key}`)}
+                </span>
+              ))}
+            </div>
+            <p className="mt-4 text-xs text-muted-foreground">{t("nusHome.app.installHint")}</p>
+          </Reveal>
+        </div>
+
+        {/* Kartu QR — pintu masuk PWA, ala kartu unduh aplikasi Nusuk */}
+        <Reveal delay={0.1}>
+          <div className="relative mx-auto max-w-sm rounded-3xl bg-gradient-to-b from-forest-deep to-forest p-8 text-center shadow-xl">
+            <div className="absolute inset-0 bg-islamic-pattern-gold opacity-25" aria-hidden />
+            <div className="relative">
+              <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/40 bg-gold/15 text-gold">
+                <Icon name="smartphone" className="h-7 w-7" strokeWidth={1.6} aria-hidden />
+              </div>
+              <div className="mx-auto mt-5 w-fit rounded-2xl bg-white p-4 shadow-lg">
+                <img src="/images/qr-muhdin-web.png" alt={t("nusHome.app.qrAlt")} className="h-40 w-40" loading="lazy" />
+              </div>
+              <p className="mt-4 inline-flex items-center gap-2 text-sm font-extrabold tracking-widest text-gold-soft" dir="ltr">
+                <Icon name="scan" className="h-4 w-4" aria-hidden />
+                muhdin.web.id
+              </p>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -919,16 +1977,37 @@ export function HomeView() {
   return (
     <div>
       <HeroSection />
+      {/* Task 38 — strip live ala Nusuk: jam Makkah + Hijriah + mutiara hikmah */}
+      <LiveStripSection />
+      <FreeSection />
+      {/* Task 38 — kartu perjalanan iman ala “رحلتك مع نسك” */}
+      <JourneySection />
       <IdeaSection />
-      <EcosystemSection />
+      {/* Task 38 — carousel nilai ala “عزّنا برؤيتنا” */}
+      <ValuesSection />
+      {/* Task 38 — semua kebutuhan tamu Allah ala “كل مايحتاجه ضيف الرحمن” */}
+      <EverythingSection />
       <VerifiedSection />
+      <JoinSection />
       <HowItWorksSection />
+      {/* Task 38 — layanan instan ala “استكشف جميع خدماتنا” */}
+      <PermitsSection />
       <NetworkSection />
+      {/* Task 38 — jelajahi Haramain ala “اكتشف جمال الحرمين” + marquee tempat */}
+      <HaramainSection />
       <FoundingSection />
       <MembershipSection />
+      <MhutuSection />
+      <OneRecordSection />
+      <SupplySection />
       <AcademySection />
+      <ControlTowerSection />
       <PartnershipSection />
+      {/* Task 38 — pencapaian dalam angka ala “منجزات حققتها نسك” */}
+      <StatsSection />
       <NewsSection />
+      {/* Task 38 — unduh aplikasi PWA ala section aplikasi Nusuk */}
+      <AppSection />
       <FinalCtaSection />
     </div>
   );

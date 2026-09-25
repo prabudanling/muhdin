@@ -51,6 +51,9 @@ export function LocaleSwitcher({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
+          // Task 35-h addendum: id deterministik (bukan useId Radix) — imun race
+          // TreeContext React 19 di dev; lihat catatan di theme-switcher.tsx.
+          id="muhdin-locale-trigger"
           variant="ghost"
           size="sm"
           className={cn(

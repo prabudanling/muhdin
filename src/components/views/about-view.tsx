@@ -9,7 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BRAND, CORE_VALUES, PARTNERS, KPI_ROWS } from "@/lib/constants";
+import {
+  BRAND,
+  CORE_VALUES,
+  PARTNERS,
+  KPI_ROWS,
+  TECH_PILLARS,
+  REVENUE_SOURCES,
+  STAKEHOLDER_GROUPS,
+} from "@/lib/constants";
 import { BranchesSection } from "@/components/site/branches-section";
 import { useT } from "@/lib/i18n";
 import type { ManagementMember, Roadmap, SiteSettings } from "@/lib/types";
@@ -199,8 +207,34 @@ export function AboutView() {
         </div>
       </section>
 
+      {/* Enam Pilar Teknologi — Bab 7 Whitepaper (Task 34) */}
+      <section className="py-14" aria-label={t("about.tech.title")}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <SectionHeading
+            eyebrow={t("about.tech.eyebrow")}
+            title={t("about.tech.title")}
+            subtitle={t("about.tech.subtitle")}
+          />
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {TECH_PILLARS.map((p, i) => (
+              <Reveal key={p.name} delay={i * 0.06}>
+                <div className="h-full rounded-2xl border bg-card p-6 shadow-sm hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-3">
+                    <div className="h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br from-forest to-primary grid place-items-center text-gold-soft">
+                      <Icon name={p.icon} className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-extrabold text-sm leading-snug">{t(`about.tech.p${i + 1}.name`)}</h3>
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{t(`about.tech.p${i + 1}.desc`)}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Nilai */}
-      <section className="py-14">
+      <section className="py-14 bg-mint/30 dark:bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading eyebrow={t("about.valuesEyebrow")} title={t("about.valuesTitle")} />
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -212,6 +246,32 @@ export function AboutView() {
                     <p className="font-bold text-sm">{t(`about.values.${v.name}.name`)}</p>
                   </div>
                   <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed line-clamp-4">{t(`about.values.${v.name}.meaning`)}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Manfaat bagi Pemangku Kepentingan — Bab 11 Whitepaper (Task 34) */}
+      <section className="py-14" aria-label={t("about.stake.title")}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <SectionHeading
+            eyebrow={t("about.stake.eyebrow")}
+            title={t("about.stake.title")}
+            subtitle={t("about.stake.subtitle")}
+          />
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {STAKEHOLDER_GROUPS.map((s, i) => (
+              <Reveal key={s.id} delay={i * 0.06}>
+                <div className="h-full rounded-2xl border bg-card p-6 shadow-sm hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/10 grid place-items-center text-primary">
+                      <Icon name={s.icon} className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-extrabold text-sm">{t(`about.stake.${s.id}.who`)}</h3>
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{t(`about.stake.${s.id}.benefit`)}</p>
                 </div>
               </Reveal>
             ))}
@@ -277,6 +337,17 @@ export function AboutView() {
                 <Icon name="info" className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gold-deep" />
                 <span>{t("about.org.note")}</span>
               </p>
+              {/* Task 37 — jembatan ke halaman Susunan Pengurus lengkap (#/pengurus) */}
+              <div className="mt-5 text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("pengurus")}
+                  className="border-gold/50 text-gold-deep hover:bg-gold/10 dark:text-gold"
+                >
+                  <Icon name="users" className="me-2 h-4 w-4" />
+                  {t("about.org.seePengurus")}
+                </Button>
+              </div>
             </div>
           </Reveal>
 
@@ -363,6 +434,47 @@ export function AboutView() {
                 </TableBody>
               </Table>
             </div>
+          </Reveal>
+
+          {/* Model Bisnis & Keberlanjutan — Bab 8 Whitepaper (Task 34) */}
+          <Reveal className="mt-14">
+            <SectionHeading
+              eyebrow={t("about.biz.eyebrow")}
+              title={t("about.biz.title")}
+              subtitle={t("about.biz.subtitle")}
+            />
+            <div className="mt-8 rounded-2xl border overflow-hidden shadow-sm">
+              <Table>
+                <TableHeader className="bg-forest text-white">
+                  <TableRow className="hover:bg-forest">
+                    <TableHead className="text-white font-bold">{t("about.biz.colSource")}</TableHead>
+                    <TableHead className="text-white font-bold">{t("about.biz.colDesc")}</TableHead>
+                    <TableHead className="text-white font-bold">{t("about.biz.colAkad")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {REVENUE_SOURCES.map((r, i) => (
+                    <TableRow key={r.id} className={i % 2 ? "bg-muted/40" : ""}>
+                      <TableCell className="text-sm">
+                        <span className="flex items-center gap-2 font-bold text-foreground">
+                          <Icon name={r.icon} className="h-4 w-4 shrink-0 text-gold-deep" />
+                          {t(`about.biz.${r.id}.name`)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{t(`about.biz.${r.id}.desc`)}</TableCell>
+                      <TableCell className="text-sm font-semibold text-primary">{t(`about.biz.${r.id}.akad`)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <p className="mt-5 rounded-2xl border border-gold/30 bg-gold/[0.07] px-5 py-4 text-xs leading-relaxed text-foreground/85">
+              {t("about.biz.note")}
+            </p>
+            <p className="mt-3 flex items-start gap-1.5 text-[11px] text-muted-foreground leading-relaxed">
+              <Icon name="info" className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gold-deep" />
+              <span>{t("about.biz.refNote")}</span>
+            </p>
           </Reveal>
 
           <Reveal className="mt-12 text-center">
