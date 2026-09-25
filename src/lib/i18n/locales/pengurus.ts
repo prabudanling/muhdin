@@ -59,8 +59,8 @@ export const pengurusDict = {
       cta: {
         title: "Berkumpul di Bawah Satu Kepemimpinan",
         desc: "Bersama Ketua Umum, Sekretaris Jenderal, dan seluruh jaringan kepengurusan — jadilah bagian dari generasi penyelenggara ibadah yang bersatu, terstandar, dan terdigitalisasi.",
-        free: "Pendaftaran & Iuran Anggota Rp0 — komitmen resmi MUHDIN",
-        btn: "Daftar Sekarang — GRATIS",
+        free: "PROMO 100 anggota pertama: pendaftaran & iuran tahun pertama Rp0",
+        btn: "Daftar Sekarang — Klaim Promo",
         contact: "Hubungi Pengurus",
       },
       role: {
@@ -138,8 +138,8 @@ export const pengurusDict = {
       cta: {
         title: "Gathered Under One Leadership",
         desc: "Together with the President, Secretary General, and the entire governing network — join the generation of unified, standardized, digitally-empowered pilgrimage service providers.",
-        free: "Registration & membership dues Rp0 — MUHDIN's official commitment",
-        btn: "Join Now — FREE",
+        free: "First-100 promo: registration & first-year dues at IDR 0",
+        btn: "Join Now — Claim the Promo",
         contact: "Contact the Board",
       },
       role: {
@@ -216,8 +216,8 @@ export const pengurusDict = {
       cta: {
         title: "متحدون تحت قيادة واحدة",
         desc: "مع الرئيس العام والأمين العام وكامل شبكة التنظيم — كن جزءاً من جيل مقدمي خدمات العبادة الموحد المعياري الرقمي.",
-        free: "التسجيل والاشتراك مجاناً (صفر روبية) — التزام رسمي لمُهدين",
-        btn: "سجّل الآن — مجاناً",
+        free: "عرض أول ١٠٠ عضو: التسجيل ورسوم السنة الأولى صفر روبية",
+        btn: "سجّل الآن — احجز العرض",
         contact: "تواصل مع القيادة",
       },
       role: {

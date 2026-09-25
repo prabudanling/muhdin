@@ -64,17 +64,20 @@ export const NETWORK_NODES = [
 ] as const;
 
 /**
- * Task 36 — DAFTAR & IURAN GRATIS (branding wajib owner): keanggotaan MUHDIN
- * 0 rupiah. price="FREE" = sentinel, dirender via dict membership.free agar
- * terlokalisasi (GRATIS / FREE / مجاناً). STRATEGIC_PARTNER tetap "By
- * Agreement" (kemitraan komersial, bukan iuran anggota).
+ * Task 43 — HARGA DITAMPILKAN (revisi arah owner): iuran per tier diset di
+ * LANTAI PASAR asosiasi lain (rentang pasar: pendaftaran Rp 500rb–25jt,
+ * iuran Rp 1jt–10jt/th) agar klaim "TERMURAH BERGARANSI" tetap sah.
+ * PROMO 100 ANGGOTA PERTAMA: pendaftaran + iuran tahun pertama = Rp 0.
+ * Sentinel price:
+ *   "TIER"         → dirender dari dict membership.prices.<tierKey> (terlokalisasi id/en/ar)
+ *   "BY_AGREEMENT" → dict membership.byAgreement (mitra komersial, bukan iuran anggota)
  */
 export const MEMBERSHIP_TIERS: { code: string; icon: string; price: string; period: string }[] = [
-  { code: "INDIVIDUAL", icon: "user", price: "FREE", period: "" },
-  { code: "PROFESSIONAL", icon: "graduation-cap", price: "FREE", period: "" },
-  { code: "ORGANIZATION", icon: "building", price: "FREE", period: "" },
-  { code: "PPIU_PIHK", icon: "plane-takeoff", price: "FREE", period: "" },
-  { code: "STRATEGIC_PARTNER", icon: "handshake", price: "By Agreement", period: "" },
+  { code: "INDIVIDUAL", icon: "user", price: "TIER", period: "year" },
+  { code: "PROFESSIONAL", icon: "graduation-cap", price: "TIER", period: "year" },
+  { code: "ORGANIZATION", icon: "building", price: "TIER", period: "year" },
+  { code: "PPIU_PIHK", icon: "plane-takeoff", price: "TIER", period: "year" },
+  { code: "STRATEGIC_PARTNER", icon: "handshake", price: "BY_AGREEMENT", period: "" },
 ];
 
 /** Task 35 (manifesto) — 12 kategori "SIAPA YANG BISA BERGABUNG?" (homepage). */

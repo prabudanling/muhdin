@@ -398,11 +398,15 @@ function FreeSection() {
               <div className="mt-5 space-y-4">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs text-foreground/70 sm:text-sm">{t("nusHome.free.rowSignup")}</span>
-                  <span className="text-2xl font-extrabold tracking-tight text-gold-deep sm:text-3xl">Rp 0</span>
+                  <span className="text-base font-extrabold tracking-tight text-gold-deep sm:text-lg">
+                    {t("nusHome.free.muhdinSignup")}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs text-foreground/70 sm:text-sm">{t("nusHome.free.rowDues")}</span>
-                  <span className="text-2xl font-extrabold tracking-tight text-gold-deep sm:text-3xl">Rp 0</span>
+                  <span className="text-base font-extrabold tracking-tight text-gold-deep sm:text-lg">
+                    {t("nusHome.free.muhdinDues")}
+                  </span>
                 </div>
               </div>
               <p className="mt-4 inline-flex rounded-full bg-gold px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-forest-deep">
@@ -876,17 +880,10 @@ function MembershipSection() {
                     {t(`nusHome.membership.tiers.${key}`)}
                   </h3>
                   <p className="mt-2">
-                    <span
-                      className={cn(
-                        "text-2xl font-extrabold tracking-tight",
-                        tier.price === "FREE" && "text-gold-deep"
-                      )}
-                    >
-                      {tier.price === "By Agreement"
+                    <span className="text-2xl font-extrabold tracking-tight text-foreground">
+                      {tier.price === "BY_AGREEMENT"
                         ? t("nusHome.membership.byAgreement")
-                        : tier.price === "FREE"
-                          ? t("nusHome.membership.free")
-                          : tier.price}
+                        : t(`nusHome.membership.prices.${key}`)}
                     </span>
                     {tier.period && (
                       <span className="ms-1 text-xs text-muted-foreground">
@@ -894,6 +891,11 @@ function MembershipSection() {
                       </span>
                     )}
                   </p>
+                  {tier.price !== "BY_AGREEMENT" && (
+                    <p className="mt-1 text-[11px] font-semibold text-gold-deep">
+                      {t("nusHome.membership.signupFee")}
+                    </p>
+                  )}
                   <ul className="mt-4 space-y-2 border-t pt-4">
                     {["benefit1", "benefit2", "benefit3"].map((b) => (
                       <li key={b} className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -908,7 +910,7 @@ function MembershipSection() {
           })}
         </Stagger>
 
-        {/* Task 36 — strip GRATIS di bawah grid tier */}
+        {/* Task 43 — strip PROMO 100 PERTAMA di bawah grid tier */}
         <Reveal className="mt-6">
           <div className="mx-auto max-w-4xl rounded-2xl border border-gold/40 bg-gradient-to-r from-gold/15 via-gold/25 to-gold/15 p-4 text-center">
             <p className="text-xs font-extrabold uppercase tracking-widest text-foreground sm:text-sm">

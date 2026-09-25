@@ -1303,3 +1303,22 @@ Work Log:
 Stage Summary:
 - Workspace pulih 100% ke kondisi akhir Task 41 (file + dependensi + data); bug hydration user sudah terverifikasi 6/6 reload bersih.
 - PELAJARAN: checkpoint sandbox bisa menggelinding mundur — WAJIB: (1) unduh /api/backup secara berkala, (2) pertimbangkan git remote eksternal agar riwayat aman.
+
+---
+Task ID: 43
+Agent: Z.ai Code (main orchestrator)
+Task: Revisi arah pricing — harga ditampilkan (setara asosiasi lain) + promo khusus 100 anggota pertama
+
+Work Log:
+- ARAH BARU OWNER: sebelumnya "GRATIS selamanya" (Task 36) → kini harga iuran DITAMPILKAN setara/lantai pasar asosiasi lain, dengan PROMO 100 ANGGOTA PERTAMA (pendaftaran + iuran tahun pertama = Rp 0). Klaim "TERMURAH BERGARANSI" tetap sah.
+- MODEL HARGA (nusantara.ts MEMBERSHIP_TIERS): Individual Rp 500 rb/th, Profesional Rp 1 jt/th, Organisasi Rp 2 jt/th, PPIU/PIHK Rp 3 jt/th, Partner Strategis By Agreement; pendaftaran flat Rp 500 rb sekali bayar. Sentinel "TIER" dirender via dict membership.prices.<key>; "BY_AGREEMENT" via byAgreement.
+- KAMUS ×3 (nusantara-home.ts): membership (sub/freeStrip/footer + signupFee + prices), free (badge "PROMO KHUSUS — KUOTA 100 ANGGOTA PERTAMA", title "HARGA JUJUR. 100 PERTAMA GRATIS.", muhdinSignup/muhdinDues, note1 kuota, cta klaim slot), final (b1+freeNote), hero (ctaPrimary DAFTAR SEKARANG + freeNote), values v5Text, t6 keanggotaan. EN + AR diselaraskan (angka Arab-Indic utk AR).
+- UI (home-view.tsx): kartu MUHDIN kini harga nyata (bukan Rp 0), badge "100 PERTAMA: GRATIS — Rp 0"; kartu tier + catatan pendaftaran; strip promo di bawah grid.
+- FILE LAIN: footer.ts freeBadge ×3, navbar.ts gabung ×3 ("Daftar Sekarang"), join.ts + nusantara-join.ts freeBadge ×3, pengurus.ts (free+btn) ×3, downloads.ts kitTitle ×3, layout.tsx (description + keywords + og:description).
+- nusantara-trust.ts terms memberDesc SUDAH akurat (menyebut iuran tahunan) — tanpa perubahan. Banner WA/IG (gambar) tidak diubah — caption situs sudah membingkai sebagai promo.
+- QA agent-browser: ID/EN/AR render benar (harga, badge promo, struck-through harga asosiasi lain, RTL mirror), mobile 390px rapi, console 0 error, lint bersih.
+
+Stage Summary:
+- Pricing baru: tampil jujur (Rp 500 rb–3 jt/th + pendaftaran Rp 500 rb) = lantai pasar "asosiasi lain" (Rp 500rb–25jt; Rp 1jt–10jt/th) → konsisten dgn TERMURAH BERGARANSI; 100 anggota pertama GRATIS (pendaftaran + iuran th pertama).
+- Kunci dict baru: membership.signupFee, membership.prices.*, free.muhdinSignup, free.muhdinDues — selaras ×3 bahasa.
+- Catatan lanjutan (opsional): banner WA/IG bisa diregenerasi dgn caption promo 100 pertama; slot counter live (sisa kuota) bisa ditambahkan dari DB bila diminta.

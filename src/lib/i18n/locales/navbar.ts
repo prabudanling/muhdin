@@ -22,7 +22,7 @@ export const navbarDict = {
         lapor: "Lapor",
       },
       portalMitra: "Portal Mitra",
-      gabung: "Daftar Gratis",
+      gabung: "Daftar Sekarang",
       mobilePortal: "Portal Mitra / Admin",
       aria: {
         brand: "Beranda MUHDIN",
@@ -51,7 +51,7 @@ export const navbarDict = {
         lapor: "Report",
       },
       portalMitra: "Partner Portal",
-      gabung: "Join Free",
+      gabung: "Register Now",
       mobilePortal: "Partner / Admin Portal",
       aria: {
         brand: "MUHDIN home",
@@ -80,7 +80,7 @@ export const navbarDict = {
         lapor: "الإبلاغ",
       },
       portalMitra: "بوابة الشركاء",
-      gabung: "سجّل مجاناً",
+      gabung: "سجّل الآن",
       mobilePortal: "بوابة الشركاء / الإدارة",
       aria: {
         brand: "الصفحة الرئيسية لمهدين",
