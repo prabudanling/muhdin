@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     template: "%s | MUHDIN NUSANTARA",
   },
   description:
-    "MUHDIN NUSANTARA (Masyarakat Umroh Haji Digital Nusantara) — Trusted Pilgrim Ecosystem. EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI: iuran paling terjangkau di kelasnya — PROMO 100 ANGGOTA PERTAMA bebas pendaftaran & iuran tahun pertama. Keanggotaan, verifikasi, direktori penyelenggara & penyedia, akademi.",
+    "MUHDIN NUSANTARA (Masyarakat Umroh Haji Digital Nusantara) — Trusted Pilgrim Ecosystem. EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI: iuran paling terjangkau di kelasnya — PROMO 200 ANGGOTA PERTAMA bebas pendaftaran & iuran tahun pertama. Keanggotaan, verifikasi, direktori penyelenggara & penyedia, akademi.",
   keywords: [
     "MUHDIN",
     "MUHDIN Nusantara",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     "umroh murah bergaransi",
     "paket umroh haji digital",
     "asosiasi umroh iuran termurah",
-    "promo 100 anggota pertama asosiasi umroh",
+    "promo 200 anggota pertama asosiasi umroh",
     "verifikasi penyelenggara umroh",
     "muhdin verified",
     "transformasi digital umroh",
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "MUHDIN NUSANTARA — Trusted Pilgrim Ecosystem",
     description:
-      "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI — iuran paling terjangkau di kelasnya; PROMO: 100 anggota pertama bebas pendaftaran & iuran tahun pertama. One Ecosystem. One Data. One Standard. One Trust. One Journey.",
+      "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI — iuran paling terjangkau di kelasnya; PROMO: 200 anggota pertama bebas pendaftaran & iuran tahun pertama. One Ecosystem. One Data. One Standard. One Trust. One Journey.",
     siteName: "MUHDIN NUSANTARA",
     type: "website",
     locale: "id_ID",

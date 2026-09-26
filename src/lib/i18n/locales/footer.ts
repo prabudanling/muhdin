@@ -7,7 +7,7 @@ export const footerDict = {
     footer: {
       desc: "Asosiasi di Atas Asosiasi Penyelenggara Ibadah — Operator Nusuk Indonesia. Mengawal perjalanan Tamu Allah dari Indonesia hingga Tanah Suci dengan standar mutu terintegrasi.",
       tagline: "Bersama Melayani Tamu Allah",
-      freeBadge: "PROMO 100 ANGGOTA PERTAMA — pendaftaran & iuran tahun pertama GRATIS",
+      freeBadge: "PROMO 200 ANGGOTA PERTAMA — pendaftaran & iuran tahun pertama GRATIS",
       connecting: "Connecting Indonesia to The Holy Journey",
       colNav: "Navigasi",
       colEcosystem: "Layanan Ekosistem",
@@ -69,7 +69,7 @@ export const footerDict = {
     footer: {
       desc: "The umbrella association of worship travel operators — Nusuk Operator Indonesia. Guiding the Guests of Allah from Indonesia to the Holy Land with integrated quality standards.",
       tagline: "Serving the Guests of Allah Together",
-      freeBadge: "FIRST-100 MEMBERS PROMO — registration & first-year dues FREE",
+      freeBadge: "FIRST-200 MEMBERS PROMO — registration & first-year dues FREE",
       connecting: "Connecting Indonesia to The Holy Journey",
       colNav: "Navigation",
       colEcosystem: "Ecosystem Services",
@@ -131,7 +131,7 @@ export const footerDict = {
     footer: {
       desc: "اتحاد جمعيات منظمي رحلات العبادة — مشغل نسك في إندونيسيا. نرافق رحلة ضيوف الرحمن من إندونيسيا إلى الأرض المقدسة بمعايير جودة متكاملة.",
       tagline: "معا نخدم ضيوف الرحمن",
-      freeBadge: "عرض أول ١٠٠ عضو — التسجيل ورسوم السنة الأولى مجاناً",
+      freeBadge: "عرض أول ٢٠٠ عضو — التسجيل ورسوم السنة الأولى مجاناً",
       connecting: "نربط إندونيسيا بالرحلة المقدسة",
       colNav: "التنقل",
       colEcosystem: "خدمات المنظومة",

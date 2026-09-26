@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BRAND } from "@/lib/constants";
+import { PromoSlotCard, PromoSlotLine, PromoSlotPill } from "@/components/site/slot-counter"; // Task 44 — counter kuota live
 import {
   HERO_FLOW,
   PILLARS,
@@ -294,6 +295,13 @@ function HeroSection() {
           </p>
         </Reveal>
 
+        {/* Task 44 — penghitung slot promo LIVE (turun otomatis tiap pendaftar) */}
+        <Reveal delay={0.34}>
+          <div className="mt-3 flex justify-center">
+            <PromoSlotPill />
+          </div>
+        </Reveal>
+
         <div className="mt-14 sm:mt-16">
           <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-soft/80">
             {t("nusHome.hero.flowTitle")}
@@ -414,6 +422,11 @@ function FreeSection() {
               </p>
             </div>
           </div>
+        </Reveal>
+
+        {/* Task 44 — kartu penghitung slot promo LIVE */}
+        <Reveal delay={0.24}>
+          <PromoSlotCard />
         </Reveal>
 
         <Reveal delay={0.26}>
@@ -910,12 +923,13 @@ function MembershipSection() {
           })}
         </Stagger>
 
-        {/* Task 43 — strip PROMO 100 PERTAMA di bawah grid tier */}
+        {/* Task 43/44 — strip PROMO 200 PERTAMA + penghitung slot live di bawah grid tier */}
         <Reveal className="mt-6">
           <div className="mx-auto max-w-4xl rounded-2xl border border-gold/40 bg-gradient-to-r from-gold/15 via-gold/25 to-gold/15 p-4 text-center">
             <p className="text-xs font-extrabold uppercase tracking-widest text-foreground sm:text-sm">
               {t("nusHome.membership.freeStrip")}
             </p>
+            <PromoSlotLine className="mt-2" />
           </div>
         </Reveal>
 

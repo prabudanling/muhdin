@@ -59,7 +59,7 @@ export const pengurusDict = {
       cta: {
         title: "Berkumpul di Bawah Satu Kepemimpinan",
         desc: "Bersama Ketua Umum, Sekretaris Jenderal, dan seluruh jaringan kepengurusan — jadilah bagian dari generasi penyelenggara ibadah yang bersatu, terstandar, dan terdigitalisasi.",
-        free: "PROMO 100 anggota pertama: pendaftaran & iuran tahun pertama Rp0",
+        free: "PROMO 200 anggota pertama: pendaftaran & iuran tahun pertama Rp0",
         btn: "Daftar Sekarang — Klaim Promo",
         contact: "Hubungi Pengurus",
       },
@@ -138,7 +138,7 @@ export const pengurusDict = {
       cta: {
         title: "Gathered Under One Leadership",
         desc: "Together with the President, Secretary General, and the entire governing network — join the generation of unified, standardized, digitally-empowered pilgrimage service providers.",
-        free: "First-100 promo: registration & first-year dues at IDR 0",
+        free: "First-200 promo: registration & first-year dues at IDR 0",
         btn: "Join Now — Claim the Promo",
         contact: "Contact the Board",
       },
@@ -216,7 +216,7 @@ export const pengurusDict = {
       cta: {
         title: "متحدون تحت قيادة واحدة",
         desc: "مع الرئيس العام والأمين العام وكامل شبكة التنظيم — كن جزءاً من جيل مقدمي خدمات العبادة الموحد المعياري الرقمي.",
-        free: "عرض أول ١٠٠ عضو: التسجيل ورسوم السنة الأولى صفر روبية",
+        free: "عرض أول ٢٠٠ عضو: التسجيل ورسوم السنة الأولى صفر روبية",
         btn: "سجّل الآن — احجز العرض",
         contact: "تواصل مع القيادة",
       },

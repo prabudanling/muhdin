@@ -23,6 +23,16 @@ export const BRAND = {
   edition: "Ekosistem Penyelenggaraan Ibadah Terpercaya — Terhubung dengan jalur resmi Nusuk",
 };
 
+// ====== PROMO 200 ANGGOTA PERTAMA (Task 44) ======
+// Kuota promo live: dihitung dari pendaftar valid (status != REJECTED) di DB
+// + baseTaken (seed opsional). Angka turun otomatis setiap formulir masuk.
+export const PROMO_SLOTS = {
+  total: 200,
+  baseTaken: 0, // seed tampilan (mis. 3 → langsung "sisa 197"); 0 = murni hitungan nyata
+  urgencyBelow: 20, // sisa ≤ ini → teks "segera habis"
+  pollMs: 15_000,
+} as const;
+
 export interface PartnerDef {
   code: string;
   name: string;

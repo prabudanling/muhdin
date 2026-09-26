@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useT } from "@/lib/i18n";
+import { PromoSlotLine, dispatchPromoRefresh } from "@/components/site/slot-counter"; // Task 44 — kuota live
 import { REG_ROLES } from "@/lib/nusantara";
 import { cn } from "@/lib/utils";
 
@@ -383,6 +384,7 @@ export function DaftarView() {
       }
       setTicket(res.ticketCode);
       setStep(6);
+      dispatchPromoRefresh(); // Task 44 — kurangi slot promo di seluruh situs seketika
       toast({ title: t("nusJoin.toastSuccessTitle"), description: t("nusJoin.toastSuccessDesc") });
     } catch (e) {
       toast({
@@ -1067,6 +1069,8 @@ export function DaftarView() {
               <Icon name="check-circle-2" className="h-4 w-4" aria-hidden />
               {t(`${NS}.freeBadge`)}
             </p>
+            {/* Task 44 — penghitung slot promo live di header formulir */}
+            <PromoSlotLine dark className="mt-3 justify-start" />
           </Reveal>
         </div>
       </section>

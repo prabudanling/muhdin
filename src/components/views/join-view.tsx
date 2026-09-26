@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useT } from "@/lib/i18n";
+import { PromoSlotLine, dispatchPromoRefresh } from "@/components/site/slot-counter"; // Task 44 — kuota live
 import { MEMBER_TYPES, PARTNERS } from "@/lib/constants";
 
 const PROCESS_STEPS = [
@@ -75,6 +76,7 @@ export function JoinView() {
         setCopied(false);
         setCopyFail(false);
       }
+      dispatchPromoRefresh(); // Task 44 — kurangi slot promo di seluruh situs seketika
       toast({
         title: t("join.toastSuccessTitle"),
         description: t("join.toastSuccessDesc"),
@@ -118,6 +120,8 @@ export function JoinView() {
               <Icon name="check-circle-2" className="h-4 w-4" aria-hidden />
               {t("join.freeBadge")}
             </p>
+            {/* Task 44 — penghitung slot promo live di header formulir */}
+            <PromoSlotLine dark className="mt-3 justify-start" />
           </Reveal>
         </div>
       </section>

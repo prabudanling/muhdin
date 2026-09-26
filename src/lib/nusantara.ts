@@ -67,7 +67,7 @@ export const NETWORK_NODES = [
  * Task 43 — HARGA DITAMPILKAN (revisi arah owner): iuran per tier diset di
  * LANTAI PASAR asosiasi lain (rentang pasar: pendaftaran Rp 500rb–25jt,
  * iuran Rp 1jt–10jt/th) agar klaim "TERMURAH BERGARANSI" tetap sah.
- * PROMO 100 ANGGOTA PERTAMA: pendaftaran + iuran tahun pertama = Rp 0.
+ * PROMO 200 ANGGOTA PERTAMA: pendaftaran + iuran tahun pertama = Rp 0.
  * Sentinel price:
  *   "TIER"         → dirender dari dict membership.prices.<tierKey> (terlokalisasi id/en/ar)
  *   "BY_AGREEMENT" → dict membership.byAgreement (mitra komersial, bukan iuran anggota)

@@ -1322,3 +1322,25 @@ Stage Summary:
 - Pricing baru: tampil jujur (Rp 500 rb–3 jt/th + pendaftaran Rp 500 rb) = lantai pasar "asosiasi lain" (Rp 500rb–25jt; Rp 1jt–10jt/th) → konsisten dgn TERMURAH BERGARANSI; 100 anggota pertama GRATIS (pendaftaran + iuran th pertama).
 - Kunci dict baru: membership.signupFee, membership.prices.*, free.muhdinSignup, free.muhdinDues — selaras ×3 bahasa.
 - Catatan lanjutan (opsional): banner WA/IG bisa diregenerasi dgn caption promo 100 pertama; slot counter live (sisa kuota) bisa ditambahkan dari DB bila diminta.
+
+---
+Task ID: 44
+Agent: Z.ai Code (main orchestrator)
+Task: Banner WA/IG baru "PROMO 200 ANGGOTA PERTAMA" + penghitung slot LIVE yang turun otomatis tiap pendaftar (kuota promo 100 → 200)
+
+Work Log:
+- ARAH OWNER: kuota promo naik 100 → 200; tampilan harga (Task 43) dipertahankan; tambahan: (1) banner WA/IG versi baru, (2) counter slot live "sisa N dari 200" yang berkurang otomatis setiap ada pendaftar.
+- KONSTANTA (constants.ts): PROMO_SLOTS { total: 200, baseTaken: 0 (seed opsional), urgencyBelow: 20, pollMs: 15_000 }.
+- API BARU GET /api/promo/counter (publik, no-store, force-dynamic): slot terpakai = jumlah MembershipApplication berstatus != REJECTED + baseTaken; fallback deterministik bila DB gagal; terverifikasi curl.
+- KOMPONEN BARU src/components/site/slot-counter.tsx: hook usePromoCounter (fetch + poll 15 dtk + refresh saat tab visible + event window "muhdin:promo-refresh") + export dispatchPromoRefresh() + 3 varian render — PromoSlotPill (hero, latar gelap), PromoSlotCard (angka besar + AnimatePresence spring saat angka berubah + progress bar emas→merah saat urgent + persen terpakai), PromoSlotLine (strip tipis, prop dark utk header form). Hydration-safe (SSR == render awal, data via fetch), aria-live + role progressbar + angka Intl per-locale (id-ID / ar-EG Arab-Indic).
+- KABEL: HeroSection (pill di bawah highlighter lime), FreeSection (kartu counter), MembershipSection (strip + line), daftar-view & join-view (line di header form + dispatchPromoRefresh() tepat setelah POST /api/applications sukses → semua counter di situs turun SEKETIKA).
+- I18N ×3: blok baru nusHome.promo.{liveBadge,pill,title,ofTotal,ready,urgency,closed,closedNote,aria} (id/en/ar, AR angka Arab-Indic ٢٠٠); SEMUA teks "100 ANGGOTA/PERTAMA/FIRST-100/١٠٠" → "200" di nusantara-home.ts (id 14 titik + en 13 + ar 15), footer.ts, join.ts, nusantara-join.ts, pengurus.ts, downloads.ts (kitTitle), layout.tsx (description/keywords/OG), komentar nusantara.ts & home-view.
+- BANNER BARU (render HTML→PNG, teks selalu tajam): public/promo/banner-promo200.css + banner-promo200-{feed,story,wide}.html (bg kit lama dipakai ulang) → muhdin-promo200-{feed-ig 1080×1080, story-wa 1080×1920, wide-wa 1200×630}.png via agent-browser set viewport + screenshot; konten: "PROMO / 200 (emas raksasa) / ANGGOTA PERTAMA" + stempel "Rp 0 DAFTAR+IURAN" + chips + tabel asosiasi biasa vs MUHDIN + pill merah "SLOT TERBATAS — SISA MENIPIS" + CTA + WA 0811 1116 5165; wide footer dipindah kanan-bawah (perbaikan overlap); 0 overflow (scrollHeight == viewport).
+- GALERI KIT /promo/index.html: 3 kartu versi 200 di atas (unduh PNG + sumber HTML) + tips caption promo-200 & penjelasan kuota live; kit GRATIS lama dipindah ke bagian "Arsip Kampanye" (tetap tersedia).
+- QA E2E AGENT BROWSER: counter hero "SISA 196 DARI 200" (4 pendaftar valid: 2 APPROVED + 2 PENDING); POST 1 aplikasi uji (tiket MHD-3TU4TU) → API 195 → reload "SISA 195 DARI 200" ×2 (hero+strip) → data uji DIHAPUS, kembali 196; kartu counter render bagus terang+gelap; EN "{n} OF 200 PROMO SLOTS LEFT" ×2 + FIRST-200 card; AR dir=rtl + "تبقّى ١٩٦ من أصل ٢٠٠ مقعد عرض" ×2, angka Arab-Indic; mobile 390 tanpa overflow-x, 2 pill; #/daftar tampil badge PROMO 200 + line SISA 196; /promo/index.html 6 gambar 0 broken; console 0 error; dev.log bersih; lint 0 error. Screenshot /tmp/44-card.png, /tmp/44-dark-card.png, /tmp/44-ar.png, /tmp/44-mobile.png, /tmp/44-daftar.png.
+
+Stage Summary:
+- Kuota promo resmi 200 anggota pertama di SELURUH situs (id/en/ar + RTL) & SEO, harga tetap tampil (Task 43).
+- Penghitung slot kini LIVE dan terbukti turun otomatis: pendaftar baru → DB → API counter → pill hero, kartu FreeSection, strip membership, header 2 form (instan via event, plus poll 15 dtk & refresh-on-visible); sisa ≤ 20 → pesan "SEGERA HABIS" merah; kuota penuh → "KUOTA PROMO HABIS" + form tetap dibuka dengan iuran normal.
+- 3 banner WA/IG "PROMO 200 ANGGOTA PERTAMA" siap unduh di /promo/index.html (feed/story/wide) + sumber HTML bisa diedit & dirender ulang.
+- Knob: PROMO_SLOTS.baseTaken (mis. 3 → tampilan awal "sisa 197"), urgencyBelow, pollMs — semua di src/lib/constants.ts.
