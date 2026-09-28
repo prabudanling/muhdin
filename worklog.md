@@ -1397,3 +1397,25 @@ Stage Summary:
 - Halaman #/nusuk kini menjadi hub info resmi terkini Nusuk & Kementerian Haji KSA — layanan e-government, 8 aturan penting 2025–2026, hotline resmi, aplikasi Nusuk, dan disclaimer verifikasi tanggal
 - Semua tautan eksternal hanya ke domain resmi (.sa) → bebas dead-link
 - i18n ×3 + RTL + dark + mobile aman penuh; ARTIFACT: commit 63eece4
+
+---
+Task ID: 48
+Agent: Z.ai Code (main)
+Task: Bangun dashboard mitra, admin, dan jama'ah — "keluarkan semua super idea brilliant, terapkan all in maksimal"
+
+Work Log:
+- Eksplorasi: dashboard-view lama (portal tiket sederhana), admin-dashboard (KPI+charts), schema Prisma (Member, MembershipApplication, NusukPermit/Connection/SyncLog, dsb.), API publik tersedia (track, nusuk/public, members, promo/counter, health)
+- Desain Super Dashboard Trio: #/dashboard (hub pemilih peran + ingat pilihan LS), #/dashboard/jamaah (personal LS-only), #/dashboard/mitra (login tiket), admin CMS tetap #/admin
+- Locale baru src/lib/i18n/locales/dashboard.ts: namespace dash ~120 key x3 (id/en/ar) + registrasi di dictionaries.ts
+- DashboardHub: 3 kartu peran gradasi (forest/primary/emas), strip fitur ikon, chip "Terakhir dibuka", deep-link jamaah|mitra via muhdin-app.tsx
+- JamaahDashboard 8 widget: sapaan waktu-nyata + Hijriah islamic-umalqura + jam hidup; jadwal sholat Jakarta/Makkah + next-prayer countdown live; manasik 8 tahapan interaktif (ring SVG ganda, persist LS); tabungan target/terkumpul + bar; countdown keberangkatan; kartu izin Nusuk + app; checklist 8 item; panduan + akses cepat
+- MitraDashboard: gate tiket (auto-sesi), hero identitas + salin, 4 KPI live (nusuk/public + members), ring kepatuhan 3-tier, status Nusuk, 13 chip ekosistem LIVE, linimasa 3 langkah, catatan verifikator, CTA per status, keluar
+- AdminDashboard: hero sapaan+tanggal, kartu PROMO 200 live (slot tersisa + bar), strip Kesehatan Sistem (DB+latensi+antrean), 10 KPI + Nusuk card + charts + recent dipertahankan
+- Fix lint react-hooks/set-state-in-effect: defer setTimeout(0) di semua pembacaan waktu/LS
+- QA Agent Browser: hub 3 kartu OK; jamaah — Hijriah 17 Rabiulakhir 1448 H, countdown Subuh hidup, toggle manasik persist [true,false...], tabungan update 60% persist, checklist OK; mitra — login MHD-8ADJGK → data live (32 izin, 129 sync, 80%, ring 80% "mitra teladan", 13 chip, verifikator note, CTA terverifikasi); admin — sapaan malam, PROMO 196 tersisa, DB Sehat 9ms, Nusuk Terhubung; EN pass; AR RTL mirror sempurna (Hijriah ١٤٤٨ هـ); mobile 390px tanpa overflow; 0 console error; browser ditutup
+- Commit c02af40
+
+Stage Summary:
+- Super Dashboard Trio lengkap: jama'ah (personal & devosional), mitra (data real + kepatuhan), admin (kendali + kesehatan sistem) — satu bahasa desain emerald/emas kelas dunia
+- Data jama'ah 100% lokal (privasi), mitra memakai API publik yang sudah ada (tanpa endpoint sensitif), admin memakai stats+promo+health
+- i18n x3 + RTL + dark-ready + mobile aman; ARTIFACT: commit c02af40
