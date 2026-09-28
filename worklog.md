@@ -1379,3 +1379,21 @@ Work Log:
 
 Stage Summary:
 - Branding wajib "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI" kini setara headline utama (2,5x lebih besar), berkilau emas & bercahaya di hero + finale — i18n ikut otomatis (id/en/ar) via key nusHome.hero.promise.
+
+---
+Task ID: 47
+Agent: Z.ai Code (main)
+Task: Buka situs nusuk.sa & Kementerian Haji dan Umrah Saudi Arabia (haj.gov.sa), lalu masukkan semua informasi penting ke website MUHDIN
+
+Work Log:
+- Riset langsung kedua situs via z-ai page_reader: nusuk.sa (SPA client-rendered, nav/footer resmi terbaca: hotline 1966 dalam KSA & 920002814 luar KSA, layanan rahla haji/umrah/Rawdah Syarifah, reg DGA) + haj.gov.sa/en (e-services lengkap: Booking Hajj Package for Domestic Pilgrims, Issuance of Rawdah Sharif Permit Men/Women, Umrah Permit Application, plus important links MOFA/DGA/Visi 2030)
+- Web search verifikasi aturan 2025–2026: izin Umrah gratis wajib Mataf, Rawdah 1× per musim (sejak Juni 2026 via app, tak lagi tasreh grup), izin Nusuk wajib apapun visa, visa Umrah multi-entry 1 tahun 90 hari/kunjungan, selesaikan Umrah ≤30 hari + denda overstay, akomodasi wajib dipesan dulu (aturan 2025), e-visa turis boleh umroh, fasilitas GCC
+- nusuk-view.tsx: 4 konstanta baru (MINISTRY_ESERVICES, OFFICIAL_RULES ×8, NUSUK_HOTLINES, INFO_VERIFIED_ISO) + 4 blok render baru di OfficialSection: (1) 3 kartu e-Resmi Kementerian dgn link Akses Layanan ke domain resmi, (2) grid 4×2 kartu aturan bernomor 01–08, (3) panel kontak 2 hotline tel: + kartu app Nusuk gradient forest, (4) catatan verifikasi sumber emas ber-tanggal (hydration-safe, formatDateL10n konstanta 2026-09-28)
+- locales/nusuk.ts: +27 key ×3 (id/en/ar): es*, rule1–8, contact*, hotline*, appCard*, srcNote, aria*
+- QA Agent Browser: 14/14 konten ID pass, EN pass, AR RTL mirror sempurna (kartu cermin, nomor kiri), dark mode oke, mobile 390px tanpa overflow, 0 page error; browser ditutup
+- Commit 63eece4
+
+Stage Summary:
+- Halaman #/nusuk kini menjadi hub info resmi terkini Nusuk & Kementerian Haji KSA — layanan e-government, 8 aturan penting 2025–2026, hotline resmi, aplikasi Nusuk, dan disclaimer verifikasi tanggal
+- Semua tautan eksternal hanya ke domain resmi (.sa) → bebas dead-link
+- i18n ×3 + RTL + dark + mobile aman penuh; ARTIFACT: commit 63eece4
