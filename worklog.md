@@ -1344,3 +1344,23 @@ Stage Summary:
 - Penghitung slot kini LIVE dan terbukti turun otomatis: pendaftar baru → DB → API counter → pill hero, kartu FreeSection, strip membership, header 2 form (instan via event, plus poll 15 dtk & refresh-on-visible); sisa ≤ 20 → pesan "SEGERA HABIS" merah; kuota penuh → "KUOTA PROMO HABIS" + form tetap dibuka dengan iuran normal.
 - 3 banner WA/IG "PROMO 200 ANGGOTA PERTAMA" siap unduh di /promo/index.html (feed/story/wide) + sumber HTML bisa diedit & dirender ulang.
 - Knob: PROMO_SLOTS.baseTaken (mis. 3 → tampilan awal "sisa 197"), urgencyBelow, pollMs — semua di src/lib/constants.ts.
+
+---
+Task ID: 45
+Agent: Z.ai Code (main orchestrator)
+Task: Footer terbaik dunia — developer PT Digital Bisnis Manajemen (digiman.id) tampil sangat cool
+
+Work Log:
+- EVOLUSI Crown Footer (Task 20) → "World-Class Signature Footer"; semua fungsi lama tetap hidup (newsletter → /api/subscribers, sosmed dari CMS, deep-link ekosistem, gate admin, mt-auto sticky).
+- SIGNATURE PANEL digiman.id (bintang utama): logo SVG khusus DigimanMark — hexagon emerald (saudara hexagon MUHDIN) + huruf "D" emas + 4 node digital di verteks + orbit dashed berputar pelan (.sig-orbit, transform-box view-box); wordmark "digiman.id" (putih + ".id" gradasi emas) + "PT Digital Bisnis Manajemen"; deskripsi studio end-to-end; chip "DIGITAL PRODUCT STUDIO" + "Bangga Buatan Indonesia"; kolom kanan: label Teknologi Inti + 5 chip mono (NEXT.JS 16 / REACT 19 / TAILWIND 4 / PWA / RTL READY, dir=ltr) + tombol emas "Kunjungi digiman.id" → https://digiman.id (target _blank noopener); baris bawah: crafted + support system JuraganWeb; panel dibungkus border gradasi emas→emerald p-px + sapuan cahaya diagonal (.sig-sweep loop 7,5s) + aurora.
+- CTA BARU gaya hero: judul "Siap Mengambil Bagian… " + aksen gradasi "Termurah Bergaransi" (brand promise), deskripsi, tombol DAFTAR SEKARANG → #/daftar + tombol outline WhatsApp resmi 0811 1116 5165 (wa.me + salam) — ikon arrow-right icon-flip utk RTL.
+- WATERMARK raksasa "MUHDIN" outline emas 9% opacity (clamp 5,5–15rem, translate-y 22% ter-crop overflow-hidden, dir=ltr, pointer-events-none, select-none) di dasar footer; hairline puncak kini .gold-divider-animated (background-position flow 9s).
+- BAR BAWAH: legal link kini i18n ×3 (legalVerify/legalPrivacy/legalTerms — sebelumnya hardcoded ID); tombol bulat Kembali ke Atas (arrow-up baru di icon.tsx, scrollTo smooth — teruji scrollY→0); chip emas "Dirancang oleh digiman.id" (link) + chip "Bangga Buatan Indonesia".
+- CSS (globals.css): .gold-divider-animated, .footer-watermark, .sig-sweep, .sig-orbit + keyframes divider-flow/sig-sweep/sig-orbit — SEMUA diguard prefers-reduced-motion.
+- I18N (footer.ts ×3 id/en/ar): ctaTitle/ctaAccent/ctaDesc/ctaBtn/ctaWa, credit, madeIn, backTop, legalVerify/legalPrivacy/legalTerms, develTag, develDesc, stackLabel, visitSite + colTech diubah "Dikembangkan & Didukung / Developed & Supported / التطوير والدعم". (Insiden kecil: visitSite sempat tertinggal → tampil key mentah → ketahuan QA → ditambahkan ×3.)
+- QA E2E AGENT BROWSER: struktur terverifikasi via eval (watermark/wordmark/5 chip/sweep/orbit/CTA/backTop/legal); tanpa key mentah; back-to-top scrollY 1084→0; EN (lang=en) "Ready to Take Part…Cheapest, Guaranteed" + "Visit digiman.id" + legal EN; AR (dir=rtl) mirror penuh + "زيارة digiman.id" + "من تطوير digiman.id" + watermark dir=ltr; dark mode html.dark konsisten; mobile 390 overflowX=0 footer 390px stack rapi; 0 error console/page; dev.log bersih. Screenshot /tmp/45-footer-{id,sig,en,ar,dark,mobile}.png.
+- Commit: feat(45) — 4 file, +442/−123.
+
+Stage Summary:
+- Footer MUHDIN kini berkelas dunia: CTA band emas, watermark raksasa, dan panggung developer digiman.id (logo + wordmark + stack + link) yang membuat situs terasa produk studio profesional — bukan website main-main.
+- Semua elemen i18n ×3, RTL-sinkron, dark-aman, reduced-motion-aman, dan QA browser 0 error.
