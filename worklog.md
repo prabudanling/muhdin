@@ -1364,3 +1364,18 @@ Work Log:
 Stage Summary:
 - Footer MUHDIN kini berkelas dunia: CTA band emas, watermark raksasa, dan panggung developer digiman.id (logo + wordmark + stack + link) yang membuat situs terasa produk studio profesional — bukan website main-main.
 - Semua elemen i18n ×3, RTL-sinkron, dark-aman, reduced-motion-aman, dan QA browser 0 error.
+
+---
+Task ID: 46
+Agent: Z.ai Code (main orchestrator)
+Task: Perbesar tulisan "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI" (permintaan owner)
+
+Work Log:
+- AUDIT: promise tampil di 2 titik visual (hero S01 & Final CTA S16, home-view.tsx) — sebelumnya pill kecil text-[11px]/sm:text-sm (14px); layout.tsx & constants.ts hanya SEO/data.
+- KOMPONEN BARU BrandPromise({compact}) di home-view.tsx: frame emas (rounded-2xl border-gold/50 bg-gold/10 px-4..8 py-4..5) + glow shadow 55px + teks text-gold-gradient (gradasi emas berkilau animasi) font-black uppercase, ukuran hero text-lg sm:text-3xl lg:text-4xl (18->30->36px, terukur 36px @desktop), compact finale text-lg sm:text-2xl lg:text-3xl (30px terukur); tracking 0.05em + rtl:tracking-normal agar huruf Arab tetap tersambung (computed ls=normal @lang=ar).
+- GANTI kedua render (hero Reveal 0.17 & finale) memakai BrandPromise; tidak ada file lain yang berubah.
+- QA AGENT BROWSER: hero ID terukur 36px/900/2 baris dalam frame glow (screenshot /tmp/46-hero-id.png); finale "Ajakan bergabung" 30px (46-final-id.png); mobile 390 overflowX=0 (46-mobile.png); AR dir=rtl huruf tersambung 36px (46-hero-ar.png); lint 0 error.
+- Commit: feat(46).
+
+Stage Summary:
+- Branding wajib "EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI" kini setara headline utama (2,5x lebih besar), berkilau emas & bercahaya di hero + finale — i18n ikut otomatis (id/en/ar) via key nusHome.hero.promise.
