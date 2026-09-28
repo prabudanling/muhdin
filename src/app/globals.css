@@ -428,3 +428,69 @@ html[dir="rtl"] pre {
 .footer-brand-light .text-\[10px\] {
   color: color-mix(in srgb, oklch(95% 0.052 163.051) 70%, transparent);
 }
+
+/* ============================================================
+   Task 45 — Signature Footer toolkit (digiman.id showcase)
+   ============================================================ */
+
+/* Hairline emas puncak footer yang mengalir pelan */
+.gold-divider-animated {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.72 0.135 85 / 0.85) 18%,
+    oklch(0.92 0.09 95) 50%,
+    oklch(0.72 0.135 85 / 0.85) 82%,
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: divider-flow 9s linear infinite;
+}
+@keyframes divider-flow {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Watermark raksasa "MUHDIN" — huruf outline emas transparan */
+.footer-watermark {
+  color: transparent;
+  -webkit-text-stroke: 1.5px oklch(0.85 0.09 95 / 0.09);
+  user-select: none;
+}
+
+/* Sapuan cahaya diagonal di panel signature (loop pelan) */
+@keyframes sig-sweep {
+  0% {
+    transform: translateX(-170%) skewX(-14deg);
+  }
+  55%,
+  100% {
+    transform: translateX(320%) skewX(-14deg);
+  }
+}
+.sig-sweep {
+  animation: sig-sweep 7.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Orbit dashed di logo digiman — berputar sangat pelan */
+@keyframes sig-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.sig-orbit {
+  animation: sig-orbit 16s linear infinite;
+  transform-box: view-box;
+  transform-origin: 32px 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gold-divider-animated,
+  .sig-sweep,
+  .sig-orbit {
+    animation: none;
+  }
+}
