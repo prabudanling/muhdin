@@ -207,6 +207,27 @@ function useInViewOnce<T extends HTMLElement>() {
   return { ref, inView };
 }
 
+/* Task 46 — Brand promise DIPERBESAR (permintaan owner): kini tampil sebagai
+   pernyataan headline dalam frame emas bercahaya + teks gradasi emas berkilau
+   (text-gold-gradient) — bukan lagi pill 11px. Versi compact utk Final CTA.
+   Catatan RTL: letter-spacing dinonaktifkan di rtl (rtl:tracking-normal) agar
+   huruf Arab tetap tersambung. */
+function BrandPromise({ compact = false }: { compact?: boolean }) {
+  const { t } = useT();
+  return (
+    <p className="mx-auto mt-6 max-w-4xl rounded-2xl border border-gold/50 bg-gold/10 px-4 py-4 text-center shadow-[0_0_55px_-12px_rgba(212,175,55,0.5)] sm:px-8 sm:py-5">
+      <span
+        className={cn(
+          "text-gold-gradient block font-black uppercase leading-[1.2] tracking-[0.05em] rtl:tracking-normal",
+          compact ? "text-lg sm:text-2xl lg:text-3xl" : "text-lg sm:text-3xl lg:text-4xl"
+        )}
+      >
+        {t("nusHome.hero.promise")}
+      </span>
+    </p>
+  );
+}
+
 /* ================= S01 — HERO ================= */
 function HeroSection() {
   const { t } = useT();
@@ -251,12 +272,9 @@ function HeroSection() {
           </p>
         </Reveal>
 
-        {/* Task 35-b — Branding utama: EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI */}
+        {/* Task 35-b/46 — Branding utama DIPERBESAR: EKOSISTEM UMROH HAJI DIGITAL TERMURAH BERGARANSI */}
         <Reveal delay={0.17}>
-          <p className="mx-auto mt-5 inline-flex max-w-full items-center justify-center gap-2 rounded-xl border border-gold/50 bg-gold/15 px-4 py-2.5 text-[11px] font-extrabold uppercase leading-relaxed tracking-[0.14em] text-gold-soft sm:px-6 sm:text-sm sm:tracking-[0.2em]">
-            <Icon name="sparkles" className="h-4 w-4 shrink-0" aria-hidden />
-            <span>{t("nusHome.hero.promise")}</span>
-          </p>
+          <BrandPromise />
         </Reveal>
 
         <Reveal delay={0.2}>
@@ -1385,10 +1403,8 @@ function FinalCtaSection() {
           <p className="mt-4 text-sm font-semibold italic text-gold sm:text-base">
             {t("nusHome.final.tagline")}
           </p>
-          <p className="mx-auto mt-6 inline-flex max-w-full items-center justify-center gap-2 rounded-xl border border-gold/50 bg-gold/15 px-4 py-2.5 text-[11px] font-extrabold uppercase leading-relaxed tracking-[0.14em] text-gold-soft sm:px-6 sm:text-sm sm:tracking-[0.2em]">
-            <Icon name="sparkles" className="h-4 w-4 shrink-0" aria-hidden />
-            <span>{t("nusHome.hero.promise")}</span>
-          </p>
+          {/* Task 46 — promise DIPERBESAR (versi compact utk finale) */}
+          <BrandPromise compact />
         </Reveal>
         <Reveal delay={0.14}>
           <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3">
