@@ -443,6 +443,57 @@ const OFFICIAL_SERVICES: { icon: string; titleKey: string; descKey: string }[] =
   { icon: "book-open", titleKey: "nusuk.svc6Title", descKey: "nusuk.svc6Desc" },
 ];
 
+/**
+ * Task 47 — Layanan elektronik resmi Kementerian Hajj & Umrah, dibaca langsung
+ * dari portal haj.gov.sa (e-services). Izin Umrah & Rawdah ditindaklanjuti di
+ * aplikasi Nusuk; tautan selalu ke domain resmi agar bebas dead-link.
+ */
+const MINISTRY_ESERVICES: { icon: string; titleKey: string; descKey: string; href: string }[] = [
+  {
+    icon: "tent-tree",
+    titleKey: "nusuk.esHajjTitle",
+    descKey: "nusuk.esHajjDesc",
+    href: "https://www.haj.gov.sa/en",
+  },
+  {
+    icon: "moon-star",
+    titleKey: "nusuk.esRawdahTitle",
+    descKey: "nusuk.esRawdahDesc",
+    href: "https://www.nusuk.sa/",
+  },
+  {
+    icon: "clipboard-list",
+    titleKey: "nusuk.esUmrahTitle",
+    descKey: "nusuk.esUmrahDesc",
+    href: "https://www.nusuk.sa/",
+  },
+];
+
+/**
+ * Task 47 — Aturan penting Tamu Allah 2025–2026, dirangkum dari nusuk.sa,
+ * haj.gov.sa, dan rilis saluran resmi KSA (Nusuk app, KSA Visa, Visi 2030).
+ * Urutan = urutan tampil di grid (nomor 01–08 dirender otomatis).
+ */
+const OFFICIAL_RULES: { icon: string; titleKey: string; descKey: string }[] = [
+  { icon: "badge-check", titleKey: "nusuk.rule1Title", descKey: "nusuk.rule1Desc" },
+  { icon: "moon-star", titleKey: "nusuk.rule2Title", descKey: "nusuk.rule2Desc" },
+  { icon: "shield-check", titleKey: "nusuk.rule3Title", descKey: "nusuk.rule3Desc" },
+  { icon: "passport", titleKey: "nusuk.rule4Title", descKey: "nusuk.rule4Desc" },
+  { icon: "clock", titleKey: "nusuk.rule5Title", descKey: "nusuk.rule5Desc" },
+  { icon: "building-2", titleKey: "nusuk.rule6Title", descKey: "nusuk.rule6Desc" },
+  { icon: "globe", titleKey: "nusuk.rule7Title", descKey: "nusuk.rule7Desc" },
+  { icon: "users", titleKey: "nusuk.rule8Title", descKey: "nusuk.rule8Desc" },
+];
+
+/** Task 47 — Hotline resmi platform Nusuk (terbaca langsung dari nusuk.sa). */
+const NUSUK_HOTLINES: { icon: string; value: string; tel: string; labelKey: string }[] = [
+  { icon: "phone", value: "1966", tel: "tel:1966", labelKey: "nusuk.hotlineLocalLabel" },
+  { icon: "globe", value: "+966 92 000 2814", tel: "tel:+966920002814", labelKey: "nusuk.hotlineIntlLabel" },
+];
+
+/** Task 47 — tanggal verifikasi riset langsung ke dua situs resmi (konten statis → hydration aman). */
+const INFO_VERIFIED_ISO = "2026-09-28";
+
 function OfficialSection() {
   const { t, locale } = useT();
   return (
@@ -511,6 +562,87 @@ function OfficialSection() {
             </StaggerItem>
           ))}
         </Stagger>
+
+        {/* Task 47 — Layanan e-Resmi Kementerian Hajj & Umrah (dibaca langsung dari haj.gov.sa) */}
+        <Reveal className="mt-12">
+          <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            <Icon name="landmark" className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            {t("nusuk.esTitle")}
+          </h3>
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-3xl leading-relaxed">
+            {t("nusuk.esSubtitle")}
+          </p>
+        </Reveal>
+        <div
+          className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4"
+          aria-label={t("nusuk.ariaEservices")}
+        >
+          {MINISTRY_ESERVICES.map((s, i) => (
+            <Reveal key={s.titleKey} delay={0.05 * i}>
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex h-full flex-col rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-gold/50 hover:bg-gold/5"
+              >
+                <div className="flex items-start gap-3.5">
+                  <div className="h-11 w-11 shrink-0 rounded-xl bg-gold/10 border border-gold/30 grid place-items-center text-gold-deep">
+                    <Icon name={s.icon} className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-extrabold leading-snug text-foreground">{t(s.titleKey)}</h4>
+                    <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{t(s.descKey)}</p>
+                  </div>
+                </div>
+                <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-xs font-bold text-primary">
+                  {t("nusuk.esBtn")}
+                  <Icon
+                    name="external-link"
+                    className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"
+                  />
+                </span>
+              </a>
+            </Reveal>
+          ))}
+        </div>
+
+        {/* Task 47 — Aturan penting Tamu Allah 2025–2026 */}
+        <Reveal className="mt-12">
+          <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            <Icon name="scroll-text" className="h-5 w-5 sm:h-6 sm:w-6 text-gold-deep" />
+            {t("nusuk.rulesTitle")}
+          </h3>
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-3xl leading-relaxed">
+            {t("nusuk.rulesSubtitle")}
+          </p>
+        </Reveal>
+        <div
+          className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+          aria-label={t("nusuk.ariaRules")}
+        >
+          {OFFICIAL_RULES.map((r, i) => (
+            <Reveal key={r.titleKey} delay={0.04 * i}>
+              <div className="relative h-full rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+                <span
+                  aria-hidden
+                  dir="ltr"
+                  className="absolute top-3.5 end-4 text-3xl font-black font-mono text-primary/10 select-none"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary">
+                  <Icon name={r.icon} className="h-5 w-5" />
+                </div>
+                <h4 className="mt-3 pe-8 font-extrabold text-sm sm:text-base leading-snug text-foreground">
+                  {t(r.titleKey)}
+                </h4>
+                <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {t(r.descKey)}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
 
         {/* Kuota Haji Indonesia 1447 H — panel megah */}
         <Reveal className="mt-10">
@@ -599,6 +731,70 @@ function OfficialSection() {
             </a>
           </Reveal>
         </div>
+        {/* Task 47 — Kontak resmi Nusuk: 2 hotline + kartu aplikasi resmi */}
+        <Reveal className="mt-10">
+          <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            <Icon name="phone" className="h-5 w-5 text-primary" />
+            {t("nusuk.contactTitle")}
+          </h3>
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-3xl leading-relaxed">
+            {t("nusuk.contactSubtitle")}
+          </p>
+        </Reveal>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3" aria-label={t("nusuk.ariaContacts")}>
+          {NUSUK_HOTLINES.map((h, i) => (
+            <Reveal key={h.labelKey} delay={0.05 * i}>
+              <a
+                href={h.tel}
+                className="group flex h-full items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/40"
+              >
+                <div className="h-12 w-12 shrink-0 rounded-xl bg-primary/10 grid place-items-center text-primary">
+                  <Icon name={h.icon} className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    {t(h.labelKey)}
+                  </p>
+                  <p className="mt-0.5 text-xl sm:text-2xl font-black tracking-tight text-foreground font-mono" dir="ltr">
+                    {h.value}
+                  </p>
+                </div>
+              </a>
+            </Reveal>
+          ))}
+          <Reveal delay={0.1}>
+            <a
+              href="https://www.nusuk.sa/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex h-full items-start gap-4 rounded-2xl border bg-gradient-to-br from-forest-deep to-forest p-5 shadow-lg transition-all hover:shadow-xl"
+            >
+              <div className="h-12 w-12 shrink-0 rounded-xl bg-gold/20 border border-gold/40 grid place-items-center text-gold">
+                <Icon name="smartphone" className="h-6 w-6" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-100/70">
+                  {t("nusuk.appCardLabel")}
+                </p>
+                <p className="mt-0.5 font-extrabold text-sm sm:text-base leading-snug text-white">
+                  {t("nusuk.appCardTitle")}
+                </p>
+                <p className="mt-1 text-xs text-emerald-100/80 leading-relaxed">{t("nusuk.appCardDesc")}</p>
+              </div>
+            </a>
+          </Reveal>
+        </div>
+
+        {/* Task 47 — catatan verifikasi sumber (tanggal riset langsung) */}
+        <Reveal delay={0.08} className="mt-4">
+          <p className="flex h-full items-start gap-2.5 rounded-xl border border-gold/40 bg-gold/5 p-4 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            <Icon name="sparkles" className="h-4.5 w-4.5 mt-0.5 shrink-0 text-gold-deep" />
+            <span>
+              {t("nusuk.srcNote", { date: formatDateL10n(INFO_VERIFIED_ISO, locale) })}
+            </span>
+          </p>
+        </Reveal>
+
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Reveal delay={0.12}>
             <p className="flex h-full items-start gap-2.5 rounded-xl border bg-muted/40 p-4 text-xs sm:text-sm text-muted-foreground leading-relaxed">

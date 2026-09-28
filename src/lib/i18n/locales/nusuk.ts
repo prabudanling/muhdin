@@ -227,6 +227,62 @@ curl -s "https://muhdin.web.id/api/nusuk/verify?no=NSK-HDL-2026-152220" \\
       dgaNote: "Nusuk terdaftar pada Otoritas Pemerintah Digital (DGA) Kerajaan Arab Saudi — situs resmi selalu berakhiran .sa dan menggunakan HTTPS.",
       healthNote: "Syarat kesehatan: vaksin meningitis (ACWY) dan vaksinasi rutin wajib bagi seluruh Tamu Allah sebelum keberangkatan.",
       ariaOfficialLinks: "Tautan sumber resmi",
+
+      /* ---------- Task 47 — INFO RESMI BARU (riset langsung nusuk.sa & haj.gov.sa, 28 Sep 2026) ---------- */
+      esTitle: "Layanan Elektronik Resmi Kementerian Hajj & Umrah",
+      esSubtitle:
+        "Tiga layanan utama yang kini dapat diakses digital — sebagaimana tercantum di portal resmi haj.gov.sa. Izin Umrah dan Rawdah diterbitkan melalui aplikasi Nusuk.",
+      esHajjTitle: "Pemesanan Paket Haji (Domestik)",
+      esHajjDesc:
+        "Layanan elektronik resmi untuk memesan paket Haji dan menerbitkan izin Haji bagi jamaah domestik Kerajaan.",
+      esRawdahTitle: "Penerbitan Izin Rawdah Syarif (Pria/Wanita)",
+      esRawdahDesc:
+        "Pemesanan jadwal kunjungan Rawdah di Masjid Nabawi — mengatur kunjungan demi kenyamanan dan keselamatan jamaah.",
+      esUmrahTitle: "Permohonan Izin Umrah",
+      esUmrahDesc:
+        "Penerbitan permohonan izin Umrah resmi — gratis, terjadwal per tanggal dan jam, langsung dari aplikasi Nusuk.",
+      esBtn: "Akses Layanan",
+      ariaEservices: "Layanan elektronik resmi Kementerian",
+      rulesTitle: "Aturan Penting bagi Tamu Allah",
+      rulesSubtitle:
+        "Rangkuman regulasi terkini dari nusuk.sa & haj.gov.sa (2025–2026). Pastikan selalu mengonfirmasi di saluran resmi sebelum keberangkatan.",
+      ariaRules: "Daftar aturan penting Tamu Allah",
+      rule1Title: "Izin Umrah Gratis",
+      rule1Desc:
+        "Izin Umrah diterbitkan tanpa biaya melalui aplikasi Nusuk — wajib ditunjukkan saat memasuki area Mataf di Masjidil Haram.",
+      rule2Title: "Rawdah Sekali per Musim",
+      rule2Desc:
+        "Izin Rawdah terbatas satu kali per musim Umrah. Sejak Juni 2026 pemesanan sepenuhnya via aplikasi Nusuk — tak lagi melalui tasreh grup.",
+      rule3Title: "Izin Wajib, Apapun Visanya",
+      rule3Desc:
+        "Perizinan Nusuk wajib untuk memasuki Mataf Makkah dan Rawdah Madinah — berlaku untuk seluruh jenis visa dan izin tinggal.",
+      rule4Title: "Visa Umrah Multi-Entry 1 Tahun",
+      rule4Desc:
+        "Visa Umrah berlaku satu tahun dengan kunjungan berulang, maksimal 90 hari tinggal per kunjungan.",
+      rule5Title: "Ibadah Selesai dalam 30 Hari",
+      rule5Desc:
+        "Rangkaian Umrah harus dituntaskan paling lama 30 hari sejak kedatangan. Melewati masa tinggal dapat dikenakan denda.",
+      rule6Title: "Akomodasi Dipesan Lebih Dulu",
+      rule6Desc:
+        "Sejak 2025, pengajuan visa Umrah mensyaratkan pemesanan akomodasi terlebih dahulu melalui platform resmi.",
+      rule7Title: "e-Visa Turis Bisa Umrah",
+      rule7Desc:
+        "e-Visa turis (satu tahun, multi-entry, 90 hari per kunjungan) juga boleh menunaikan ibadah Umrah di Kerajaan.",
+      rule8Title: "Fasilitas Warga GCC",
+      rule8Desc:
+        "Warga negara GCC bebas visa; pemegang izin tinggal GCC (minimal 3 bulan) dapat mengajukan e-visa bersama keluarga.",
+      contactTitle: "Kontak Resmi & Aplikasi Nusuk",
+      contactSubtitle:
+        "Saluran bantuan resmi platform Nusuk — dijawab dalam Bahasa Arab & Inggris, 24 jam.",
+      ariaContacts: "Kontak resmi Nusuk dan aplikasi",
+      hotlineLocalLabel: "Panggilan dalam Kerajaan (KSA)",
+      hotlineIntlLabel: "Panggilan dari luar Kerajaan",
+      appCardLabel: "Aplikasi Resmi",
+      appCardTitle: "Aplikasi Nusuk — iOS & Android",
+      appCardDesc:
+        "Izin, peta suci, kepadatan jamaah, jadwal sholat, dan tiket kereta Haramain — dalam satu aplikasi. Unduh di App Store & Google Play.",
+      srcNote:
+        "Informasi di halaman ini dirangkum langsung dari nusuk.sa dan haj.gov.sa (diperiksa langsung {date}). Regulasi perjalanan dapat berubah sewaktu-waktu — selalu konfirmasi melalui saluran resmi sebelum keberangkatan.",
     },
   },
   en: {
@@ -452,6 +508,62 @@ curl -s "https://muhdin.web.id/api/nusuk/verify?no=NSK-HDL-2026-152220" \\
       dgaNote: "Nusuk is registered with the Saudi Digital Government Authority (DGA) — official sites always end in .sa and use HTTPS.",
       healthNote: "Health requirement: meningitis (ACWY) and routine vaccinations are mandatory for all Guests of Allah before departure.",
       ariaOfficialLinks: "Official source links",
+
+      /* ---------- Task 47 — NEW OFFICIAL INFO (live research nusuk.sa & haj.gov.sa, 28 Sep 2026) ---------- */
+      esTitle: "Official e-Services of the Ministry of Hajj & Umrah",
+      esSubtitle:
+        "Three flagship services now fully digital — as listed on the official haj.gov.sa portal. Umrah and Rawdah permits are issued through the Nusuk app.",
+      esHajjTitle: "Hajj Package Booking (Domestic)",
+      esHajjDesc:
+        "An official e-service for booking Hajj packages and issuing Hajj permits for the Kingdom's domestic pilgrims.",
+      esRawdahTitle: "Rawdah Sharif Permit (Men / Women)",
+      esRawdahDesc:
+        "Booking an appointment to visit the Rawdah at the Prophet's Mosque — organizing visits for worshippers' comfort and safety.",
+      esUmrahTitle: "Umrah Permit Application",
+      esUmrahDesc:
+        "Issuing official Umrah permit requests — free of charge, scheduled by date and hour, straight from the Nusuk app.",
+      esBtn: "Access Service",
+      ariaEservices: "Ministry official e-services",
+      rulesTitle: "Essential Rules for the Guests of Allah",
+      rulesSubtitle:
+        "A summary of the latest 2025–2026 regulations from nusuk.sa & haj.gov.sa. Always confirm via official channels before departure.",
+      ariaRules: "Essential rules list for the Guests of Allah",
+      rule1Title: "Umrah Permit Is Free",
+      rule1Desc:
+        "The Umrah permit is issued free of charge via the Nusuk app and must be shown when entering the Mataf area of the Grand Mosque.",
+      rule2Title: "Rawdah Once per Season",
+      rule2Desc:
+        "Rawdah permits are limited to once per Umrah season. Since June 2026, booking is fully managed through the Nusuk app — no longer via group tasreh.",
+      rule3Title: "Permit Required, Any Visa",
+      rule3Desc:
+        "A Nusuk permit is mandatory to enter the Mataf in Makkah and the Rawdah in Madinah — for all visa types and residency permits.",
+      rule4Title: "1-Year Multiple-Entry Umrah Visa",
+      rule4Desc:
+        "The Umrah visa is valid for one year with repeated visits, up to 90 days of stay per visit.",
+      rule5Title: "Complete Umrah Within 30 Days",
+      rule5Desc:
+        "The Umrah rites must be completed within 30 days of arrival. Overstaying may result in fines.",
+      rule6Title: "Accommodation Booked First",
+      rule6Desc:
+        "Since 2025, Umrah visa applications require booking accommodation in advance through the official platform.",
+      rule7Title: "Tourist e-Visa Can Perform Umrah",
+      rule7Desc:
+        "The tourist e-visa (one year, multiple entry, 90 days per visit) also permits performing Umrah in the Kingdom.",
+      rule8Title: "GCC Citizens' Privileges",
+      rule8Desc:
+        "GCC citizens are visa-exempt; GCC residents (with ≥3-month permits) may apply for an e-visa together with their families.",
+      contactTitle: "Official Contacts & the Nusuk App",
+      contactSubtitle:
+        "Official support channels of the Nusuk platform — available around the clock in Arabic and English.",
+      ariaContacts: "Official Nusuk contacts and app",
+      hotlineLocalLabel: "Inside the Kingdom (KSA)",
+      hotlineIntlLabel: "Outside the Kingdom",
+      appCardLabel: "Official App",
+      appCardTitle: "Nusuk App — iOS & Android",
+      appCardDesc:
+        "Permits, holy-site maps, crowd density, prayer times, and Haramain train tickets — in one app. Get it on the App Store & Google Play.",
+      srcNote:
+        "The information on this page is compiled directly from nusuk.sa and haj.gov.sa (verified {date}). Travel regulations may change at any time — always confirm through official channels before departure.",
     },
   },
   ar: {
@@ -677,6 +789,62 @@ curl -s "https://muhdin.web.id/api/nusuk/verify?no=NSK-HDL-2026-152220" \\
       dgaNote: "نسك مسجّل لدى هيئة الحكومة الرقمية السعودية — المواقع الرسمية تنتهي دائمًا بـ .sa وتستخدم HTTPS.",
       healthNote: "الاشتراط الصحي: تطعيم الحمى الشوكية (ACWY) والتطعيمات الروتينية واجبة لجميع ضيوف الرحمن قبل السفر.",
       ariaOfficialLinks: "روابط المصادر الرسمية",
+
+      /* ---------- المهمة 47 — معلومات رسمية جديدة (بحث مباشر من nusuk.sa و haj.gov.sa، ٢٨ سبتمبر ٢٠٢٦) ---------- */
+      esTitle: "الخدمات الإلكترونية الرسمية لوزارة الحج والعمرة",
+      esSubtitle:
+        "ثلاث خدمات رئيسية أصبحت رقمية بالكامل — كما هو معروض في بوابة haj.gov.sa الرسمية. وتصدر تصاريح العمرة والروضة عبر تطبيق نسك.",
+      esHajjTitle: "حجز باقات الحج (الداخليون)",
+      esHajjDesc:
+        "خدمة إلكترونية رسمية لحجز باقات الحج وإصدار تصاريح الحج للحجاج الداخليين في المملكة.",
+      esRawdahTitle: "إصدار تصريح الروضة الشريفة (رجال / نساء)",
+      esRawdahDesc:
+        "حجز موعد لزيارة الروضة في المسجد النبوي الشريف — تنظيم الزيارات لراحة المصلين وسلامتهم.",
+      esUmrahTitle: "طلب تصريح العمرة",
+      esUmrahDesc:
+        "إصدار طلبات تصريح العمرة رسميًا — مجانًا وبموعد محدد بالتاريخ والساعة، مباشرة من تطبيق نسك.",
+      esBtn: "استخدام الخدمة",
+      ariaEservices: "الخدمات الإلكترونية الرسمية للوزارة",
+      rulesTitle: "أهم الأنظمة لضيوف الرحمن",
+      rulesSubtitle:
+        "ملخص أحدث أنظمة ٢٠٢٥–٢٠٢٦ من nusuk.sa و haj.gov.sa. تأكد دائمًا عبر القنوات الرسمية قبل السفر.",
+      ariaRules: "قائمة الأنظمة المهمة لضيوف الرحمن",
+      rule1Title: "تصريح العمرة مجاني",
+      rule1Desc:
+        "يُصدر تصريح العمرة مجانًا عبر تطبيق نسك ويجب إبرازه عند دخول منطقة المطاف في الحرم المكي.",
+      rule2Title: "الروضة مرة واحدة في الموسم",
+      rule2Desc:
+        "تصريح الروضة محصور بمرة واحدة في موسم العمرة. ومنذ يونيو ٢٠٢٦ يتم الحجز حصريًا عبر تطبيق نسك — دون التسريح الجماعي.",
+      rule3Title: "التصريح واجب لأي تأشيرة",
+      rule3Desc:
+        "تصريح نسك واجب لدخول المطاف في مكة والروضة في المدينة — لجميع أنواع التأشيرات والإقامات.",
+      rule4Title: "تأشيرة عمرة متعددة لسنة",
+      rule4Desc:
+        "تأشيرة العمرة صالحة لسنة واحدة بزيارات متكررة، بحد أقصى ٩٠ يومًا إقامة لكل زيارة.",
+      rule5Title: "إتمام العمرة خلال ٣٠ يومًا",
+      rule5Desc:
+        "يجب إتمام مناسك العمرة خلال ٣٠ يومًا كحد أقصى من الوصول. وقد تفرض غرامات على تجاوز مدة الإقامة.",
+      rule6Title: "حجز الإقامة أولا",
+      rule6Desc:
+        "منذ ٢٠٢٥ يتطلب طلب تأشيرة العمرة حجز الإقامة مقدمًا عبر المنصة الرسمية.",
+      rule7Title: "التأشيرة السياحية تصلح للعمرة",
+      rule7Desc:
+        "التأشيرة السياحية الإلكترونية (سنة، متعددة الدخول، ٩٠ يومًا للزيارة) تتيح أداء العمرة في المملكة.",
+      rule8Title: "مزايا مواطني الخليج",
+      rule8Desc:
+        "مواطنو دول مجلس التعاون لا يحتاجون تأشيرة؛ ويقدم المقيمون في دول الخليج (بإقامة ٣ أشهر فأكثر) طلب التأشيرة الإلكترونية مع أسرهم.",
+      contactTitle: "جهات الاتصال الرسمية وتطبيق نسك",
+      contactSubtitle:
+        "قنوات الدعم الرسمية لمنصة نسك — متاحة على مدار الساعة بالعربية والإنجليزية.",
+      ariaContacts: "جهات الاتصال الرسمية لنسك والتطبيق",
+      hotlineLocalLabel: "داخل المملكة",
+      hotlineIntlLabel: "من خارج المملكة",
+      appCardLabel: "التطبيق الرسمي",
+      appCardTitle: "تطبيق نسك — iOS وAndroid",
+      appCardDesc:
+        "التصاريح وخرائط الأراضي المقدسة وكثافة الزحام ومواقيت الصلاة وتذاكر قطار الحرمين — في تطبيق واحد. متوفر على آب ستور وجوجل بلاي.",
+      srcNote:
+        "المعلومات في هذه الصفحة مجمعة مباشرة من nusuk.sa و haj.gov.sa (تم التحقق {date}). قد تتغير أنظمة السفر في أي وقت — تأكد دائمًا عبر القنوات الرسمية قبل السفر.",
     },
   },
 } as const;
