@@ -26,6 +26,8 @@ import { nusHomeDict } from "@/lib/i18n/locales/nusantara-home";
 import { nusTrustDict } from "@/lib/i18n/locales/nusantara-trust";
 import { nusJoinDict } from "@/lib/i18n/locales/nusantara-join";
 import { pengurusDict } from "@/lib/i18n/locales/pengurus";
+// Task 48 — Super Dashboard Trio (jamaah / mitra / admin hub)
+import { dashDict } from "@/lib/i18n/locales/dashboard";
 
 const dicts = [
   commonDict,
@@ -54,6 +56,8 @@ const dicts = [
   nusJoinDict,
   // Task 37 — Susunan Pengurus MUHDIN (#/pengurus)
   pengurusDict,
+  // Task 48 — Super Dashboard Trio (#/dashboard)
+  dashDict,
 ];
 
 export const dictionaries: Record<"id" | "en" | "ar", Record<string, unknown>> = {

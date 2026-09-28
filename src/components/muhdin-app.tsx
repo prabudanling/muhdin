@@ -27,7 +27,10 @@ import { DaftarView } from "@/components/views/daftar-view";
 import { VerifyView } from "@/components/views/verify-view";
 import { PrivacyView } from "@/components/views/privacy-view";
 import { TermsView } from "@/components/views/terms-view";
-import { DashboardView } from "@/components/views/dashboard-view";
+// Task 48 — Super Dashboard Trio (#/dashboard): DashboardView (portal tiket lama) digantikan
+import { DashboardHub } from "@/components/views/dashboard-hub";
+import { JamaahDashboard } from "@/components/views/jamaah-dashboard";
+import { MitraDashboard } from "@/components/views/mitra-dashboard";
 import { LocaleProvider, useT } from "@/lib/i18n";
 import { RegisterSW } from "@/components/pwa/register-sw";
 import { WaFab } from "@/components/site/wa-fab";
@@ -180,9 +183,16 @@ export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en
     case "verifikasi":
       content = <VerifyView key={route[1] ?? "search"} query={route[1]} />;
       break;
-    // Task 33 — portal anggota sederhana (ROLE 16)
+    // Task 33 — portal anggota (ROLE 16) → Task 48: Super Dashboard Trio
     case "dashboard":
-      content = <DashboardView />;
+      content =
+        route[1] === "jamaah" ? (
+          <JamaahDashboard />
+        ) : route[1] === "mitra" ? (
+          <MitraDashboard />
+        ) : (
+          <DashboardHub />
+        );
       break;
     // Task 33 — privasi & ketentuan (ROLE 21)
     case "privasi":
