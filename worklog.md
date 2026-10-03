@@ -1419,3 +1419,24 @@ Stage Summary:
 - Super Dashboard Trio lengkap: jama'ah (personal & devosional), mitra (data real + kepatuhan), admin (kendali + kesehatan sistem) — satu bahasa desain emerald/emas kelas dunia
 - Data jama'ah 100% lokal (privasi), mitra memakai API publik yang sudah ada (tanpa endpoint sensitif), admin memakai stats+promo+health
 - i18n x3 + RTL + dark-ready + mobile aman; ARTIFACT: commit c02af40
+
+---
+Task ID: 49
+Agent: Z.ai Code (main)
+Task: Instruksi manajemen via WhatsApp — (1) ganti semua CTA "Daftar Sekarang" → "DAFTAR GRATIS"; (2) hapus peran "Individu" & "Profesional" dari halaman pendaftaran (#/daftar).
+
+Work Log:
+-bash scripts/dev-keep.sh; eksplorasi: grep "Daftar Sekarang/daftarSekarang" → 4 file i18n; grep "Foto/upload" di daftar-view & join-view → tidak ada field foto (label "Foto" di WA = caption gambar); REG_ROLES 17 peran di src/lib/nusantara.ts hanya dipakai daftar-view.tsx.
+- src/lib/nusantara.ts: hapus entri INDIVIDUAL & PROFESSIONAL dari REG_ROLES (17→15), grup INDIVIDU kini hanya JAMAAH; komentar diperbarui. Tidak ada referensi backend ke type INDIVIDUAL/PROFESSIONAL (dicek rg src/app → 0).
+- src/components/views/daftar-view.tsx: hapus SVC_BY_ROLE.INDIVIDUAL/.PROFESSIONAL; header comment 17→15. Kind "individual" tetap (dipakai JAMAAH: profil nama pribadi, dokumen identity+trackRecord, layanan pilgrim*).
+- src/components/muhdin-app.tsx: komentar route 17→15.
+- CTA ×3 locale (id/en/ar): navbar.gabung → "DAFTAR GRATIS"/"Register Free"/"سجّل مجاناً"; footer.ctaBtn sama; pengurus.cta.btn → "DAFTAR GRATIS — Klaim Promo"/"Register Free — Claim the Promo"/"سجّل مجاناً — احجز العرض".
+- nusantara-home.ts ×3 locale: hero.ctaPrimary → "DAFTAR GRATIS"/"REGISTER FREE"/"سجّل مجاناً"; membership.cta; promoStrip.cta → "KLAIM SLOT PROMO — DAFTAR GRATIS"; promo.cta → "KLAIM PROMO — DAFTAR GRATIS"; en CLAIM YOUR SLOT/CLAIM THE PROMO — REGISTER FREE; ar variants. Total 10 kunci × 3 locale + 4 kunci lain = semua CTA pendaftaran kini "GRATIS".
+- nusantara-join.ts: subtitle ×3 locale 17→15 peran (id "jamaah, organisasi…", en "pilgrims…", ar "حاج ومعتمر…"); hapus role.INDIVIDUAL & role.PROFESSIONAL ×3 locale.
+- Lint bersih (exit 0); grep sisa "Daftar Sekarang|Register Now|سجّل الآن|REGISTER NOW|DAFTAR SEKARANG" → 0.
+
+Stage Summary:
+- QA Agent Browser (semua lulus, browser ditutup): ID — navbar & hero & footer "DAFTAR GRATIS", /#/daftar tanpa kartu Individu/Profesional, grup INDIVIDU & KOMUNITAS hanya Jamaah, klik Jamaah → langkah 01 PROFIL aktif. EN — "Register Free" ×2 tombol, "One smart form for 15 roles", "Pilgrim". AR — dir=rtl, "سجّل مجاناً" ×2, "نموذج ذكي واحد لـ 15 دورًا", "حاج أو معتمر", 0 label lama. Mobile 390px — daftar & home tanpa overflow (scrollX terkunci 0; scrollWidth>innerW di desktop hanya elemen dekoratif ticker/ken-burns yang ter-clip, pre-existing). Console 0 error, 0 page error.
+- Commit: c242360 "feat(49): CTA DAFTAR GRATIS + hapus peran Individu & Profesional dari pendaftaran" (14 files).
+- Catatan: data lama aplikasi bertipe INDIVIDUAL/PROFESSIONAL tetap valid di DB (type bebas string); hanya pilihan baru yang ditutup. Slot PROMO live "SISA 196 DARI 200" tampil normal.
+- Screenshot: /tmp/49-id-pick.png, 49-id-roles.png, 49-id-profile.png, 49-en-pick.png, 49-ar-pick.png, 49-mobile-pick.png, 49-mobile-footer.png.
