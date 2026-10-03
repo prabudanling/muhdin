@@ -162,11 +162,11 @@ export const ACADEMY_TOPICS = [
   "MHUTU_ACADEMY",
 ] as const;
 
-/** ROLE 08 — 17 pilihan peran pendaftaran + pemetaan ke `type` aplikasi backend. */
+/** ROLE 08 — 15 pilihan peran pendaftaran + pemetaan ke `type` aplikasi backend.
+ *  Task 49 — peran INDIVIDUAL & PROFESSIONAL dihapus (instruksi manajemen):
+ *  pendaftaran individu kini hanya melalui peran JAMAAH. */
 export const REG_ROLES: { code: string; icon: string; type: string; group: string }[] = [
   // Individu & Komunitas
-  { code: "INDIVIDUAL", icon: "user", type: "INDIVIDUAL", group: "INDIVIDU" },
-  { code: "PROFESSIONAL", icon: "graduation-cap", type: "PROFESSIONAL", group: "INDIVIDU" },
   { code: "JAMAAH", icon: "heart-handshake", type: "JAMAAH", group: "INDIVIDU" },
   // Organisasi
   { code: "ORGANIZATION", icon: "building", type: "ORGANIZATION", group: "ORGANISASI" },

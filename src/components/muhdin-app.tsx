@@ -175,7 +175,7 @@ export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en
     case "gabung":
       content = <JoinView />;
       break;
-    // Task 33 — engine pendaftaran cerdas multi-step (17 peran)
+    // Task 33 — engine pendaftaran cerdas multi-step (15 peran; Task 49: individu & profesional dihapus)
     case "daftar":
       content = <DaftarView />;
       break;

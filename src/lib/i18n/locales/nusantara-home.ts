@@ -41,7 +41,7 @@ export const nusHomeDict = {
       hero: {
         imgAlt: "Kabah Masjidil Haram saat senja keemasan",
         subtitle: HERO_SUBTITLE,
-        ctaPrimary: "DAFTAR SEKARANG",
+        ctaPrimary: "DAFTAR GRATIS",
         ctaPartner: "JADI PARTNER",
         ctaProvider: "DAFTAR SEBAGAI PROVIDER",
         ctaVerified: "CEK MUHDIN VERIFIED",
@@ -179,7 +179,7 @@ export const nusHomeDict = {
         benefit3: "Kelas MUHDIN Academy",
         footer:
           "Iuran keanggotaan MUHDIN dihargai di bawah asosiasi lain; 200 anggota pertama bebas pendaftaran & iuran tahun pertama. Bukan biaya pemerintah, bukan biaya izin usaha, dan bukan biaya penyelenggaraan ibadah.",
-        cta: "Daftar Sekarang",
+        cta: "DAFTAR GRATIS",
         tiers: {
           individual: "Individu",
           professional: "Profesional",
@@ -308,7 +308,7 @@ export const nusHomeDict = {
         note1: "Kuota promo: 200 anggota pertama",
         note2: "Tanpa biaya tersembunyi",
         note3: "Semua kategori keanggotaan",
-        cta: "KLAIM SLOT PROMO — DAFTAR SEKARANG",
+        cta: "KLAIM SLOT PROMO — DAFTAR GRATIS",
         cta2: "LIHAT KEUNTUNGAN ANGGOTA",
       },
       promo: {
@@ -393,7 +393,7 @@ export const nusHomeDict = {
         t5Desc: "Bekal ibadah harian: mushaf, jadwal salat, arah kiblat, dan doa-doa pilihan.",
         t6Title: "Keanggotaan Terjangkau",
         t6Desc: "Iuran paling terjangkau di kelasnya — GRATIS untuk 200 anggota pertama.",
-        cta: "KLAIM PROMO — DAFTAR",
+        cta: "KLAIM PROMO — DAFTAR GRATIS",
       },
       permits: {
         eyebrow: "LAYANAN INSTAN",
@@ -481,7 +481,7 @@ export const nusHomeDict = {
         imgAlt: "The Kaaba at Masjid al-Haram during golden dusk",
         subtitle:
           "MUHDIN brings together organizers, businesses, professionals, technology, and Hajj–Umrah service providers in an ecosystem built on connectivity, verification, collaboration, and digital integration.",
-        ctaPrimary: "REGISTER NOW",
+        ctaPrimary: "REGISTER FREE",
         ctaPartner: "BECOME A PARTNER",
         ctaProvider: "REGISTER AS PROVIDER",
         ctaVerified: "CHECK MUHDIN VERIFIED",
@@ -619,7 +619,7 @@ export const nusHomeDict = {
         benefit3: "MUHDIN Academy classes",
         footer:
           "MUHDIN dues are priced below typical associations; the first 200 members pay no registration or first-year dues. Not a government fee, not a business license fee, and not the cost of performing worship.",
-        cta: "Register Now",
+        cta: "Register Free",
         tiers: {
           individual: "Individual",
           professional: "Professional",
@@ -748,7 +748,7 @@ export const nusHomeDict = {
         note1: "Promo quota: first 200 members",
         note2: "No hidden fees",
         note3: "All membership categories",
-        cta: "CLAIM YOUR SLOT — REGISTER NOW",
+        cta: "CLAIM YOUR SLOT — REGISTER FREE",
         cta2: "SEE MEMBER BENEFITS",
       },
       promo: {
@@ -833,7 +833,7 @@ export const nusHomeDict = {
         t5Desc: "Daily worship companion: mushaf, prayer times, qibla direction and chosen supplications.",
         t6Title: "Affordable Membership",
         t6Desc: "The most affordable dues in its class — FREE for the first 200 members.",
-        cta: "CLAIM THE PROMO — REGISTER",
+        cta: "CLAIM THE PROMO — REGISTER FREE",
       },
       permits: {
         eyebrow: "INSTANT SERVICES",
@@ -921,7 +921,7 @@ export const nusHomeDict = {
         imgAlt: "الكعبة في المسجد الحرام عند الغروب الذهبي",
         subtitle:
           "يجمع موهدين المنظمين وأصحاب الأعمال والمهنيين وشركات التقنية ومقدمي خدمات الحج والعمرة في منظومة واحدة قائمة على الربط والتوثيق والتعاون والتكامل الرقمي.",
-        ctaPrimary: "سجّل الآن",
+        ctaPrimary: "سجّل مجاناً",
         ctaPartner: "كن شريكاً",
         ctaProvider: "سجّل كمزوّد خدمة",
         ctaVerified: "تحقّق من موهدين موثّق",
@@ -1057,7 +1057,7 @@ export const nusHomeDict = {
         benefit3: "دورات أكاديمية موهدين",
         footer:
           "رسوم عضوية موهدين أقل من الجمعيات الأخرى؛ وأول ٢٠٠ عضو بلا رسوم تسجيل ولا رسوم السنة الأولى. وليس رسوماً حكومية، ولا رسوم ترخيص نشاط، ولا تكاليف أداء مناسك.",
-        cta: "سجّل الآن",
+        cta: "سجّل مجاناً",
         tiers: {
           individual: "فرد",
           professional: "محترف",
@@ -1186,7 +1186,7 @@ export const nusHomeDict = {
         note1: "حصة العرض: أول ٢٠٠ عضو",
         note2: "بدون رسوم خفية",
         note3: "جميع فئات العضوية",
-        cta: "احجز مقعدك — سجّل الآن",
+        cta: "احجز مقعدك — سجّل مجاناً",
         cta2: "شاهد مزايا العضوية",
       },
       promo: {
@@ -1271,7 +1271,7 @@ export const nusHomeDict = {
         t5Desc: "رفيق عباداتك اليومية: المصحف ومواقيت الصلاة واتجاه القبلة وأدعية مختارة.",
         t6Title: "عضوية في المتناول",
         t6Desc: "أقل الرسوم في فئتها — مجاناً لأول ٢٠٠ عضو.",
-        cta: "احجز العرض — سجّل الآن",
+        cta: "احجز العرض — سجّل مجاناً",
       },
       permits: {
         eyebrow: "خدمات فورية",

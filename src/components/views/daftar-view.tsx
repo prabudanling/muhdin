@@ -3,7 +3,7 @@
 /**
  * daftar-view.tsx — Engine Pendaftaran Cerdas "/daftar" (Task 33-d).
  *
- * Alur: Langkah 0 (pilih 1 dari 17 peran REG_ROLES) → 01 Profil (dinamis per
+ * Alur: Langkah 0 (pilih 1 dari 15 peran REG_ROLES) → 01 Profil (dinamis per
  * peran) → 02 Dokumen (checklist konfirmasi, tanpa upload) → 03 Layanan &
  * Minat (multi-pilih, opsional) → 04 Tinjau + persetujuan privasi wajib →
  * 05 Kirim (tombol besar, POST /api/applications) → layar sukses + kode tiket.
@@ -57,10 +57,9 @@ const DOC_SETS: Record<Kind, string[]> = {
   tech: ["companyLegal", "teamProfile", "references"],
 };
 
-/** Pilihan layanan & minat per kode peran — label via nusJoin.svc.{id}. */
+/** Pilihan layanan & minat per kode peran — label via nusJoin.svc.{id}.
+ *  Task 49 — entri INDIVIDUAL & PROFESSIONAL dihapus (peran ditiadakan). */
 const SVC_BY_ROLE: Record<string, string[]> = {
-  INDIVIDUAL: ["interestNetwork", "interestJobs", "interestEducation"],
-  PROFESSIONAL: ["profNetwork", "profProjects", "profCertification"],
   JAMAAH: ["pilgrimInfo", "pilgrimCommunity", "pilgrimManasik"],
   ORGANIZATION: ["orgCollab", "orgNetwork", "orgTraining"],
   PPIU: ["ppiuRegular", "ppiuSpecial", "ppiuPlus"],

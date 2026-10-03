@@ -8,7 +8,7 @@ export const nusJoinDict = {
     "nusJoin": {
       "eyebrow": "Pendaftaran Anggota",
       "title": "Daftar Jadi Bagian dari Ekosistem MUHDIN",
-      "subtitle": "Satu formulir pintar untuk 17 peran — individu, organisasi, penyedia layanan, hingga mitra teknologi. Satu layar, satu fokus.",
+      "subtitle": "Satu formulir pintar untuk 15 peran — jamaah, organisasi, penyedia layanan, hingga mitra teknologi. Satu layar, satu fokus.",
       "freeBadge": "PROMO 200 PERTAMA — GRATIS pendaftaran & iuran tahun pertama",
       "stepperProfile": "Profil",
       "stepperDocs": "Dokumen",
@@ -25,8 +25,6 @@ export const nusJoinDict = {
         "TEKNOLOGI_PARTNER": "Teknologi & Kemitraan"
       },
       "role": {
-        "INDIVIDUAL": "Individu",
-        "PROFESSIONAL": "Profesional",
         "JAMAAH": "Jamaah",
         "ORGANIZATION": "Organisasi",
         "PPIU": "PPIU",
@@ -219,7 +217,7 @@ export const nusJoinDict = {
     "nusJoin": {
       "eyebrow": "Membership Registration",
       "title": "Join the MUHDIN Ecosystem",
-      "subtitle": "One smart form for 17 roles — individuals, organizations, service providers, and technology partners. One screen, one focus.",
+      "subtitle": "One smart form for 15 roles — pilgrims, organizations, service providers, and technology partners. One screen, one focus.",
       "freeBadge": "FIRST-200 PROMO — registration & first-year dues FREE",
       "stepperProfile": "Profile",
       "stepperDocs": "Documents",
@@ -236,8 +234,6 @@ export const nusJoinDict = {
         "TEKNOLOGI_PARTNER": "Technology & Partnership"
       },
       "role": {
-        "INDIVIDUAL": "Individual",
-        "PROFESSIONAL": "Professional",
         "JAMAAH": "Pilgrim",
         "ORGANIZATION": "Organization",
         "PPIU": "PPIU",
@@ -430,7 +426,7 @@ export const nusJoinDict = {
     "nusJoin": {
       "eyebrow": "تسجيل العضوية",
       "title": "انضم إلى منظومة MUHDIN",
-      "subtitle": "نموذج ذكي واحد لـ 17 دورًا — أفراد ومنظمات ومزودو خدمات وشركاء التقنية. شاشة واحدة وتركيز واحد.",
+      "subtitle": "نموذج ذكي واحد لـ 15 دورًا — حاج ومعتمر ومنظمات ومزودو خدمات وشركاء التقنية. شاشة واحدة وتركيز واحد.",
       "freeBadge": "عرض أول ٢٠٠ — التسجيل ورسوم السنة الأولى مجاناً",
       "stepperProfile": "الملف",
       "stepperDocs": "المستندات",
@@ -447,8 +443,6 @@ export const nusJoinDict = {
         "TEKNOLOGI_PARTNER": "التقنية والشراكات"
       },
       "role": {
-        "INDIVIDUAL": "فرد",
-        "PROFESSIONAL": "مهني",
         "JAMAAH": "حاج أو معتمر",
         "ORGANIZATION": "منظمة",
         "PPIU": "PPIU",
