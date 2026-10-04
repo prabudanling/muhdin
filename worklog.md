@@ -1440,3 +1440,22 @@ Stage Summary:
 - Commit: c242360 "feat(49): CTA DAFTAR GRATIS + hapus peran Individu & Profesional dari pendaftaran" (14 files).
 - Catatan: data lama aplikasi bertipe INDIVIDUAL/PROFESSIONAL tetap valid di DB (type bebas string); hanya pilihan baru yang ditutup. Slot PROMO live "SISA 196 DARI 200" tampil normal.
 - Screenshot: /tmp/49-id-pick.png, 49-id-roles.png, 49-id-profile.png, 49-en-pick.png, 49-ar-pick.png, 49-mobile-pick.png, 49-mobile-footer.png.
+
+---
+Task ID: 50
+Agent: Z.ai Code (main)
+Task: Instruksi manajemen — ganti nama peran pendaftaran & opsi layanannya: "Penyedia Saudi" → Syarikah (boss tanya "itu apa?" → dijawab di laporan: mitra penyedia layanan berbasis di Arab Saudi); "Visa & Dokumen" → Paspor; "Kesehatan" → Vaksin; opsi "keluar" saat peran diklik: Paspor = Visa Umroh/Ziyarah/Amil/Haji, Transportasi = Bus/GMC/Kereta Cepat, Vaksin = Meningitis/Polio/Flu.
+
+Work Log:
+- Eksplorasi: label peran di nusantara-join.ts (nusJoin.role.*) ×3 locale; opsi layanan per peran = SVC_BY_ROLE (daftar-view.tsx) + nusJoin.svc.*; cek icon map (syringe belum ada).
+- src/components/site/icon.tsx: import + tambah entri "syringe": Syringe.
+- src/lib/nusantara.ts: icon HEALTH "heart-pulse" → "syringe".
+- src/components/views/daftar-view.tsx (SVC_BY_ROLE): VISA_DOC → [visaUmroh, visaZiyarah, visaAmil, visaHaji]; TRANSPORT → [bus, gmc, keretaCepat]; HEALTH → [vaksinMeningitis, vaksinPolio, vaksinFlu].
+- src/lib/i18n/locales/nusantara-join.ts ×3 locale: role.PROVIDER_SAUDI "Penyedia Saudi/Saudi Provider/مزوّد سعودي" → "Syarikah/Syarikah/شريكة سعودية"; role.VISA_DOC → "Paspor/Paspor/جواز السفر"; role.HEALTH → "Vaksin/Vaccine/تطعيمات". Tambah 9 kunci svc baru ×3 (visaUmroh…, gmc, keretaCepat, vaksin…); hapus 7 kunci svc tak terpakai (hiace, airport, visaLegalization, visaInsurance, healthClinic, healthStaff, healthEducation). bus/vip/visaDoc dipertahankan (dipakai peran lain). Backend tak berubah (type tetap PROVIDER; label murni i18n).
+- Lint exit 0; rg sisa kunci lama → 0.
+
+Stage Summary:
+- QA Agent Browser (semua lulus, browser ditutup): ID — kartu "Syarikah/Paspor/Vaksin" tampil, 0 label lama; alur penuh 3× (klik peran → profil → dokumen → langkah 03 Layanan) membuktikan "keluar" opsi: Vaksin → "Vaksin Meningitis | Vaksin Polio | Vaksin Flu"; Paspor → "Visa Umroh | Visa Ziyarah | Visa Amil | Visa Haji"; Transportasi → "Bus | GMC | Kereta Cepat". EN — kartu OK + "Meningitis Vaccine | Polio Vaccine | Flu Vaccine". AR — dir=rtl + شريكة سعودية/جواز السفر/تطعيمات. Mobile 390px tanpa overflow. Console 0 error.
+- Commit: b680b74 (5 files, +43/−36).
+- Catatan: ejaan "MININGITIS" dari WA dibakukan menjadi "Meningitis"; label memakai Title Case agar konsisten dengan kartu lain (WA boss menulis kapur semua termasuk nama peran lama "TRANSPORTASI"/"KESEHATAN" → kapital hanya gaya mengetik).
+- Screenshot: /tmp/50-id-roles.png, 50-id-penyedia.png, 50-id-svc-vaksin.png, 50-id-svc-paspor2.png, 50-id-svc-transport.png, 50-en-svc-vaccine.png, 50-ar-roles.png.
