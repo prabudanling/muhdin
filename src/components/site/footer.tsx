@@ -46,13 +46,17 @@ const NAV_LINKS: [path: string, key: string][] = [
   ["gabung", "gabung"],
 ];
 
-/** Task 18-c — tautan cepat ke 5 halaman portal baru. */
+/** Task 18-c — tautan cepat ke 5 halaman portal baru.
+ *  Task 50 — + Tentang & Kontak (menu navbar kini fokus layanan; halaman ini
+ *  tetap terjangkau dari footer). */
 const QUICK_LINKS: [path: string, key: string][] = [
   ["lacak", "lacak"],
   ["galeri", "galeri"],
   ["agenda", "agenda"],
   ["unduhan", "unduhan"],
   ["lapor", "lapor"],
+  ["tentang", "tentang"],
+  ["kontak", "kontak"],
 ];
 
 /** Task 30 — tiap layanan footer kini deep-link ke detail ekosistemnya (dialog auto-terbuka). */

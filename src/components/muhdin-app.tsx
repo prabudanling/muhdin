@@ -21,6 +21,8 @@ import { AgendaView } from "@/components/views/agenda-view";
 import { DownloadsView } from "@/components/views/downloads-view";
 import { ReportView } from "@/components/views/report-view";
 import { PengurusView } from "@/components/views/pengurus-view";
+// Task 50 — Pusat Layanan dinamis (#/layanan/<slug>)
+import { LayananView } from "@/components/views/layanan-view";
 import { AdminView } from "@/components/admin/admin-view";
 // Task 33 — MUHDIN NUSANTARA (Trusted Pilgrim Ecosystem)
 import { DaftarView } from "@/components/views/daftar-view";
@@ -168,6 +170,10 @@ export function MuhdinApp({ initialLocale = "id" }: { initialLocale?: "id" | "en
     // Task 37 — Susunan Pengurus MUHDIN (struktur organisasi internasional)
     case "pengurus":
       content = <PengurusView />;
+      break;
+    // Task 50 — Pusat Layanan, Perizinan & Sertifikasi (menu baru)
+    case "layanan":
+      content = <LayananView slug={route[1]} />;
       break;
     case "kontak":
       content = <ContactView />;

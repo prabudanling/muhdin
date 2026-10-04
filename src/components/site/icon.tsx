@@ -14,6 +14,7 @@ import {
   Webhook, QrCode, Braces, Terminal, Activity, PlugZap, ScanLine, RadioTower,
   Timer, DatabaseZap, Satellite, Radar, Cable, Fingerprint, ShieldEllipsis, EyeOff, Server, HardDrive, Cpu, Gauge,
   Sun, Moon, Monitor, Bell, BellRing, MessageCircle, UserCog, Megaphone, ArrowUp,
+  TrainFront, Stamp, Briefcase, Truck,
 } from "lucide-react";
 
 export const ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
@@ -137,6 +138,11 @@ export const ICONS: Record<string, React.ComponentType<{ className?: string; str
   "message-circle": MessageCircle,
   "user-cog": UserCog,
   "arrow-up": ArrowUp,
+  // Task 50 — ikon menu layanan (kereta cepat, paspor/visa, BPW, GMC)
+  "train-front": TrainFront,
+  stamp: Stamp,
+  briefcase: Briefcase,
+  truck: Truck,
 };
 
 export function Icon({
