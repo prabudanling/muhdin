@@ -1459,3 +1459,27 @@ Stage Summary:
 - Commit: b680b74 (5 files, +43/−36).
 - Catatan: ejaan "MININGITIS" dari WA dibakukan menjadi "Meningitis"; label memakai Title Case agar konsisten dengan kartu lain (WA boss menulis kapur semua termasuk nama peran lama "TRANSPORTASI"/"KESEHATAN" → kapital hanya gaya mengetik).
 - Screenshot: /tmp/50-id-roles.png, 50-id-penyedia.png, 50-id-svc-vaksin.png, 50-id-svc-paspor2.png, 50-id-svc-transport.png, 50-en-svc-vaccine.png, 50-ar-roles.png.
+
+---
+Task ID: 50-b
+Agent: Z.ai Code (main)
+Task: Pesan lanjutan manajemen (peta menu lengkap) — ganti seluruh MENU UTAMA navbar dengan struktur baru: BERANDA · 13 LAYANAN BISNIS · PENGURUS▾(BAKORNAS/BAKORWIL/BAKORDA) · PERIZINAN▾(IATA/PT/PT. BPW/PPIU/PIHK) · SERTIFIKASI▾(TL/TG/MUTHOWIF) · DIREKTORI ANGGOTA · BERITA · SYARIKAH · PASPOR▾(VISA UMROH/ZIYARAH/AMIL/HAJI) · TRANSPORTASI▾(BUS/GMC/KERETA CEPAT) · VAKSIN▾(VAKSIN MENINGITIS/POLIO/FLU). "Klick Keluar" = dropdown.
+
+Work Log:
+- bash scripts/dev-keep.sh; eksplorasi: menu lama = NAV_ITEMS flat di navbar.tsx (14 item tanpa dropdown); route registry di muhdin-app.tsx; i18n navbar.ts/footer.ts; join.items di nusantara-home.ts.
+- src/components/site/icon.tsx: +4 ikon lucide (TrainFront "train-front", Stamp "stamp", Briefcase "briefcase", Truck "truck").
+- src/lib/menu-data.ts (BARU): single source of truth MENU_NODES (11 node: 5 route + 6 group dengan children 22 slug), MENU_GROUPS, findLayanan(), LAYANAN_SLUGS.
+- src/lib/i18n/locales/layanan.ts (BARU): namespace "layanan" — overview, detail (breadcrumb/CTA/notFound), groups ×6 (label+tag), items ×22 slug (title+desc+p1..p3) ×3 locale (id/en/ar). Registered di dictionaries.ts.
+- navbar.ts ×3 locale: +7 label item (bisnis13 "13 Layanan Bisnis", perizinan, sertifikasi, syariah, paspor, transportasi, vaksin).
+- navbar.tsx REWRITE: header dua baris desktop (baris 1 brand+aksi, baris 2 menu 11 item uppercase). Dropdown custom: hover(mmouseenter)+klik selalu membuka (fix toggle dobel), tutup via klik-luar/Escape/mouseleave/pindah route (pola adjusting-state-during-render, bukan effect — lulus react-hooks/set-state-in-effect). Panel pakai start-0 (RTL-safe) + aria-expanded/aria-haspopup/aria-current. Mobile: Sheet accordion (parent expand, children ikon+label). Breakpoint desktop dinaikkan lg→xl karena 11 item butuh ≥1280px (ukuran 1222px, muat tanpa overflow; <1280 tetap Sheet).
+- layanan-view.tsx (BARU): #/layanan overview (hero + kartu 6 group berisi chip sub-item + kartu emas SYARIKAH + CTA band) & #/layanan/<slug> detail (breadcrumb 3 tingkat, ikon besar, desc, "Yang Anda Dapatkan" 3 poin, CTA DAFTAR GRATIS + WhatsApp, chip "Layanan Lainnya", kembali). Slug tak dikenal → not found. SYARIKAH = standalone (di luar group) ditangani khusus. Route "layanan" didaftarkan di muhdin-app.tsx.
+- footer.tsx: QUICK_LINKS += tentang & kontak (agar tetap terjangkau setelah keluar dari navbar); footer.ts ×3 quick.tentang/quick.kontak.
+- nusantara-home.ts ×3 locale: hero.flow.saudi "SAUDI PROVIDER"→"SYARIKAH" (ar "السعودية"→"الشريكة"); roles.saudiProvider "SAUDI PROVIDERS"→"SYARIKAH" (ar "الشريكة", role "التنفيذ"); join.items: saudiProvider→"SYARIKAH", transport→"TRANSPORTASI"(desc Bus/GMC/Kereta Cepat), visaDoc→"PASPOR & VISA"(desc 5 visa), healthInsurance→"VAKSIN"(desc meningitis/polio/flu); en & ar versi masing-masing. grep sisa label lama → 0.
+- Lint exit 0 (setelah fix 1 error set-state-in-effect).
+
+Stage Summary:
+- QA Agent Browser lulus semua (browser ditutup): ID desktop 1440 — menu 11 item persis instruksi, fit 1222/1222 tanpa overflow, dropdown PENGURUS (3 anak) & PASPOR (4 visa) & TRANSPORTASI tampil dengan ikon emas; klik BAKORWIL/VISA UMROH/KERETA CEPAT → detail #/layanan/<slug> dengan breadcrumb+poin+CTA+related; navbar parent ter-highlight aktif. EN — HOME/13 BUSINESS SERVICES/LEADERSHIP/…/UMRAH VISA dsb. AR — dir=rtl, menu mirror, dropdown terbuka RTL, detail القطار السريع benar. Mobile 390px — Sheet + accordion TRANSPORTASI (BUS/GMC/KERETA CEPAT, aktif ter-highlight), klik → navigasi. Dark mode detail page rapi. Console 0 error/page error. 1280px: nav muat, page overflow ok, footer normal.
+- Fix saat QA: (1) dropdown ter-clip oleh overflow-x-auto nav → pindah breakpoint lg→xl & hapus overflow; (2) klik toggle dobel (hover buka, klik tutup) → klik selalu buka; (3) BERANDA terpotong justify-center+overflow → w-max max-w-full; (4) #/layanan/syariah not-found → standalone handling.
+- Commit: 9f46904 "Task 50: restrukturisasi menu utama + Pusat Layanan dinamis (#/layanan)" (11 files).
+- Catatan: menu lama (Nusuk Hub, Tutorial, Galeri, Lacak, Agenda, Unduhan, Lapor, Tentang, Kontak) keluar dari navbar sesuai instruksi — semua masih terjangkau via footer (Tentang & Kontak baru ditambahkan ke Quick Links).
+- Screenshot: /tmp/50-id-home2.png, 50-id-dd2.png (dropdown Pengurus), 50-id-bakorwil.png, 50-id-overview.png, 50-id-overview2.png, 50-id-dd-paspor.png, 50-id-kereta.png, 50-en-home.png, 50-en-dd-paspor.png, 50-en-visa-umroh.png, 50-ar-home.png, 50-ar-dd.png, 50-ar-kereta.png, 50-mobile-sheet.png, 50-mobile-acc2.png, 50-dark-kereta.png, 50-1280-footer.png, 50-id-join2.png, 50-id-syariah.png.
