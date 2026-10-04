@@ -181,7 +181,7 @@ export const REG_ROLES: { code: string; icon: string; type: string; group: strin
   { code: "TICKETING", icon: "plane", type: "PROVIDER", group: "PENYEDIA" },
   { code: "TRANSPORT", icon: "bus", type: "PROVIDER", group: "PENYEDIA" },
   { code: "INSURANCE", icon: "shield-check", type: "PROVIDER", group: "PENYEDIA" },
-  { code: "HEALTH", icon: "heart-pulse", type: "PROVIDER", group: "PENYEDIA" },
+  { code: "HEALTH", icon: "syringe", type: "PROVIDER", group: "PENYEDIA" },
   // Teknologi & Kemitraan
   { code: "TECHNOLOGY", icon: "brain-circuit", type: "TECHNOLOGY", group: "TEKNOLOGI_PARTNER" },
   { code: "STRATEGIC_PARTNER", icon: "handshake", type: "PARTNER", group: "TEKNOLOGI_PARTNER" },

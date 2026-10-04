@@ -10,7 +10,7 @@ import {
   Sparkles, Calendar, Tag, TrendingUp, Inbox, UserPlus, ExternalLink, Award, MoonStar,
   Grid3X3, Boxes, FileText, GraduationCap, Send, Pencil, Trash2, Plus, Save, RotateCcw,
   KeyRound, ShieldAlert, Target, HeartPulse, Wallet, BarChart3, Wifi, Printer, Download,
-  Compass, Handshake, TentTree, ScrollText, Info, Ban, RefreshCw, User,
+  Compass, Handshake, TentTree, ScrollText, Info, Ban, RefreshCw, User, Syringe,
   Webhook, QrCode, Braces, Terminal, Activity, PlugZap, ScanLine, RadioTower,
   Timer, DatabaseZap, Satellite, Radar, Cable, Fingerprint, ShieldEllipsis, EyeOff, Server, HardDrive, Cpu, Gauge,
   Sun, Moon, Monitor, Bell, BellRing, MessageCircle, UserCog, Megaphone, ArrowUp,
@@ -18,6 +18,7 @@ import {
 
 export const ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   passport: ContactRound,
+  syringe: Syringe,
   "plane-takeoff": PlaneTakeoff,
   users: Users,
   "plane-landing": PlaneLanding,
