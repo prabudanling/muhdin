@@ -64,3 +64,9 @@ server.log
 /public/*.zip
 /public/muhdin-shared-hosting-INSTALL.txt
 tool-results/
+
+# Local secrets and generated files
+.env*
+!.env.example
+node_modules/
+.next/
